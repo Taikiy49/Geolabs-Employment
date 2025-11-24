@@ -223,10 +223,15 @@ function App() {
     <div className="app-root">
       <header className="app-header">
         <div className="app-header-inner">
-          <div className="app-header-logo">
-            <span className="logo-circle">G</span>
-            <span className="logo-text">GEOLABS, INC.</span>
-          </div>
+         <div className="app-header-logo">
+  <img
+    src="/geolabs.png"
+    alt="Geolabs Logo"
+    className="app-header-logo-img"
+  />
+  <span className="logo-text">GEOLABS, INC.</span>
+</div>
+
           <div className="app-header-meta">
             <span className="app-header-subtitle">
               Employment Application & Required Notices
