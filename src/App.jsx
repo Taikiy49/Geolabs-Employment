@@ -6,6 +6,7 @@ import StepShell from "./components/StepShell.jsx";
 
 // Steps
 import StepIntro from "./components/steps/StepIntro.jsx";
+import StepResume from "./components/steps/StepResume.jsx";
 import StepApplicationInfo from "./components/steps/StepApplicationInfo.jsx";
 import StepGeneralInfo from "./components/steps/StepGeneralInfo.jsx";
 import StepEmployment from "./components/steps/StepEmployment.jsx";
@@ -124,6 +125,9 @@ const steps = [
   // Intro step (jobs + benefits + Apply Now)
   { id: "intro", label: "Start & Openings", Component: StepIntro },
 
+  // New smart resume upload/autofill step
+  { id: "resume", label: "Resume Import", Component: StepResume },
+
   // Employment Application branch
   { id: "application", label: "Application Info", Component: StepApplicationInfo },
   { id: "general", label: "General Info", Component: StepGeneralInfo },
@@ -151,22 +155,22 @@ const steps = [
   { id: "review", label: "Review & Submit", Component: StepReview },
 ];
 
-// 3 branches for the progress bar (intro is part of Employment Application)
+// 3 branches for the progress bar (intro + resume are part of Employment Application)
 const branches = [
   {
     label: "Employment Application",
     from: 0,
-    to: 9,
+    to: 10, // intro (0) → employment-cert (10)
   },
   {
     label: "Self-Identification",
-    from: 10,
-    to: 12,
+    from: 11,
+    to: 13, // eeo, disability, veteran
   },
   {
     label: "Alcohol & Drug Testing Program",
-    from: 13,
-    to: 13,
+    from: 14,
+    to: 14, // alcohol-drug
   },
 ];
 
@@ -193,6 +197,14 @@ function App() {
       references[index] = { ...references[index], [field]: value };
       return { ...prev, references };
     });
+  };
+
+  // Called by StepResume to merge parsed resume fields into the application
+  const applyParsedResume = (partial) => {
+    setForm((prev) => ({
+      ...prev,
+      ...partial,
+    }));
   };
 
   const goNext = () => {
@@ -223,18 +235,18 @@ function App() {
     <div className="app-root">
       <header className="app-header">
         <div className="app-header-inner">
-         <div className="app-header-logo">
-  <img
-    src="/geolabs.png"
-    alt="Geolabs Logo"
-    className="app-header-logo-img"
-  />
-  <span className="logo-text">GEOLABS, INC.</span>
-</div>
+          <div className="app-header-logo">
+            <img
+              src="/geolabs.png"
+              alt="Geolabs Logo"
+              className="app-header-logo-img"
+            />
+            <span className="logo-text">GEOLABS, INC.</span>
+          </div>
 
           <div className="app-header-meta">
             <span className="app-header-subtitle">
-              Employment Application & Required Notices
+              Employment Application &amp; Required Notices
             </span>
             <span className="app-header-tag">
               Secure · Confidential · Online
@@ -262,7 +274,7 @@ function App() {
             onPrint={handlePrint}
             isLastStep={stepIndex === steps.length - 1}
             direction={direction}
-            hideFooterNav={isIntro}          // hide bottom Next/Back on intro
+            hideFooterNav={isIntro} // hide bottom Next/Back on intro
             nextLabel={isIntro ? "Apply Now" : "Next"}
           >
             <CurrentStep
@@ -270,7 +282,8 @@ function App() {
               updateField={updateField}
               updateEmploymentField={updateEmploymentField}
               updateReferenceField={updateReferenceField}
-              onNext={isIntro ? goNext : undefined}  // intro gets its own Apply Now button
+              onNext={isIntro ? goNext : undefined} // intro gets its own Apply Now button
+              onApplyParsedResume={applyParsedResume} // used by StepResume
             />
           </StepShell>
         </div>
