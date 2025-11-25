@@ -2,24 +2,142 @@
    MEDICAL INFORMATION STEP
    ======================= */
 
-/* Optional: add className="form-section medical-section" on the <section> */
-
-.medical-section {
-  max-width: 860px;
+.medical-step .medical-section {
+  max-width: 960px;
   margin: 0 auto;
+  border-radius: 0.9rem;
+  padding: 1.1rem 1.2rem;
 }
 
-/* Emphasize the main disclosure paragraph */
-.medical-section .legal-text:first-of-type {
+/* Header row: title + chips */
+.medical-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem;
   margin-bottom: 0.9rem;
 }
 
-/* Inline initials a bit narrower */
-.medical-section .inline-initials input {
+.medical-step h2 {
+  margin-bottom: 0.35rem;
+}
+
+.medical-step .section-help {
+  margin-bottom: 0;
+}
+
+.medical-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  justify-content: flex-end;
+}
+
+/* Chips */
+.medical-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.medical-chip-primary {
+  background: #fef3c7;
+  border-color: #facc15;
+  color: #92400e;
+}
+
+.medical-chip-muted {
+  background: #f3f4f6;
+  border-color: #e5e7eb;
+  color: #374151;
+}
+
+/* Disclosure card */
+.medical-disclosure-card {
+  border-radius: 0.75rem;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  padding: 0.9rem 1rem;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.05);
+  margin-bottom: 0.85rem;
+}
+
+.medical-disclosure-card h3 {
+  margin: 0 0 0.45rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.medical-disclosure-card .legal-text {
+  font-size: 0.8rem;
+  color: #4b5563;
+  line-height: 1.5;
+  margin: 0 0 0.5rem;
+}
+
+.medical-disclosure-card .legal-text:last-of-type {
+  margin-bottom: 0.75rem;
+}
+
+/* Initials field inside disclosure card */
+.medical-initials-field {
+  max-width: 260px;
+}
+
+.medical-initials-field input {
   max-width: 140px;
 }
 
-/* Question field spacing */
-.medical-section .field:last-of-type {
-  margin-top: 0.7rem;
+/* Ability card */
+.medical-ability-card {
+  border-radius: 0.75rem;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  padding: 0.9rem 1rem;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+  margin-top: 0.4rem;
+}
+
+.medical-ability-card h3 {
+  margin: 0 0 0.45rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.medical-ability-card .section-help {
+  margin-bottom: 0.6rem;
+}
+
+/* Small note beneath ability text input */
+.medical-small-note {
+  margin-top: 0.25rem;
+  font-size: 0.78rem;
+  color: #6b7280;
+}
+
+/* Placeholder color for this step */
+.medical-step input::placeholder {
+  color: #9ca3af;
+}
+
+/* Responsive tweaks */
+@media (max-width: 768px) {
+  .medical-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .medical-meta {
+    justify-content: flex-start;
+  }
+
+  .medical-step .medical-section {
+    padding-inline: 0.9rem;
+  }
 }

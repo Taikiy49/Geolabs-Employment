@@ -1,27 +1,109 @@
-# Logs
-logs
-*.log
+##############################################
+# GLOBAL
+##############################################
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+##############################################
+# ENVIRONMENT / SECRETS
+##############################################
+.env
+.env.local
+.env.*.local
+*.env
+*.secret
+secrets/
+credentials/
+
+##############################################
+# NODE / REACT
+##############################################
+node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
+# Build output
+dist/
+dist-ssr/
+build/
 *.local
 
-# Editor directories and files
+# Vite / Webpack cache
+.vite/
+.cache/
+*.cache/
+
+# Logs
+logs/
+*.log
+
+##############################################
+# PYTHON / FLASK
+##############################################
+# Byte-compiled / optimized / dynamic Python files
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pkl
+
+# Distribution / packaging
+build/
+develop-eggs/
+dist/
+downloads/
+.eggs/
+*.egg-info/
+*.egg
+
+# Virtual environments
+.env/
+.venv/
+venv/
+ENV/
+env/
+
+# Flask instance folder (runtime data)
+instance/
+*.db-journal
+
+# SQLite DB (if you want to hide DB files)
+*.db
+*.sqlite
+*.sqlite3
+
+##############################################
+# EDITORS / IDEs
+##############################################
+# VSCode
 .vscode/*
 !.vscode/extensions.json
-.idea
-.DS_Store
+
+# JetBrains
+.idea/
+
+# Other
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
-*.sw?
-.env
 
+##############################################
+# MISC
+##############################################
+# Local environment overrides
+*.local
 
+# Backup files
+*.bak
+*.tmp
+*.orig
+
+# OS generated
+ehthumbs.db
+Icon?
