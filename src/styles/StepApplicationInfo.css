@@ -1,0 +1,45 @@
+/* =======================
+   APPLICATION INFO STEP
+   ======================= */
+
+/* Narrower card centered on wide screens */
+.application-info-step .form-section {
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+/* Title + helper text spacing */
+.application-info-step .form-section h2 {
+  margin-bottom: 0.4rem;
+}
+
+.application-info-step .section-help {
+  margin-bottom: 0.8rem;
+}
+
+/* Layout for the first row (date / position / location) */
+.application-info-step .grid.grid-3 {
+  align-items: flex-end;
+}
+
+/* Make labels a bit stronger in this step */
+.application-info-step .field label {
+  font-weight: 500;
+}
+
+/* Slightly smaller placeholder text look */
+.application-info-step input::placeholder {
+  color: #9ca3af;
+}
+
+/* Improve spacing on the 'Referred by' field */
+.application-info-step .field:last-child {
+  margin-top: 0.6rem;
+}
+
+/* On small screens, give a bit more breathing room */
+@media (max-width: 640px) {
+  .application-info-step .form-section {
+    padding-inline: 0.8rem;
+  }
+}

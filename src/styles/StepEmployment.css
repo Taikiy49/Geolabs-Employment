@@ -1,0 +1,35 @@
+/* =======================
+   EMPLOYMENT STEP
+   ======================= */
+
+/* Optional parent class: employment-step if you want extra scoping later */
+
+/* Card for each job */
+.employment-block {
+  border-radius: 0.6rem;
+  border: 1px dashed #d1d5db;
+  padding: 0.8rem 0.9rem;
+  background: #f9fafb;
+  margin-bottom: 0.7rem;
+}
+
+.employment-block:nth-of-type(odd) {
+  background: #fdfaf6;
+}
+
+.employment-block h3 {
+  margin: 0 0 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+/* Tighten grid spacing inside employment blocks */
+.employment-block .grid {
+  gap: 0.5rem;
+}
+
+/* Duties textarea a little taller by default */
+.employment-block textarea {
+  min-height: 70px;
+}

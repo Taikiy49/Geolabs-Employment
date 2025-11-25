@@ -1,0 +1,35 @@
+/* =======================
+   EMPLOYMENT CERTIFICATION STEP
+   ======================= */
+
+/* Optional: className="form-section employment-cert-section" */
+
+.employment-cert-section {
+  max-width: 920px;
+  margin: 0 auto;
+}
+
+/* Tighten body copy */
+.employment-cert-section .legal-text {
+  margin-bottom: 0.6rem;
+}
+
+/* Nested sub-sections styling */
+.employment-cert-section .form-section {
+  border-radius: 0.45rem;
+  border-color: #e5e7eb;
+  background: #f9fafb;
+  margin-top: 0.7rem;
+}
+
+/* Make sub-headings feel subordinate */
+.employment-cert-section h3 {
+  margin-top: 0;
+  margin-bottom: 0.4rem;
+  font-size: 0.95rem;
+}
+
+/* Signature/date row */
+.employment-cert-section .grid.grid-2 {
+  margin-top: 0.8rem;
+}

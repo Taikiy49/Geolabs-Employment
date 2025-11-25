@@ -1,0 +1,365 @@
+/* =======================
+   INTRO STEP WRAPPER
+   ======================= */
+
+.intro-step {
+  /* just piggyback on .form-step spacing if needed later */
+}
+
+/* Main intro card overrides base form-section just a bit */
+.intro-section {
+  border-radius: 0.8rem;
+  border: 1px solid var(--border-subtle);
+  background: radial-gradient(
+      circle at top left,
+      rgba(251, 245, 237, 0.9),
+      transparent 55%
+    ),
+    #ffffff;
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.12);
+}
+
+/* =======================
+   HEADER ROW
+   ======================= */
+
+.intro-header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 0.9rem;
+  margin-bottom: 0.9rem;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.95);
+}
+
+.intro-title {
+  margin: 0 0 0.25rem;
+  font-size: 1.15rem;
+  font-weight: 650;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--header-bg);
+}
+
+.intro-subtitle {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+}
+
+.intro-pill-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  justify-content: flex-end;
+}
+
+.intro-pill {
+  padding: 0.22rem 0.7rem;
+  font-size: 0.76rem;
+  border-radius: 999px;
+  border: 1px solid rgba(209, 213, 219, 0.9);
+  background: #f9fafb;
+  color: #4b5563;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+}
+
+/* =======================
+   TWO-COLUMN LAYOUT
+   ======================= */
+
+.intro-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: 1.1rem;
+}
+
+.intro-main,
+.intro-side {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+/* =======================
+   HERO BLOCK
+   ======================= */
+
+.intro-hero {
+  display: flex;
+  gap: 0.9rem;
+  padding: 0.8rem 0.9rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(229, 231, 235, 0.9);
+  background: linear-gradient(
+    135deg,
+    rgba(248, 244, 239, 0.96),
+    rgba(252, 249, 243, 0.99)
+  );
+}
+
+.intro-hero-text {
+  flex: 2;
+}
+
+.intro-hero-text h3 {
+  margin: 0 0 0.35rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--accent-dark);
+}
+
+.intro-hero-text p {
+  margin: 0 0 0.4rem;
+  font-size: 0.86rem;
+  color: #374151;
+}
+
+.intro-hero-list {
+  margin: 0;
+  padding-left: 1rem;
+  font-size: 0.84rem;
+  color: #374151;
+}
+
+.intro-hero-list li {
+  margin-bottom: 0.2rem;
+}
+
+.intro-hero-cta {
+  flex: 1.4;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.45rem;
+}
+
+.intro-hero-button {
+  padding-inline: 1.7rem;
+  font-weight: 500;
+  box-shadow: 0 10px 20px rgba(148, 83, 36, 0.3);
+}
+
+.intro-hero-note {
+  margin: 0;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  text-align: right;
+}
+
+/* =======================
+   CURRENT OPENINGS
+   ======================= */
+
+.intro-jobs {
+  border-radius: 0.7rem;
+  border: 1px solid rgba(229, 231, 235, 0.95);
+  padding: 0.8rem 0.9rem;
+  background: #ffffff;
+}
+
+.intro-section-heading {
+  margin: 0 0 0.15rem;
+  font-size: 0.96rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.intro-section-caption {
+  margin: 0 0 0.55rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* Accordion for job panels */
+
+.job-accordion {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.job-panel {
+  border-radius: 0.6rem;
+  border: 1px solid rgba(209, 213, 219, 0.95);
+  background: #fdfdfc;
+  padding: 0.45rem 0.7rem;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.12s ease;
+}
+
+.job-panel[open] {
+  background: #fff8f1;
+  border-color: rgba(216, 149, 73, 0.9);
+  box-shadow: 0 8px 22px rgba(148, 83, 36, 0.16);
+  transform: translateY(-1px);
+}
+
+.job-panel-header {
+  list-style: none;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.7rem;
+  cursor: pointer;
+}
+
+.job-panel-header::-webkit-details-marker {
+  display: none;
+}
+
+.job-panel-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.job-panel-meta {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  align-items: center;
+}
+
+.job-tag {
+  font-size: 0.74rem;
+  padding: 0.16rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(184, 115, 51, 0.09);
+  color: #92400e;
+  border: 1px solid rgba(217, 119, 6, 0.5);
+}
+
+.job-tag-outline {
+  background: #ffffff;
+  color: #4b5563;
+  border-color: rgba(209, 213, 219, 1);
+}
+
+.job-panel-body {
+  margin-top: 0.45rem;
+  padding-top: 0.45rem;
+  border-top: 1px solid rgba(229, 231, 235, 0.95);
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: #374151;
+}
+
+.job-panel-body h4 {
+  margin: 0.45rem 0 0.2rem;
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+
+.job-panel-body ul {
+  margin: 0.2rem 0 0.35rem;
+  padding-left: 1.1rem;
+}
+
+.job-panel-body li {
+  margin-bottom: 0.18rem;
+}
+
+.job-org {
+  margin-bottom: 0.35rem;
+}
+
+/* =======================
+   SIDE CARDS (EEO / AAP / BENEFITS)
+   ======================= */
+
+.side-card {
+  border-radius: 0.7rem;
+  border: 1px solid rgba(229, 231, 235, 0.98);
+  background: #f9fafb;
+  padding: 0.75rem 0.9rem;
+}
+
+.side-card-title {
+  margin: 0 0 0.35rem;
+  font-size: 0.94rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.benefits-card {
+  background: #fefcf8;
+}
+
+.benefits-list {
+  margin: 0.35rem 0 0;
+  padding-left: 1rem;
+  font-size: 0.82rem;
+  color: #374151;
+}
+
+.benefits-list li {
+  margin-bottom: 0.2rem;
+}
+
+/* =======================
+   BOTTOM APPLY BUTTON
+   ======================= */
+
+.intro-bottom-apply {
+  margin-top: 0.9rem;
+  display: flex;
+  justify-content: center;
+}
+
+.intro-bottom-button {
+  padding-inline: 1.8rem;
+  font-weight: 500;
+}
+
+/* =======================
+   RESPONSIVE
+   ======================= */
+
+@media (max-width: 960px) {
+  .intro-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .intro-hero {
+    flex-direction: column;
+  }
+
+  .intro-hero-cta {
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .intro-header-row {
+    flex-direction: column;
+  }
+
+  .intro-pill-row {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 640px) {
+  .intro-section {
+    border-radius: 0.6rem;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+  }
+
+  .intro-hero {
+    padding: 0.7rem 0.75rem;
+  }
+
+  .intro-jobs {
+    padding: 0.7rem 0.75rem;
+  }
+
+  .side-card {
+    padding: 0.7rem 0.75rem;
+  }
+}

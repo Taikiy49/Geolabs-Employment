@@ -1,0 +1,37 @@
+/* =======================
+   GENERAL INFO STEP
+   ======================= */
+
+/* Optional: wrap this step in a parent div with className="form-step general-info-step"
+   or add className="general-info-section" to the <section>.
+*/
+
+/* Center the card a bit on wide screens */
+.general-info-step .form-section,
+.general-info-section {
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+/* Name field spacing */
+.general-info-step .field:first-of-type,
+.general-info-section .field:first-of-type {
+  margin-bottom: 0.8rem;
+}
+
+/* Address row – make labels feel a bit more important */
+.general-info-step .grid.grid-4 .field label,
+.general-info-section .grid.grid-4 .field label {
+  font-weight: 500;
+}
+
+/* Email / phone row tweaks */
+.general-info-step .grid.grid-3,
+.general-info-section .grid.grid-3 {
+  margin-top: 0.6rem;
+}
+
+.general-info-step input::placeholder,
+.general-info-section input::placeholder {
+  color: #9ca3af;
+}

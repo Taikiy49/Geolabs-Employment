@@ -1,0 +1,37 @@
+/* =======================
+   REFERENCES STEP
+   ======================= */
+
+/* Reference card */
+.reference-row {
+  padding: 0.6rem;
+  border-radius: 0.6rem;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  margin-bottom: 0.6rem;
+}
+
+/* Header row above fields */
+.reference-row-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.4rem;
+}
+
+.reference-row-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #4b5563;
+}
+
+/* Remove button */
+.reference-remove-btn {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.55rem;
+}
+
+/* Inline initials field at the bottom */
+.inline-initials input {
+  max-width: 150px;
+}

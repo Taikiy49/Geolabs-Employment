@@ -1,0 +1,25 @@
+/* =======================
+   MEDICAL INFORMATION STEP
+   ======================= */
+
+/* Optional: add className="form-section medical-section" on the <section> */
+
+.medical-section {
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+/* Emphasize the main disclosure paragraph */
+.medical-section .legal-text:first-of-type {
+  margin-bottom: 0.9rem;
+}
+
+/* Inline initials a bit narrower */
+.medical-section .inline-initials input {
+  max-width: 140px;
+}
+
+/* Question field spacing */
+.medical-section .field:last-of-type {
+  margin-top: 0.7rem;
+}

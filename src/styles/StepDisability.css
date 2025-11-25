@@ -1,0 +1,50 @@
+/* =======================
+   DISABILITY SELF-ID STEP
+   ======================= */
+
+/* Optional: className="form-section disability-section" */
+
+.disability-section {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+/* Header line with OMB info */
+.disability-section .legal-text:first-of-type {
+  margin-bottom: 0.7rem;
+  font-style: italic;
+}
+
+/* Three-column name/date/ID grid */
+.disability-section .grid.grid-3 {
+  margin-bottom: 0.9rem;
+}
+
+/* Condition list */
+.disability-section ul.legal-text {
+  padding-left: 1.2rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.8rem;
+}
+
+.disability-section ul.legal-text li {
+  margin-bottom: 0.2rem;
+}
+
+/* Inner "Please check one..." box */
+.disability-section > .form-section {
+  border-radius: 0.55rem;
+  border-color: #e5e7eb;
+  background: #f9fafb;
+  margin: 0.8rem 0;
+}
+
+/* Radio labels stacked nicely */
+.disability-section .checkbox-field {
+  align-items: flex-start;
+}
+
+/* Signature row at bottom */
+.disability-section .grid.grid-2 {
+  margin-top: 0.9rem;
+}

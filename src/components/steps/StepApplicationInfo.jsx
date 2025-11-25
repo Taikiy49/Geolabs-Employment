@@ -1,4 +1,5 @@
 import React from "react";
+import "../../styles/StepApplicationInfo.css";
 
 const LOCATION_OPTIONS = [
   { value: "", label: "Select location…" },

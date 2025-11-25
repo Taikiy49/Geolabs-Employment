@@ -1,5 +1,5 @@
 import React from "react";
-
+import "../../styles/StepGeneralInfo.css";
 function StepGeneralInfo({ form, updateField }) {
   return (
     <section className="form-section">

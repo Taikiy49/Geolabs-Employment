@@ -1,0 +1,28 @@
+/* =======================
+   ALCOHOL & DRUG AGREEMENT STEP
+   ======================= */
+
+/* Optional: className="form-section agreement-section" */
+
+.agreement-section {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+/* Long heading wrapping */
+.agreement-section h2 {
+  font-size: 0.98rem;
+  line-height: 1.4;
+}
+
+/* Emphasize the "ANY APPLICANT..." warning */
+.agreement-section .legal-text:last-of-type {
+  font-weight: 600;
+  text-transform: uppercase;
+  margin-top: 0.8rem;
+}
+
+/* Signature row */
+.agreement-section .grid.grid-2 {
+  margin-top: 0.9rem;
+}

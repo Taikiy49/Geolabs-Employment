@@ -1,0 +1,38 @@
+/* =======================
+   EEO SELF-ID STEP
+   ======================= */
+
+/* Optional: className="form-section eeo-section" */
+
+.eeo-section {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+/* Separate intro text from gender block */
+.eeo-section .legal-text {
+  margin-bottom: 0.6rem;
+}
+
+/* Gender and ethnicity sub-cards */
+.eeo-section > .form-section {
+  border-radius: 0.5rem;
+  border-color: #e5e7eb;
+  background: #f9fafb;
+  margin-top: 0.8rem;
+}
+
+/* Gender row */
+.eeo-section .form-section:first-of-type .grid.grid-3 {
+  gap: 0.5rem;
+}
+
+/* Radio label spacing */
+.eeo-section .checkbox-field {
+  align-items: flex-start;
+}
+
+/* Slight indent for long ethnicity descriptions */
+.eeo-section .form-section:nth-of-type(2) .field {
+  padding-left: 0.1rem;
+}

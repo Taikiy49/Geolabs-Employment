@@ -1,0 +1,48 @@
+/* =======================
+   EDUCATION STEP
+   ======================= */
+
+/* Wrapper for the dynamic card */
+.education-details-wrapper {
+  margin-top: 0.8rem;
+}
+
+/* Hint text when nothing is selected */
+.education-hint {
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin-top: 0.4rem;
+}
+
+/* Main education detail card */
+.education-details-card {
+  margin-top: 0.4rem;
+  border-radius: 0.65rem;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  padding: 0.9rem 1rem;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.05);
+}
+
+.education-details-card h3 {
+  margin: 0 0 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+/* Slightly smaller help text inside card */
+.education-details-card .section-help {
+  margin-bottom: 0.6rem;
+}
+
+/* Grid tuning */
+.education-details-card .grid-2,
+.education-details-card .grid-3 {
+  gap: 0.55rem;
+}
+
+/* Extra breathing room for the "Additional Education" textarea */
+.education-details-card .field:last-child textarea {
+  min-height: 80px;
+}

@@ -1,0 +1,45 @@
+/* =======================
+   REVIEW & CONFIRM STEP
+   ======================= */
+
+/* Optional: className="form-section review-section" */
+
+.review-section {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+/* Grid of summary cards */
+.review-grid {
+  margin-top: 0.8rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 0.8rem;
+}
+
+/* Individual summary card */
+.review-card {
+  border-radius: 0.7rem;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  padding: 0.8rem 0.9rem;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.05);
+  font-size: 0.85rem;
+}
+
+.review-card h3 {
+  margin: 0 0 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.review-card p {
+  margin: 0.15rem 0;
+}
+
+/* Muted dashes for empty values */
+.review-card strong + span,
+.review-card strong + br + span {
+  color: #6b7280;
+}

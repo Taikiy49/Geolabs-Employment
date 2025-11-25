@@ -1,0 +1,38 @@
+/* =======================
+   VETERAN SELF-ID STEP
+   ======================= */
+
+/* Optional: className="form-section veteran-section" */
+
+.veteran-section {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+/* Intro paragraphs spacing */
+.veteran-section .legal-text {
+  margin-bottom: 0.6rem;
+}
+
+/* Inner veteran-status card */
+.veteran-section > .form-section {
+  border-radius: 0.55rem;
+  border-color: #e5e7eb;
+  background: #f9fafb;
+  margin: 0.8rem 0;
+}
+
+/* Indent detailed definitions a bit */
+.veteran-section .form-section .legal-text {
+  margin-bottom: 0.4rem;
+}
+
+/* Radio labels */
+.veteran-section .checkbox-field {
+  align-items: flex-start;
+}
+
+/* Name/date row */
+.veteran-section .grid.grid-2 {
+  margin-top: 0.8rem;
+}

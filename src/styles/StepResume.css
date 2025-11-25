@@ -1,0 +1,235 @@
+/* =======================
+   SMART RESUME STEP
+   ======================= */
+
+.resume-step .form-section {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* Card around the whole resume upload UI */
+.resume-upload-card {
+  margin-top: 1.5rem;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 1.75rem 1.75rem 2rem;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+}
+
+/* Header text area (if you add one later) */
+.resume-upload-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.resume-upload-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.resume-upload-title h3 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.resume-upload-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  background: #ebf4ff;
+  color: #1d4ed8;
+}
+
+.resume-upload-subtitle {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+/* Upload area layout */
+
+.resume-upload-body {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+/* Dropzone */
+
+.resume-dropzone {
+  flex: 1 1 260px;
+  cursor: pointer;
+}
+
+.resume-dropzone-inner {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border-radius: 10px;
+  border: 1.5px dashed #cbd5f1;
+  background: #f9fafb;
+  padding: 0.85rem 1rem;
+  transition: border-color 0.15s ease, background-color 0.15s ease,
+    box-shadow 0.15s ease, transform 0.1s ease;
+}
+
+.resume-dropzone-inner:hover {
+  border-color: #3b82f6;
+  background: #f1f5f9;
+  box-shadow: 0 6px 14px rgba(148, 163, 184, 0.25);
+  transform: translateY(-1px);
+}
+
+.resume-dropzone-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #e0f2fe;
+  font-size: 1.25rem;
+}
+
+.resume-dropzone-title {
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.resume-dropzone-caption {
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+/* Status button spacing */
+.resume-upload-body .btn.primary {
+  min-width: 190px;
+}
+
+/* Status messages */
+
+.resume-status {
+  margin-top: 0.75rem;
+  padding: 0.65rem 0.9rem;
+  border-radius: 0.75rem;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.resume-status-uploading {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+}
+
+.resume-status-success {
+  background: #ecfdf3;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+.resume-status-error {
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+/* Mapping panel */
+
+.resume-mapping-panel {
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.resume-mapping-panel h3 {
+  margin: 0 0 0.35rem;
+  font-size: 1.02rem;
+  font-weight: 600;
+}
+
+/* Toggle grid for which sections to autofill */
+
+.resume-toggle-grid {
+  margin-top: 0.9rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.75rem;
+}
+
+.resume-toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 0.75rem;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.resume-toggle input[type="checkbox"] {
+  margin-top: 0.15rem;
+}
+
+.resume-toggle-label strong {
+  display: block;
+  font-size: 0.88rem;
+}
+
+.resume-toggle-label span {
+  display: block;
+  color: #6b7280;
+  margin-top: 0.1rem;
+}
+
+/* Apply button & JSON preview */
+
+.resume-mapping-panel .btn.outline {
+  margin-top: 0.8rem;
+  margin-bottom: 0.6rem;
+}
+
+.resume-preview-json {
+  margin: 0.4rem 0 0.3rem;
+  padding: 0.7rem 0.85rem;
+  border-radius: 0.5rem;
+  background: #0b1220;
+  color: #e5e7eb;
+  font-size: 0.78rem;
+  max-height: 260px;
+  overflow: auto;
+}
+
+/* Responsive tweaks */
+
+@media (max-width: 640px) {
+  .resume-upload-card {
+    padding: 1.25rem 1rem 1.5rem;
+  }
+
+  .resume-upload-body {
+    align-items: stretch;
+  }
+
+  .resume-upload-body .btn.primary {
+    width: 100%;
+    justify-content: center;
+  }
+}

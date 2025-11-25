@@ -1,0 +1,30 @@
+/* =======================
+   SKILLS STEP
+   ======================= */
+
+/* Optional scoped parent: skills-step */
+
+/* Make the skills section feel a bit airier */
+.skills-step .form-section,
+.skills-section {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* Row spacing tweaks */
+.skills-step .grid.grid-2,
+.skills-section .grid.grid-2 {
+  gap: 0.7rem;
+}
+
+/* Textareas slightly taller by default */
+.skills-step textarea,
+.skills-section textarea {
+  min-height: 80px;
+}
+
+/* Placeholder color */
+.skills-step textarea::placeholder,
+.skills-section textarea::placeholder {
+  color: #9ca3af;
+}
