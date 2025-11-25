@@ -2,49 +2,149 @@
    DISABILITY SELF-ID STEP
    ======================= */
 
-/* Optional: className="form-section disability-section" */
-
 .disability-section {
-  max-width: 960px;
-  margin: 0 auto;
+
 }
 
-/* Header line with OMB info */
-.disability-section .legal-text:first-of-type {
-  margin-bottom: 0.7rem;
-  font-style: italic;
-}
-
-/* Three-column name/date/ID grid */
-.disability-section .grid.grid-3 {
-  margin-bottom: 0.9rem;
-}
-
-/* Condition list */
-.disability-section ul.legal-text {
-  padding-left: 1.2rem;
-  margin-top: 0.5rem;
+/* Header row */
+.disability-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.8rem;
   margin-bottom: 0.8rem;
 }
 
-.disability-section ul.legal-text li {
-  margin-bottom: 0.2rem;
+.disability-header h2 {
+  margin-bottom: 0.35rem;
 }
 
-/* Inner "Please check one..." box */
-.disability-section > .form-section {
-  border-radius: 0.55rem;
-  border-color: #e5e7eb;
+/* Meta block on the right */
+.disability-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.15rem;
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+/* Pill indicating voluntary/confidential */
+.disability-pill {
+  margin-top: 0.3rem;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1d4ed8;
+  white-space: nowrap;
+}
+
+/* Top row inputs */
+.disability-row-top {
+  margin-bottom: 0.9rem;
+}
+
+/* Generic card for big blocks of text */
+.disability-card {
+  border-radius: 0.7rem;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  padding: 0.9rem 1rem;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.04);
+  margin-bottom: 0.8rem;
+}
+
+.disability-card h3 {
+  margin: 0 0 0.4rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+/* Conditions list block */
+.disability-list-card {
+  margin-top: 0.5rem;
+  border-radius: 0.6rem;
+  border: 1px dashed #d1d5db;
   background: #f9fafb;
-  margin: 0.8rem 0;
+  padding: 0.7rem 0.9rem;
+  max-height: 260px;
+  overflow-y: auto;
 }
 
-/* Radio labels stacked nicely */
-.disability-section .checkbox-field {
+.disability-list-card ul.legal-text {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+.disability-list-card ul.legal-text li {
+  margin-bottom: 0.22rem;
+}
+
+/* Choice card */
+.disability-choice-card .legal-text {
+  margin-bottom: 0.5rem;
+}
+
+/* Radio group */
+.disability-radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.disability-radio {
+  display: flex;
   align-items: flex-start;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  color: #111827;
+  padding: 0.3rem 0.4rem;
+  border-radius: 0.4rem;
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+
+.disability-radio input[type="radio"] {
+  margin-top: 0.15rem;
+}
+
+.disability-radio:hover {
+  background: #f9fafb;
+}
+
+/* Public burden statement */
+.disability-burden {
+  margin: 0.6rem 0 0.8rem;
+  font-size: 0.8rem;
+  color: #4b5563;
+}
+
+/* Employer use card tweaks */
+.disability-employer-card h3 {
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
 }
 
 /* Signature row at bottom */
-.disability-section .grid.grid-2 {
-  margin-top: 0.9rem;
+.disability-signature-row {
+  margin-top: 0.8rem;
+}
+
+/* Responsive tweaks */
+@media (max-width: 640px) {
+  .disability-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .disability-meta {
+    align-items: flex-start;
+  }
+
+  .disability-pill {
+    align-self: flex-start;
+  }
 }

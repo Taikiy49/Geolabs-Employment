@@ -1,0 +1,134 @@
+/* =======================
+   PROFESSIONAL AFFILIATIONS STEP
+   ======================= */
+
+.affiliations-section {
+
+}
+
+/* Header row: title + optional pill */
+.affiliations-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 0.9rem;
+}
+
+.affiliations-header-row h2 {
+  margin-bottom: 0.35rem;
+}
+
+.affiliations-header-row .section-help {
+  margin: 0;
+}
+
+.affiliations-optional-pill {
+  align-self: center;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1d4ed8;
+  white-space: nowrap;
+}
+
+/* Example card */
+.affiliations-examples-card {
+  margin-bottom: 0.85rem;
+  border-radius: 0.65rem;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  padding: 0.9rem 1rem;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.04);
+}
+
+.affiliations-examples-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 0.4rem;
+}
+
+.affiliations-examples-list {
+  margin: 0 0 0.4rem 1rem;
+  padding-left: 0.75rem;
+  font-size: 0.8rem;
+  color: #374151;
+}
+
+.affiliations-examples-list li {
+  margin-bottom: 0.15rem;
+}
+
+.affiliations-examples-footnote {
+  margin: 0;
+  font-size: 0.76rem;
+  color: #6b7280;
+}
+
+/* Main field area */
+.affiliations-field textarea {
+  min-height: 130px;
+  resize: vertical;
+}
+
+/* Label row (label + small note) */
+.affiliations-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.affiliations-label-row label {
+  font-weight: 500;
+}
+
+.affiliations-note {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+/* Footer row: helper + character counter */
+.affiliations-footer-row {
+  margin-top: 0.3rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.affiliations-helper {
+  margin: 0;
+  font-size: 0.78rem;
+  color: #6b7280;
+}
+
+.affiliations-counter {
+  font-size: 0.74rem;
+  color: #6b7280;
+  white-space: nowrap;
+}
+
+.affiliations-counter.over-limit {
+  color: #b91c1c;
+}
+
+/* Responsive tweaks */
+@media (max-width: 640px) {
+  .affiliations-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .affiliations-optional-pill {
+    align-self: flex-start;
+  }
+
+  .affiliations-footer-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

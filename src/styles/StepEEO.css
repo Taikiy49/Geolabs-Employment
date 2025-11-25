@@ -2,37 +2,144 @@
    EEO SELF-ID STEP
    ======================= */
 
-/* Optional: className="form-section eeo-section" */
-
 .eeo-section {
-  max-width: 960px;
-  margin: 0 auto;
+
 }
 
-/* Separate intro text from gender block */
-.eeo-section .legal-text {
-  margin-bottom: 0.6rem;
-}
-
-/* Gender and ethnicity sub-cards */
-.eeo-section > .form-section {
-  border-radius: 0.5rem;
-  border-color: #e5e7eb;
-  background: #f9fafb;
-  margin-top: 0.8rem;
-}
-
-/* Gender row */
-.eeo-section .form-section:first-of-type .grid.grid-3 {
-  gap: 0.5rem;
-}
-
-/* Radio label spacing */
-.eeo-section .checkbox-field {
+/* Header row */
+.eeo-header {
+  display: flex;
+  justify-content: space-between;
   align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 0.8rem;
 }
 
-/* Slight indent for long ethnicity descriptions */
-.eeo-section .form-section:nth-of-type(2) .field {
-  padding-left: 0.1rem;
+.eeo-header h2 {
+  margin-bottom: 0.35rem;
+}
+
+.eeo-header .section-help {
+  margin: 0;
+}
+
+/* Voluntary pill */
+.eeo-pill {
+  align-self: center;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1d4ed8;
+  white-space: nowrap;
+}
+
+/* Name + date row */
+.eeo-name-row {
+  margin-bottom: 0.7rem;
+}
+
+/* Intro block */
+.eeo-intro-block .legal-text {
+  margin-bottom: 0.55rem;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+/* Generic card for gender and race sections */
+.eeo-card {
+  border-radius: 0.7rem;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  padding: 0.9rem 1rem;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.04);
+  margin-top: 0.7rem;
+}
+
+/* Card header */
+.eeo-card-header {
+  margin-bottom: 0.5rem;
+}
+
+.eeo-card-header h3 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.eeo-card-subtitle {
+  margin: 0.25rem 0 0;
+  font-size: 0.78rem;
+  color: #6b7280;
+}
+
+/* Radio groups */
+.eeo-radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+/* Inline group for gender (row layout) */
+.eeo-radio-group-inline {
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+/* Generic radio option */
+.eeo-radio {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  color: #111827;
+}
+
+.eeo-radio input[type="radio"] {
+  margin-top: 0.15rem;
+}
+
+/* Long options (ethnicity descriptions) */
+.eeo-radio-long {
+  padding: 0.35rem 0.4rem;
+  border-radius: 0.4rem;
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+
+.eeo-radio-long:hover {
+  background: #f9fafb;
+}
+
+/* Text wrappers */
+.eeo-option-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.eeo-option-main {
+  font-weight: 500;
+}
+
+.eeo-option-desc {
+  font-size: 0.8rem;
+  color: #4b5563;
+}
+
+/* Responsive tweaks */
+@media (max-width: 640px) {
+  .eeo-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .eeo-pill {
+    align-self: flex-start;
+  }
+
+  .eeo-radio-group-inline {
+    flex-direction: column;
+  }
 }

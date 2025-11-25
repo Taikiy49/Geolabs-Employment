@@ -3,10 +3,6 @@
    ======================= */
 
 .skills-step .skills-section {
-  max-width: 960px;
-  margin: 0 auto;
-  border-radius: 0.9rem;
-  padding: 1.1rem 1.2rem;
 }
 
 /* Header row (title + chips) */

@@ -2,37 +2,129 @@
    VETERAN SELF-ID STEP
    ======================= */
 
-/* Optional: className="form-section veteran-section" */
-
 .veteran-section {
-  max-width: 960px;
-  margin: 0 auto;
 }
 
-/* Intro paragraphs spacing */
-.veteran-section .legal-text {
+/* Header */
+.veteran-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.8rem;
+  margin-bottom: 0.8rem;
+}
+
+.veteran-header h2 {
+  margin-bottom: 0.35rem;
+}
+
+/* Right-side meta */
+.veteran-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.15rem;
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+/* Pill */
+.veteran-pill {
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  padding: 0.22rem 0.6rem;
+  border-radius: 999px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1d4ed8;
+  white-space: nowrap;
+}
+
+/* Intro paragraphs */
+.veteran-intro .legal-text {
   margin-bottom: 0.6rem;
 }
 
-/* Inner veteran-status card */
-.veteran-section > .form-section {
-  border-radius: 0.55rem;
-  border-color: #e5e7eb;
-  background: #f9fafb;
-  margin: 0.8rem 0;
+/* Main card */
+.veteran-card {
+  margin-top: 0.6rem;
+  border-radius: 0.7rem;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  padding: 0.9rem 1rem;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.04);
 }
 
-/* Indent detailed definitions a bit */
-.veteran-section .form-section .legal-text {
-  margin-bottom: 0.4rem;
+.veteran-card h3 {
+  margin: 0 0 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #111827;
 }
 
-/* Radio labels */
-.veteran-section .checkbox-field {
+/* Radio group */
+.veteran-radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+/* Individual radio rows */
+.veteran-radio {
+  display: flex;
   align-items: flex-start;
+  gap: 0.45rem;
+  font-size: 0.85rem;
+  color: #111827;
+  padding: 0.3rem 0.4rem;
+  border-radius: 0.4rem;
+  transition: background 0.12s ease;
 }
 
-/* Name/date row */
-.veteran-section .grid.grid-2 {
-  margin-top: 0.8rem;
+.veteran-radio input[type="radio"] {
+  margin-top: 0.18rem;
+}
+
+.veteran-radio:hover {
+  background: #f9fafb;
+}
+
+/* Definitions card */
+.veteran-definitions-card {
+  margin: 0.3rem 0.2rem 0.4rem 1.6rem;
+  padding: 0.7rem 0.9rem;
+  border-radius: 0.6rem;
+  border: 1px dashed #d1d5db;
+  background: #f9fafb;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.veteran-definitions-card .legal-text {
+  margin-bottom: 0.25rem;
+}
+
+/* Signature row spacing */
+.veteran-signature-row {
+  margin-top: 0.9rem;
+}
+
+/* Responsive tweaks */
+@media (max-width: 640px) {
+  .veteran-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .veteran-meta {
+    align-items: flex-start;
+  }
+
+  .veteran-pill {
+    align-self: flex-start;
+  }
+
+  .veteran-definitions-card {
+    margin-left: 0.9rem;
+  }
 }

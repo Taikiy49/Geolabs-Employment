@@ -2,27 +2,98 @@
    ALCOHOL & DRUG AGREEMENT STEP
    ======================= */
 
-/* Optional: className="form-section agreement-section" */
-
 .agreement-section {
-  max-width: 960px;
-  margin: 0 auto;
+
 }
 
-/* Long heading wrapping */
-.agreement-section h2 {
-  font-size: 0.98rem;
-  line-height: 1.4;
+/* Header layout */
+.agreement-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.8rem;
+  margin-bottom: 0.8rem;
 }
 
-/* Emphasize the "ANY APPLICANT..." warning */
-.agreement-section .legal-text:last-of-type {
+.agreement-header h2 {
+  margin-bottom: 0.35rem;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+/* Right-side meta */
+.agreement-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.2rem;
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+/* Pill badge */
+.agreement-pill {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  background: #fffbeb;
+  border: 1px solid #facc15;
+  color: #854d0e;
+  white-space: nowrap;
+}
+
+/* Main content card */
+.agreement-card {
+  margin-top: 0.4rem;
+  border-radius: 0.75rem;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  padding: 0.95rem 1.05rem;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.05);
+}
+
+.agreement-card .legal-text {
+  margin-bottom: 0.55rem;
+}
+
+/* Strong warning at the end */
+.agreement-warning {
+  margin-top: 0.7rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 0.55rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
   font-weight: 600;
   text-transform: uppercase;
-  margin-top: 0.8rem;
+  font-size: 0.82rem;
 }
 
 /* Signature row */
-.agreement-section .grid.grid-2 {
-  margin-top: 0.9rem;
+.agreement-signature-row {
+  margin-top: 1rem;
+}
+
+.agreement-signature-row .field input[type="text"]::placeholder {
+  color: #9ca3af;
+}
+
+/* Responsive tweaks */
+@media (max-width: 640px) {
+  .agreement-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .agreement-meta {
+    align-items: flex-start;
+  }
+
+  .agreement-pill {
+    align-self: flex-start;
+  }
+
+  .agreement-card {
+    padding-inline: 0.85rem;
+  }
 }

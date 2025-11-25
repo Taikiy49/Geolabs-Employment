@@ -5,8 +5,6 @@
 /* Center the card on wide screens */
 .general-info-step .general-info-card,
 .general-info-section {
-  max-width: 860px;
-  margin: 0 auto;
 }
 
 /* Card look & padding */

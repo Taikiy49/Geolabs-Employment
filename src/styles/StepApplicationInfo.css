@@ -2,12 +2,6 @@
    APPLICATION INFO STEP
    ======================= */
 
-/* Narrower card centered on wide screens */
-.application-info-step .application-info-card {
-  max-width: 880px;
-  margin: 0 auto;
-}
-
 /* Card tweaks specific to this step */
 .application-info-step .application-info-card {
   border-radius: 0.9rem;
