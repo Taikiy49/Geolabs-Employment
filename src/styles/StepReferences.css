@@ -2,13 +2,67 @@
    REFERENCES STEP
    ======================= */
 
+.references-step .references-section {
+  max-width: 960px;
+  margin: 0 auto;
+  border-radius: 0.9rem;
+  padding: 1.1rem 1.2rem;
+}
+
+/* Header: title + chips */
+.references-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 0.85rem;
+}
+
+.references-step h2 {
+  margin-bottom: 0.35rem;
+}
+
+.references-step .section-help {
+  margin-bottom: 0;
+}
+
+.references-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  justify-content: flex-end;
+}
+
+.references-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.18rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.references-chip-primary {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  color: #1d4ed8;
+}
+
+.references-chip-muted {
+  background: #f3f4f6;
+  border-color: #e5e7eb;
+  color: #374151;
+}
+
 /* Reference card */
 .reference-row {
-  padding: 0.6rem;
-  border-radius: 0.6rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: 0.7rem;
   background: #f9fafb;
   border: 1px solid #e5e7eb;
-  margin-bottom: 0.6rem;
+  margin-bottom: 0.7rem;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
 }
 
 /* Header row above fields */
@@ -16,13 +70,21 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.4rem;
+  margin-bottom: 0.45rem;
 }
 
 .reference-row-title {
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-weight: 600;
-  color: #4b5563;
+  color: #111827;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.reference-row-subtitle {
+  font-size: 0.75rem;
+  color: #6b7280;
 }
 
 /* Remove button */
@@ -31,7 +93,75 @@
   padding: 0.25rem 0.55rem;
 }
 
+/* Grid spacing inside each reference card */
+.reference-row .grid-3 {
+  gap: 0.55rem;
+}
+
+/* Add button + note row */
+.references-controls-row {
+  margin-top: 0.4rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.references-limit-note {
+  font-size: 0.78rem;
+  color: #6b7280;
+}
+
+/* Authorization card */
+.references-authorization-card {
+  margin-top: 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid #e5e7eb;
+  background: #fdfaf6;
+  padding: 0.85rem 0.95rem;
+}
+
+.references-authorization-card h3 {
+  margin: 0 0 0.4rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.references-authorization-text {
+  margin: 0 0 0.6rem;
+  font-size: 0.8rem;
+  color: #4b5563;
+}
+
 /* Inline initials field at the bottom */
+.inline-initials {
+  display: flex;
+  flex-direction: column;
+  max-width: 260px;
+}
+
 .inline-initials input {
   max-width: 150px;
+}
+
+/* Placeholder color for this step */
+.references-step input::placeholder {
+  color: #9ca3af;
+}
+
+/* Responsive tweaks */
+@media (max-width: 768px) {
+  .references-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .references-meta {
+    justify-content: flex-start;
+  }
+
+  .references-step .references-section {
+    padding-inline: 0.9rem;
+  }
 }

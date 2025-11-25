@@ -2,29 +2,139 @@
    SKILLS STEP
    ======================= */
 
-/* Optional scoped parent: skills-step */
-
-/* Make the skills section feel a bit airier */
-.skills-step .form-section,
-.skills-section {
-  max-width: 900px;
+.skills-step .skills-section {
+  max-width: 960px;
   margin: 0 auto;
+  border-radius: 0.9rem;
+  padding: 1.1rem 1.2rem;
 }
 
-/* Row spacing tweaks */
-.skills-step .grid.grid-2,
-.skills-section .grid.grid-2 {
-  gap: 0.7rem;
+/* Header row (title + chips) */
+.skills-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 0.85rem;
 }
 
-/* Textareas slightly taller by default */
-.skills-step textarea,
-.skills-section textarea {
-  min-height: 80px;
+.skills-step h2 {
+  margin-bottom: 0.35rem;
 }
 
-/* Placeholder color */
-.skills-step textarea::placeholder,
-.skills-section textarea::placeholder {
+.skills-step .section-help {
+  margin-bottom: 0;
+}
+
+/* Meta chips */
+.skills-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.skills-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.18rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.skills-chip-step {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  color: #1d4ed8;
+}
+
+.skills-chip-focus {
+  background: #f3f4f6;
+  border-color: #e5e7eb;
+  color: #374151;
+}
+
+.skills-chip-optional {
+  background: #fef3c7;
+  border-color: #facc15;
+  color: #92400e;
+}
+
+/* Cards */
+.skills-card {
+  margin-top: 0.8rem;
+  border-radius: 0.75rem;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  padding: 0.9rem 1rem;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.04);
+}
+
+.skills-card-overview {
+  background: #fdfaf6;
+}
+
+.skills-card-title {
+  margin: 0 0 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+/* Card header row (title + chip) */
+.skills-card-header-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.6rem;
+  align-items: center;
+  margin-bottom: 0.35rem;
+}
+
+/* Grid spacing inside cards */
+.skills-card .grid-2 {
+  gap: 0.6rem;
+}
+
+/* Field hints & optional tag */
+.skills-step .field-hint {
+  margin-top: 0.2rem;
+  font-size: 0.78rem;
+  color: #6b7280;
+}
+
+.skills-step .optional-tag {
   color: #9ca3af;
+  font-size: 0.75rem;
+  font-weight: 400;
+  margin-left: 0.25rem;
+}
+
+/* Placeholders */
+.skills-step input::placeholder,
+.skills-step textarea::placeholder {
+  color: #9ca3af;
+}
+
+/* Responsive tweaks */
+@media (max-width: 768px) {
+  .skills-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .skills-meta {
+    justify-content: flex-start;
+  }
+
+  .skills-card-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .skills-step .skills-section {
+    padding-inline: 0.9rem;
+  }
 }

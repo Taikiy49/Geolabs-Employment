@@ -3,23 +3,74 @@
    ======================= */
 
 /* Narrower card centered on wide screens */
-.application-info-step .form-section {
-  max-width: 860px;
+.application-info-step .application-info-card {
+  max-width: 880px;
   margin: 0 auto;
 }
 
-/* Title + helper text spacing */
-.application-info-step .form-section h2 {
-  margin-bottom: 0.4rem;
+/* Card tweaks specific to this step */
+.application-info-step .application-info-card {
+  border-radius: 0.9rem;
+  padding: 1.1rem 1.2rem;
 }
 
-.application-info-step .section-help {
-  margin-bottom: 0.8rem;
+/* Header row: title + chips on the right */
+.application-info-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 0.85rem;
+}
+
+/* Title + helper text spacing */
+.application-info-step .application-info-card h2 {
+  margin-bottom: 0.35rem;
+}
+
+.application-info-step .application-info-card .section-help {
+  margin-bottom: 0;
+}
+
+/* Meta chips on the right */
+.application-info-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+/* Generic chip */
+.app-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.18rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+/* Step chip */
+.app-chip-step {
+  background: #f3f4ff;
+  border-color: #c7d2fe;
+  color: #3730a3;
+}
+
+/* Required chip */
+.app-chip-required {
+  background: #fef3c7;
+  border-color: #facc15;
+  color: #92400e;
 }
 
 /* Layout for the first row (date / position / location) */
-.application-info-step .grid.grid-3 {
+.application-info-grid {
   align-items: flex-end;
+  margin-bottom: 0.9rem;
 }
 
 /* Make labels a bit stronger in this step */
@@ -28,18 +79,43 @@
 }
 
 /* Slightly smaller placeholder text look */
-.application-info-step input::placeholder {
+.application-info-step input::placeholder,
+.application-info-step select::placeholder {
   color: #9ca3af;
 }
 
-/* Improve spacing on the 'Referred by' field */
-.application-info-step .field:last-child {
-  margin-top: 0.6rem;
+/* Generic field hint line under inputs/selects */
+.application-info-step .field-hint {
+  margin-top: 0.25rem;
+  font-size: 0.78rem;
+  color: #6b7280;
 }
 
-/* On small screens, give a bit more breathing room */
+/* Optional tag in label */
+.application-info-step .optional-tag {
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: #9ca3af;
+  margin-left: 0.25rem;
+}
+
+/* Referred-by spacing */
+.application-info-referred {
+  margin-top: 0.75rem;
+}
+
+/* On small screens, stack header nicely and add padding */
 @media (max-width: 640px) {
-  .application-info-step .form-section {
-    padding-inline: 0.8rem;
+  .application-info-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .application-info-meta {
+    justify-content: flex-start;
+  }
+
+  .application-info-step .application-info-card {
+    padding-inline: 0.9rem;
   }
 }

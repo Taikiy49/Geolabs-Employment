@@ -1,5 +1,6 @@
 // src/components/steps/StepEducation.jsx
 import React from "react";
+import "../../styles/StepEducation.css";
 
 const EDUCATION_LEVELS = [
   { value: "less-than-high-school", label: "Less than high school diploma" },
@@ -9,7 +10,10 @@ const EDUCATION_LEVELS = [
   { value: "bachelor", label: "Bachelor’s degree (BA / BS / BEng / etc.)" },
   { value: "post-bacc-cert", label: "Post-baccalaureate certificate" },
   { value: "master", label: "Master’s degree (MA / MS / MEng / etc.)" },
-  { value: "professional", label: "Professional degree (JD / MD / PharmD / etc.)" },
+  {
+    value: "professional",
+    label: "Professional degree (JD / MD / PharmD / etc.)",
+  },
   { value: "doctorate", label: "Doctorate (PhD / EdD / etc.)" },
   { value: "trade-vocational", label: "Trade / technical / vocational program" },
   { value: "other", label: "Other" },
@@ -32,7 +36,6 @@ function StepEducation({ form, updateField }) {
       );
     }
 
-    // Custom label text depending on level
     let heading = "Education Details";
     let schoolLabel = "School Name & Location";
     let degreeLabel = "Degree / Diploma or Program";
@@ -64,7 +67,8 @@ function StepEducation({ form, updateField }) {
     ) {
       heading = "Education Details (College / Graduate / Professional)";
       schoolLabel = "College / University Name & Location";
-      degreeLabel = "Degree (e.g., BS Civil Engineering, MS Geotechnical Engineering)";
+      degreeLabel =
+        "Degree (e.g., BS Civil Engineering, MS Geotechnical Engineering)";
     } else if (highestLevel === "trade-vocational") {
       heading = "Education Details (Trade / Technical / Vocational)";
       schoolLabel = "School / Training Program Name & Location";
@@ -77,14 +81,28 @@ function StepEducation({ form, updateField }) {
 
     return (
       <div className="education-details-card">
-        <h3>{heading}</h3>
-        {extraHelp && <p className="section-help">{extraHelp}</p>}
+        <div className="education-card-header">
+          <div>
+            <h3>{heading}</h3>
+            {extraHelp && <p className="section-help">{extraHelp}</p>}
+          </div>
+          <span className="edu-chip edu-chip-summary">
+            Tailored to:{" "}
+            <span className="edu-chip-label">
+              {
+                (EDUCATION_LEVELS.find((l) => l.value === highestLevel) || {})
+                  .label
+              }
+            </span>
+          </span>
+        </div>
 
         <div className="grid grid-2">
           <div className="field">
             <label>{schoolLabel}</label>
             <input
               type="text"
+              placeholder="School or program name and location"
               value={form.educationSchoolName || ""}
               onChange={(e) =>
                 updateField("educationSchoolName", e.target.value)
@@ -95,6 +113,7 @@ function StepEducation({ form, updateField }) {
             <label>City / State (or Country)</label>
             <input
               type="text"
+              placeholder="e.g., Honolulu, HI or Tokyo, Japan"
               value={form.educationSchoolLocation || ""}
               onChange={(e) =>
                 updateField("educationSchoolLocation", e.target.value)
@@ -108,16 +127,16 @@ function StepEducation({ form, updateField }) {
             <label>{degreeLabel}</label>
             <input
               type="text"
+              placeholder="e.g., BS Computer Science, GED, HVAC Certification"
               value={form.educationDegree || ""}
-              onChange={(e) =>
-                updateField("educationDegree", e.target.value)
-              }
+              onChange={(e) => updateField("educationDegree", e.target.value)}
             />
           </div>
           <div className="field">
             <label>Field of Study / Emphasis</label>
             <input
               type="text"
+              placeholder="e.g., Structural Engineering, Accounting"
               value={form.educationFieldOfStudy || ""}
               onChange={(e) =>
                 updateField("educationFieldOfStudy", e.target.value)
@@ -136,7 +155,10 @@ function StepEducation({ form, updateField }) {
         </div>
 
         <div className="field">
-          <label>Additional Education (optional)</label>
+          <label>
+            Additional Education{" "}
+            <span className="optional-tag">(optional)</span>
+          </label>
           <textarea
             rows={3}
             placeholder="List any additional schools, degrees, licenses, or certifications you would like us to consider."
@@ -145,42 +167,50 @@ function StepEducation({ form, updateField }) {
               updateField("educationAdditional", e.target.value)
             }
           />
+          <p className="field-hint">
+            You can also include in-progress programs or professional licenses
+            here.
+          </p>
         </div>
       </div>
     );
   };
 
   return (
-    <section className="form-section">
-      <h2>Education</h2>
-      <p className="section-help">
-        Please select your highest level of education completed and provide
-        details. You may list additional education in the optional section.
-      </p>
+    <div className="form-step education-step">
+      <section className="form-section education-section">
+        <div className="education-header-row">
+          <div>
+            <h2>Education</h2>
+            <p className="section-help">
+              Tell us about your education background. Start with your highest
+              level completed; you can optionally add more details below.
+            </p>
+          </div>
+          <div className="education-meta">
+            <span className="edu-chip edu-chip-step">Step 4</span>
+            <span className="edu-chip edu-chip-required">Required section</span>
+          </div>
+        </div>
 
-      <div className="field">
-        <label>Highest Level of Education Completed</label>
-        <select
-          value={highestLevel}
-          onChange={handleLevelChange}
-        >
-          <option value="">Select one...</option>
-          {EDUCATION_LEVELS.map((level) => (
-            <option key={level.value} value={level.value}>
-              {level.label}
-            </option>
-          ))}
-        </select>
-        <p className="text-muted">
-          This should reflect the highest level you have fully completed.
-        </p>
-      </div>
+        <div className="field">
+          <label>Highest Level of Education Completed</label>
+          <select value={highestLevel} onChange={handleLevelChange}>
+            <option value="">Select one...</option>
+            {EDUCATION_LEVELS.map((level) => (
+              <option key={level.value} value={level.value}>
+                {level.label}
+              </option>
+            ))}
+          </select>
+          <p className="text-muted education-subnote">
+            This should reflect the highest level you have fully completed.
+          </p>
+        </div>
 
-      {/* Animated-ish card area */}
-      <div className="education-details-wrapper">
-        {renderDetailsCard()}
-      </div>
-    </section>
+        <div className="education-details-wrapper">{renderDetailsCard()}</div>
+      </section>
+    </div>
   );
 }
 

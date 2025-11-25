@@ -1,19 +1,12 @@
 import React, { useEffect, useState } from "react";
 import "../../styles/StepResume.css";
 
-// Safe API URL resolution for CRA, Vite, or plain dev
 const DEFAULT_API_URL = "http://127.0.0.1:5000/api/parse-resume";
 
 const API_URL =
-  // CRA-style env (process.env)
   (typeof process !== "undefined" &&
     process.env &&
     process.env.REACT_APP_PARSE_RESUME_URL) ||
-  // Vite-style env (import.meta.env)
-  (typeof import.meta !== "undefined" &&
-    import.meta.env &&
-    import.meta.env.VITE_PARSE_RESUME_URL) ||
-  // Fallback for local dev
   DEFAULT_API_URL;
 
 const HEALTH_URL = API_URL.replace("/api/parse-resume", "/api/health");
@@ -32,6 +25,10 @@ function StepResume({
   const [serverStatus, setServerStatus] = useState(null); // null | "ok" | "degraded" | "down"
   const [isDragging, setIsDragging] = useState(false);
   const [lastParseTime, setLastParseTime] = useState(null);
+
+  // new: track whether parsed data has been applied to the form
+  const [hasAppliedSinceParse, setHasAppliedSinceParse] = useState(false);
+  const [lastAppliedAt, setLastAppliedAt] = useState(null);
 
   const [autoFillSections, setAutoFillSections] = useState({
     contact: true,
@@ -95,8 +92,16 @@ function StepResume({
   };
 
   // ------------------------------------
-  // File Change / Drag & Drop
+  // File change / drag & drop
   // ------------------------------------
+  const resetParsedState = () => {
+    setParsedPreview(null);
+    setDebugMeta(null);
+    setStatus("idle");
+    setHasAppliedSinceParse(false);
+    setError("");
+  };
+
   const handleFileChange = (e) => {
     const selected = e.target.files?.[0] || null;
     if (!selected) return;
@@ -105,17 +110,12 @@ function StepResume({
     if (validationError) {
       setError(validationError);
       setFile(null);
-      setParsedPreview(null);
-      setDebugMeta(null);
-      setStatus("idle");
+      resetParsedState();
       return;
     }
 
     setFile(selected);
-    setParsedPreview(null);
-    setDebugMeta(null);
-    setStatus("idle");
-    setError("");
+    resetParsedState();
   };
 
   const handleDrop = (e) => {
@@ -123,20 +123,17 @@ function StepResume({
     setIsDragging(false);
     const droppedFile = e.dataTransfer.files?.[0];
     if (!droppedFile) return;
+
     const validationError = validateFile(droppedFile);
     if (validationError) {
       setError(validationError);
       setFile(null);
-      setParsedPreview(null);
-      setDebugMeta(null);
-      setStatus("idle");
+      resetParsedState();
       return;
     }
+
     setFile(droppedFile);
-    setParsedPreview(null);
-    setDebugMeta(null);
-    setStatus("idle");
-    setError("");
+    resetParsedState();
   };
 
   const handleDragOver = (e) => {
@@ -150,14 +147,14 @@ function StepResume({
   };
 
   // ------------------------------------
-  // Section Toggles
+  // Section toggles
   // ------------------------------------
   const toggleSection = (key) => {
     setAutoFillSections((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
   // ------------------------------------
-  // Upload + Gemini Parsing
+  // Upload + Gemini parsing
   // ------------------------------------
   const handleUploadAndParse = async () => {
     if (!file) {
@@ -175,6 +172,7 @@ function StepResume({
     setError("");
     setParsedPreview(null);
     setDebugMeta(null);
+    setHasAppliedSinceParse(false);
 
     try {
       const formData = new FormData();
@@ -201,6 +199,7 @@ function StepResume({
       setDebugMeta(data.meta || null);
       setStatus("parsed");
       setLastParseTime(new Date().toISOString());
+      setHasAppliedSinceParse(false);
     } catch (err) {
       console.error("❌ Resume Upload Error:", err);
       setError(err.message || "Something went wrong during parsing.");
@@ -209,7 +208,7 @@ function StepResume({
   };
 
   // ------------------------------------
-  // Autofill: Filters null fields & applies only when toggle is ON
+  // Autofill logic
   // ------------------------------------
   const safeApply = (current, incoming) => {
     return incoming != null ? incoming : current;
@@ -314,6 +313,9 @@ function StepResume({
     applyEducation(parsedPreview.education);
     applySkills(parsedPreview.skills);
     applyReferences(parsedPreview.references);
+
+    setHasAppliedSinceParse(true);
+    setLastAppliedAt(new Date().toISOString());
   };
 
   // ------------------------------------
@@ -492,6 +494,8 @@ function StepResume({
   // ------------------------------------
   // JSX
   // ------------------------------------
+  const showNotAppliedWarning = parsedPreview && !hasAppliedSinceParse;
+
   return (
     <div className="form-step resume-step">
       <section className="form-section resume-section">
@@ -512,6 +516,20 @@ function StepResume({
                 {new Date(lastParseTime).toLocaleString(undefined, {
                   dateStyle: "short",
                   timeStyle: "short",
+                })}
+              </div>
+            )}
+            {showNotAppliedWarning && (
+              <div className="resume-not-applied-pill">
+                ⚠ Data not yet applied to application
+              </div>
+            )}
+            {hasAppliedSinceParse && lastAppliedAt && (
+              <div className="resume-applied-pill">
+                ✅ Applied to application at{" "}
+                {new Date(lastAppliedAt).toLocaleTimeString(undefined, {
+                  hour: "2-digit",
+                  minute: "2-digit",
                 })}
               </div>
             )}
@@ -542,11 +560,11 @@ function StepResume({
           </div>
           <div
             className={`resume-mini-step ${
-              status === "parsed" ? "active" : ""
+              parsedPreview ? (hasAppliedSinceParse ? "completed" : "active") : ""
             }`}
           >
             <span className="bubble">3</span>
-            <span>Map & apply to form</span>
+            <span>Apply to application</span>
           </div>
         </div>
 
@@ -650,16 +668,26 @@ function StepResume({
               <div className="resume-mapping-actions">
                 <button
                   type="button"
-                  className="btn outline"
+                  className="btn primary resume-apply-btn"
                   onClick={handleApplyToForm}
+                  disabled={!parsedPreview}
                 >
-                  Apply to Application
+                  {hasAppliedSinceParse
+                    ? "Apply Again to Application"
+                    : "Apply to Application"}
                 </button>
                 <span className="form-controls-note">
-                  We never overwrite blank resume fields with guesses — only
-                  clearly detected values.
+                  We never overwrite blanks with guesses — only clearly detected
+                  values.
                 </span>
               </div>
+
+              {hasAppliedSinceParse && (
+                <div className="resume-apply-confirm">
+                  ✅ Imported into the application. You can still edit any field
+                  manually.
+                </div>
+              )}
 
               {renderParsedSnapshot()}
 
@@ -672,14 +700,13 @@ function StepResume({
 
               {debugMeta && (
                 <p className="section-help resume-meta-footnote">
-                  Parsed from: <strong>{debugMeta.filename}</strong> ·
-                  Characters sent to Gemini:{" "}
+                  Parsed from: <strong>{debugMeta.filename}</strong> · Characters
+                  sent to Gemini:{" "}
                   <strong>{debugMeta.characters_used}</strong>
                   {debugMeta.truncated && (
                     <>
                       {" "}
-                      ·{" "}
-                      <span className="warn">truncated for model limits</span>
+                      · <span className="warn">truncated for model limits</span>
                     </>
                   )}
                   {debugMeta.model && (

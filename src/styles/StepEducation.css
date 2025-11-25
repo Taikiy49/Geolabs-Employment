@@ -2,6 +2,71 @@
    EDUCATION STEP
    ======================= */
 
+.education-step .education-section {
+  max-width: 960px;
+  margin: 0 auto;
+  border-radius: 0.9rem;
+  padding: 1.1rem 1.2rem;
+}
+
+/* Header row */
+.education-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 0.85rem;
+}
+
+.education-step h2 {
+  margin-bottom: 0.35rem;
+}
+
+.education-step .section-help {
+  margin-bottom: 0;
+}
+
+/* Meta chips (step / required) */
+.education-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.edu-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.18rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.edu-chip-step {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  color: #1d4ed8;
+}
+
+.edu-chip-required {
+  background: #fef3c7;
+  border-color: #facc15;
+  color: #92400e;
+}
+
+.edu-chip-summary {
+  background: #f3f4f6;
+  border-color: #e5e7eb;
+  color: #374151;
+}
+
+.edu-chip-summary .edu-chip-label {
+  font-weight: 500;
+}
+
 /* Wrapper for the dynamic card */
 .education-details-wrapper {
   margin-top: 0.8rem;
@@ -24,8 +89,17 @@
   box-shadow: 0 6px 16px rgba(15, 23, 42, 0.05);
 }
 
+/* Card header (title + chip) */
+.education-card-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.6rem;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+}
+
 .education-details-card h3 {
-  margin: 0 0 0.5rem;
+  margin: 0 0 0.25rem;
   font-size: 0.95rem;
   font-weight: 600;
   color: #111827;
@@ -33,7 +107,9 @@
 
 /* Slightly smaller help text inside card */
 .education-details-card .section-help {
-  margin-bottom: 0.6rem;
+  margin: 0 0 0.6rem;
+  font-size: 0.8rem;
+  color: #6b7280;
 }
 
 /* Grid tuning */
@@ -45,4 +121,51 @@
 /* Extra breathing room for the "Additional Education" textarea */
 .education-details-card .field:last-child textarea {
   min-height: 80px;
+}
+
+/* Field hint + optional tag */
+.education-step .field-hint {
+  margin-top: 0.2rem;
+  font-size: 0.78rem;
+  color: #6b7280;
+}
+
+.education-step .optional-tag {
+  color: #9ca3af;
+  font-size: 0.75rem;
+  font-weight: 400;
+  margin-left: 0.25rem;
+}
+
+/* Subnote under the select */
+.education-subnote {
+  font-size: 0.78rem;
+  margin-top: 0.25rem;
+}
+
+/* Placeholder styling */
+.education-step input::placeholder,
+.education-step textarea::placeholder {
+  color: #9ca3af;
+}
+
+/* Responsive tweaks */
+@media (max-width: 768px) {
+  .education-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .education-meta {
+    justify-content: flex-start;
+  }
+
+  .education-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .education-step .education-section {
+    padding-inline: 0.9rem;
+  }
 }

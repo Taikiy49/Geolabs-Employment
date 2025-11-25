@@ -2,36 +2,128 @@
    GENERAL INFO STEP
    ======================= */
 
-/* Optional: wrap this step in a parent div with className="form-step general-info-step"
-   or add className="general-info-section" to the <section>.
-*/
-
-/* Center the card a bit on wide screens */
-.general-info-step .form-section,
+/* Center the card on wide screens */
+.general-info-step .general-info-card,
 .general-info-section {
   max-width: 860px;
   margin: 0 auto;
 }
 
-/* Name field spacing */
-.general-info-step .field:first-of-type,
-.general-info-section .field:first-of-type {
-  margin-bottom: 0.8rem;
+/* Card look & padding */
+.general-info-step .general-info-card {
+  border-radius: 0.9rem;
+  padding: 1.1rem 1.2rem;
 }
 
-/* Address row – make labels feel a bit more important */
-.general-info-step .grid.grid-4 .field label,
-.general-info-section .grid.grid-4 .field label {
+/* Header row: title + chips on the right */
+.general-info-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 0.85rem;
+}
+
+.general-info-step .general-info-card h2 {
+  margin-bottom: 0.35rem;
+}
+
+.general-info-step .general-info-card .section-help {
+  margin-bottom: 0;
+}
+
+/* Meta chips (Step 2 / Required) */
+.general-info-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.gi-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.18rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+/* Step chip */
+.gi-chip-step {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  color: #1d4ed8;
+}
+
+/* Required chip */
+.gi-chip-required {
+  background: #fef3c7;
+  border-color: #facc15;
+  color: #92400e;
+}
+
+/* Name field spacing */
+.general-info-name-field {
+  margin-bottom: 0.9rem;
+}
+
+/* Required + optional tags next to labels */
+.general-info-step .required-tag {
+  color: #b91c1c;
+  font-size: 0.78rem;
+  margin-left: 0.25rem;
+}
+
+.general-info-step .optional-tag {
+  color: #9ca3af;
+  font-size: 0.75rem;
+  font-weight: 400;
+  margin-left: 0.25rem;
+}
+
+/* Address row – make labels a bit stronger */
+.general-info-step .general-info-address-grid .field label {
   font-weight: 500;
 }
 
 /* Email / phone row tweaks */
-.general-info-step .grid.grid-3,
-.general-info-section .grid.grid-3 {
-  margin-top: 0.6rem;
+.general-info-contact-grid {
+  margin-top: 0.9rem;
 }
 
-.general-info-step input::placeholder,
-.general-info-section input::placeholder {
+/* Generic field hint line under inputs/selects */
+.general-info-step .field-hint {
+  margin-top: 0.25rem;
+  font-size: 0.78rem;
+  color: #6b7280;
+}
+
+/* Little hint under address row */
+.general-info-step .subtle-hint {
+  margin-top: 0.35rem;
+}
+
+/* Placeholder styling */
+.general-info-step input::placeholder {
   color: #9ca3af;
+}
+
+/* Responsive tweaks */
+@media (max-width: 640px) {
+  .general-info-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .general-info-meta {
+    justify-content: flex-start;
+  }
+
+  .general-info-step .general-info-card {
+    padding-inline: 0.9rem;
+  }
 }

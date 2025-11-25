@@ -1,10 +1,12 @@
 /* =======================
-   RESUME STEP UI
+   RESUME STEP STYLES
    ======================= */
 
-.resume-step .resume-section {
-  position: relative;
-  overflow: hidden;
+.resume-section {
+  border: 1px solid var(--border-soft);
+  background: #ffffff;
+  border-radius: 0.75rem;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
 }
 
 .resume-section-header {
@@ -12,92 +14,109 @@
   justify-content: space-between;
   align-items: flex-start;
   gap: 0.75rem;
+  margin-bottom: 0.75rem;
 }
 
 .resume-section-meta {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 0.3rem;
+  gap: 0.35rem;
   font-size: 0.75rem;
   color: var(--text-muted);
 }
 
 .resume-last-run {
   font-size: 0.75rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  background: #f9fafb;
+  border: 1px dashed var(--border-soft);
 }
 
-/* server status chip */
+/* Server chip */
 
 .resume-server-chip {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
   border-radius: 999px;
-  padding: 0.2rem 0.7rem;
+  padding: 0.25rem 0.6rem;
   font-size: 0.72rem;
   border: 1px solid transparent;
 }
 
 .resume-server-dot {
-  width: 8px;
-  height: 8px;
+  width: 0.45rem;
+  height: 0.45rem;
   border-radius: 999px;
-  background: currentColor;
 }
 
 .resume-server-chip-ok {
-  border-color: var(--accent-border);
-  background: rgba(184, 115, 51, 0.08);
-  color: var(--accent-dark);
+  background: var(--success-soft);
+  border-color: var(--success-soft-2);
+  color: #166534;
+}
+
+.resume-server-chip-ok .resume-server-dot {
+  background: var(--success);
 }
 
 .resume-server-chip-warn {
-  border-color: #eab308;
-  background: #fef9c3;
+  background: #fffbeb;
+  border-color: #facc15;
   color: #854d0e;
 }
 
+.resume-server-chip-warn .resume-server-dot {
+  background: #f97316;
+}
+
 .resume-server-chip-error {
-  border-color: #f97373;
-  background: #fee2e2;
+  background: #fef2f2;
+  border-color: #fecaca;
   color: #b91c1c;
 }
 
-/* Mini-steps */
+.resume-server-chip-error .resume-server-dot {
+  background: #ef4444;
+}
+
+/* Mini stepper */
 
 .resume-mini-steps {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  margin: 0.65rem 0 0.8rem;
-  font-size: 0.78rem;
+  gap: 0.4rem;
+  margin-bottom: 0.75rem;
 }
 
 .resume-mini-step {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.25rem 0.75rem;
+  gap: 0.35rem;
+  padding: 0.25rem 0.6rem;
   border-radius: 999px;
   border: 1px solid var(--border-subtle);
+  font-size: 0.75rem;
+  color: var(--text-muted);
   background: #f9fafb;
-  color: #4b5563;
 }
 
 .resume-mini-step .bubble {
   width: 1.1rem;
   height: 1.1rem;
   border-radius: 999px;
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 0.75rem;
   border: 1px solid var(--border-soft);
-  font-size: 0.7rem;
+  background: #ffffff;
 }
 
 .resume-mini-step.active {
-  border-color: var(--accent);
+  border-color: var(--accent-border);
   background: var(--accent-soft-2);
   color: var(--accent-dark);
 }
@@ -118,13 +137,13 @@
   background: var(--success-soft-2);
 }
 
-/* Upload card */
+/* Upload card / dropzone */
 
 .resume-upload-card {
-  border-radius: 0.7rem;
-  border: 1px solid var(--border-soft);
-  padding: 0.85rem 0.9rem;
+  border-radius: 0.75rem;
+  border: 1px dashed var(--border-soft);
   background: #f9fafb;
+  padding: 0.9rem;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
@@ -133,19 +152,25 @@
 .resume-upload-body {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.85rem;
+  gap: 0.75rem;
   align-items: stretch;
 }
 
 .resume-dropzone {
-  flex: 1 1 260px;
+  flex: 1;
   border-radius: 0.65rem;
   border: 1px dashed var(--border-soft);
-  padding: 0.8rem 0.9rem;
   background: #ffffff;
+  padding: 0.8rem 0.9rem;
   cursor: pointer;
-  transition: border-color 0.15s ease, background 0.15s ease,
-    box-shadow 0.15s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease,
+    background 0.15s ease, transform 0.1s ease;
+}
+
+.resume-dropzone:hover {
+  border-color: var(--accent-border);
+  box-shadow: 0 0 0 1px var(--accent-soft);
+  transform: translateY(-1px);
 }
 
 .resume-dropzone-dragging {
@@ -157,58 +182,65 @@
 .resume-dropzone-inner {
   display: flex;
   align-items: center;
-  gap: 0.8rem;
+  gap: 0.75rem;
 }
 
 .resume-dropzone-icon {
-  font-size: 1.6rem;
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 0.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent-soft);
+  font-size: 1.2rem;
 }
 
 .resume-dropzone-title {
-  font-size: 0.92rem;
-  font-weight: 500;
+  font-size: 0.9rem;
+  font-weight: 600;
   color: var(--text-main);
 }
 
 .resume-dropzone-caption {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   color: var(--text-muted);
 }
 
 .resume-upload-actions {
   display: flex;
   flex-direction: column;
+  gap: 0.3rem;
   align-items: flex-start;
-  gap: 0.35rem;
 }
 
 .resume-secondary-hint {
-  font-size: 0.75rem;
+  font-size: 0.78rem;
   color: var(--text-muted);
 }
 
-/* Status block */
+/* Status banner */
 
 .resume-status {
-  margin-top: 0.5rem;
-  border-radius: 0.6rem;
-  padding: 0.6rem 0.75rem;
+  margin-top: 0.6rem;
+  border-radius: 0.55rem;
+  padding: 0.55rem 0.75rem;
   display: flex;
   align-items: flex-start;
-  gap: 0.5rem;
+  gap: 0.55rem;
   font-size: 0.8rem;
 }
 
 .resume-status-dot {
-  width: 10px;
-  height: 10px;
+  width: 0.45rem;
+  height: 0.45rem;
   border-radius: 999px;
   margin-top: 0.2rem;
 }
 
 .resume-status-title {
   font-weight: 600;
-  margin-bottom: 0.15rem;
+  margin-bottom: 0.1rem;
 }
 
 .resume-status-subtitle {
@@ -216,18 +248,18 @@
 }
 
 .resume-status-uploading {
-  border: 1px solid var(--accent-border);
-  background: var(--accent-soft-2);
-  color: var(--accent-dark);
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1d4ed8;
 }
 
 .resume-status-uploading .resume-status-dot {
-  background: var(--accent);
+  background: #3b82f6;
 }
 
 .resume-status-success {
-  border: 1px solid var(--success);
   background: var(--success-soft);
+  border: 1px solid var(--success-soft-2);
   color: #166534;
 }
 
@@ -236,8 +268,8 @@
 }
 
 .resume-status-error {
-  border: 1px solid #f97373;
-  background: #fee2e2;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
   color: #b91c1c;
 }
 
@@ -245,25 +277,27 @@
   background: #ef4444;
 }
 
-/* Autofill toggles */
+/* Mapping panel */
 
 .resume-mapping-panel {
-  margin-top: 0.7rem;
-  border-radius: 0.65rem;
+  margin-top: 0.75rem;
+  border-radius: 0.7rem;
   border: 1px solid var(--border-soft);
-  padding: 0.8rem 0.85rem;
   background: #ffffff;
+  padding: 0.8rem 0.9rem;
   display: flex;
   flex-direction: column;
-  gap: 0.7rem;
+  gap: 0.6rem;
 }
 
 .resume-mapping-header {
   display: flex;
   justify-content: space-between;
+  gap: 0.5rem;
   align-items: flex-start;
-  gap: 0.6rem;
 }
+
+/* Toggle pills */
 
 .resume-toggle-grid {
   display: flex;
@@ -273,7 +307,7 @@
 
 .resume-toggle-pill {
   border-radius: 999px;
-  padding: 0.3rem 0.8rem;
+  padding: 0.25rem 0.7rem;
   border: 1px solid var(--border-soft);
   background: #f9fafb;
   font-size: 0.78rem;
@@ -286,10 +320,10 @@
 }
 
 .resume-toggle-pill .pill-dot {
-  width: 8px;
-  height: 8px;
+  width: 0.4rem;
+  height: 0.4rem;
   border-radius: 999px;
-  background: #d1d5db;
+  background: #9ca3af;
 }
 
 .resume-toggle-pill .pill-label {
@@ -297,15 +331,15 @@
 }
 
 .resume-toggle-pill .pill-state {
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: #6b7280;
+  color: var(--text-muted);
 }
 
 .resume-toggle-pill.active {
-  border-color: var(--accent);
   background: var(--accent-soft-2);
+  border-color: var(--accent-border);
   box-shadow: 0 0 0 1px var(--accent-soft);
   transform: translateY(-1px);
 }
@@ -314,15 +348,11 @@
   background: var(--accent);
 }
 
-.resume-toggle-pill.active .pill-state {
-  color: var(--accent-dark);
-}
-
 .resume-mapping-actions {
   display: flex;
   flex-wrap: wrap;
+  gap: 0.4rem;
   align-items: center;
-  gap: 0.5rem;
 }
 
 /* Snapshot cards */
@@ -330,21 +360,21 @@
 .resume-snapshot-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.5rem;
-  margin-top: 0.4rem;
+  gap: 0.6rem;
+  margin-top: 0.35rem;
 }
 
 .resume-snapshot-card {
   border-radius: 0.6rem;
   border: 1px solid var(--border-subtle);
-  padding: 0.6rem 0.7rem;
   background: #f9fafb;
+  padding: 0.6rem 0.7rem;
 }
 
 .resume-snapshot-title {
-  font-size: 0.82rem;
+  font-size: 0.85rem;
   font-weight: 600;
-  margin-bottom: 0.3rem;
+  margin-bottom: 0.35rem;
   color: var(--text-main);
 }
 
@@ -352,13 +382,13 @@
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
-  font-size: 0.78rem;
 }
 
 .resume-snapshot-line {
   display: flex;
   justify-content: space-between;
-  gap: 0.4rem;
+  gap: 0.5rem;
+  font-size: 0.78rem;
 }
 
 .resume-snapshot-line .label {
@@ -367,32 +397,30 @@
 
 .resume-snapshot-job {
   padding: 0.25rem 0;
-  border-bottom: 1px dashed var(--border-subtle);
+  border-top: 1px dashed var(--border-subtle);
+  font-size: 0.78rem;
 }
 
-.resume-snapshot-job:last-child {
-  border-bottom: none;
+.resume-snapshot-job:first-of-type {
+  border-top: none;
 }
 
 .resume-snapshot-job-title {
-  font-size: 0.8rem;
   font-weight: 600;
 }
 
 .resume-snapshot-job-meta {
-  font-size: 0.75rem;
   color: var(--text-muted);
 }
 
 .resume-snapshot-job-duties {
-  font-size: 0.76rem;
   margin-top: 0.15rem;
 }
 
-/* Raw JSON */
+/* Raw JSON details */
 
 .resume-preview-details {
-  margin-top: 0.5rem;
+  margin-top: 0.4rem;
   font-size: 0.78rem;
 }
 
@@ -402,16 +430,22 @@
 }
 
 .resume-preview-json {
-  margin-top: 0.4rem;
-  padding: 0.5rem 0.6rem;
-  border-radius: 0.4rem;
-  background: #111827;
-  color: #e5e7eb;
-  font-family: "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono",
-    "Courier New", monospace;
-  font-size: 0.75rem;
-  max-height: 240px;
+  margin-top: 0.35rem;
+  max-height: 220px;
   overflow: auto;
+  background: #020617;
+  color: #e5e7eb;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+  font-size: 0.75rem;
+  padding: 0.55rem 0.6rem;
+  border-radius: 0.45rem;
+}
+
+/* Meta footnote */
+
+.resume-meta-footnote {
+  font-size: 0.75rem;
 }
 
 .resume-meta-footnote .warn {
@@ -421,13 +455,52 @@
 /* Inline error tip */
 
 .resume-inline-error {
-  margin-top: 0.7rem;
-  border-radius: 0.5rem;
-  border: 1px dashed #f97373;
-  background: #fef2f2;
-  padding: 0.5rem 0.7rem;
+  margin-top: 0.65rem;
   font-size: 0.78rem;
-  color: #991b1b;
+  padding: 0.5rem 0.7rem;
+  border-radius: 0.5rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+}
+
+/* Pills for applied / not-applied state in header */
+
+.resume-not-applied-pill {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  background: #fffbeb;
+  border: 1px solid #facc15;
+  color: #854d0e;
+}
+
+.resume-applied-pill {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  background: var(--success-soft);
+  border: 1px solid var(--success-soft-2);
+  color: #166534;
+}
+
+/* Big copper apply button */
+
+.resume-apply-btn {
+  font-weight: 600;
+  padding-inline: 1.3rem;
+}
+
+/* Confirmation text under the button */
+
+.resume-apply-confirm {
+  margin-top: 0.4rem;
+  font-size: 0.8rem;
+  padding: 0.45rem 0.6rem;
+  border-radius: 0.5rem;
+  background: var(--success-soft);
+  border: 1px solid var(--success-soft-2);
+  color: #166534;
 }
 
 /* Responsive tweaks */

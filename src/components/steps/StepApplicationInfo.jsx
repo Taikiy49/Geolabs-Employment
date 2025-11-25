@@ -23,15 +23,26 @@ const LOCATION_OPTIONS = [
 
 function StepApplicationInfo({ form, updateField }) {
   return (
-    <div className="form-step">
-      <section className="form-section">
-        <h2>Application Information</h2>
-        <p className="section-help">
-          Please complete the basic information for your application. You will
-          be able to enter your employment history, education, and other details
-          in the following steps.
-        </p>
-        <div className="grid grid-3">
+    <div className="form-step application-info-step">
+      <section className="form-section application-info-card">
+        {/* Header row with title + meta chips */}
+        <div className="application-info-header-row">
+          <div>
+            <h2>Application Information</h2>
+            <p className="section-help">
+              Start by confirming the basics for this application. You’ll add
+              your employment history, education, and other details in the next
+              steps.
+            </p>
+          </div>
+          <div className="application-info-meta">
+            <span className="app-chip app-chip-step">Step 1</span>
+            <span className="app-chip app-chip-required">Required</span>
+          </div>
+        </div>
+
+        {/* Main grid row: date / position / location */}
+        <div className="grid grid-3 application-info-grid">
           <div className="field">
             <label htmlFor="date">Date</label>
             <input
@@ -40,7 +51,9 @@ function StepApplicationInfo({ form, updateField }) {
               value={form.date}
               onChange={(e) => updateField("date", e.target.value)}
             />
+            <div className="field-hint">Use today’s date or the date submitted.</div>
           </div>
+
           <div className="field">
             <label htmlFor="position">Position Applying For</label>
             <input
@@ -50,9 +63,13 @@ function StepApplicationInfo({ form, updateField }) {
               value={form.position}
               onChange={(e) => updateField("position", e.target.value)}
             />
+            <div className="field-hint">
+              Match the job title from the posting if possible.
+            </div>
           </div>
+
           <div className="field">
-            <label htmlFor="location">Location</label>
+            <label htmlFor="location">Preferred Office Location</label>
             <select
               id="location"
               value={form.location}
@@ -64,16 +81,27 @@ function StepApplicationInfo({ form, updateField }) {
                 </option>
               ))}
             </select>
+            <div className="field-hint">
+              Choose the office you&apos;re primarily applying to.
+            </div>
           </div>
         </div>
-        <div className="field">
-          <label htmlFor="referredBy">Referred by</label>
+
+        {/* Referred by */}
+        <div className="field application-info-referred">
+          <label htmlFor="referredBy">
+            Referred by <span className="optional-tag">(optional)</span>
+          </label>
           <input
             id="referredBy"
             type="text"
+            placeholder="e.g., Jane Doe, current employee"
             value={form.referredBy}
             onChange={(e) => updateField("referredBy", e.target.value)}
           />
+          <div className="field-hint">
+            If someone encouraged you to apply, list their name here.
+          </div>
         </div>
       </section>
     </div>

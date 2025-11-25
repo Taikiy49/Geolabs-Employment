@@ -14,10 +14,10 @@ import docx
 
 # --------- Gemini (google-generativeai) ----------
 import google.generativeai as genai
+from google.api_core.exceptions import PermissionDenied
 
 GEMINI_KEY = os.getenv("GEMINI_API_KEY", "")
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-pro")
-MAX_CHARS_FOR_GEMINI = int(os.getenv("RESUME_MAX_CHARS", "20000"))
 
 if not GEMINI_KEY:
     print("⚠️ GEMINI_API_KEY not set – /api/parse-resume will fail with 500.")
@@ -26,7 +26,6 @@ genai.configure(api_key=GEMINI_KEY)
 ALLOWED_EXTENSIONS = {".pdf", ".doc", ".docx", ".txt"}
 
 app = Flask(__name__)
-# In production, tighten CORS to your specific domains
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 # -------------------------------------------------------------------
@@ -129,6 +128,7 @@ Return a JSON object with the following structure:
       "company": "Company or relationship if clear",
       "phone": "Phone number if clearly shown, else null"
     }
+    // Only if clearly labeled as references
   ]
 }
 
@@ -154,14 +154,49 @@ Be conservative:
 """
 
 
+def _extract_text_from_candidate(response) -> str:
+    """
+    Safely extract text from the first candidate without using response.text
+    (which can throw if finish_reason != STOP).
+    """
+    if not getattr(response, "candidates", None):
+        raise ValueError("Gemini returned no candidates.")
+
+    cand = response.candidates[0]
+    finish_reason = getattr(cand, "finish_reason", None)
+
+    # If finish_reason is not STOP / 1, Gemini might have blocked or cut off output.
+    # We'll still try to extract text if parts exist, but surface a better error if empty.
+    parts = getattr(cand, "content", None).parts if getattr(cand, "content", None) else []
+    text_chunks: List[str] = []
+
+    for p in parts:
+        if hasattr(p, "text") and p.text:
+            text_chunks.append(p.text)
+
+    raw = "".join(text_chunks).strip()
+
+    if not raw:
+        raise ValueError(
+            f"Gemini returned an empty response (finish_reason={finish_reason}). "
+            "This usually means the response was blocked or truncated."
+        )
+
+    return raw, finish_reason
+
+
 def call_gemini_for_resume(text: str) -> Dict[str, Any]:
     """
     Use Gemini to convert raw resume text into structured JSON.
+    More defensive: avoid response.text quick accessor and handle blocked responses.
     """
     if not GEMINI_KEY:
         raise RuntimeError("GEMINI_API_KEY is not configured.")
 
-    excerpt = text[:MAX_CHARS_FOR_GEMINI]
+    # Keep plenty of context but bound char length for sanity
+    max_chars = 20000
+    excerpt = text[:max_chars]
+    truncated = len(text) > max_chars
 
     model = genai.GenerativeModel(GEMINI_MODEL)
 
@@ -172,6 +207,7 @@ Here is the resume text:
 
 \"\"\"{excerpt}\"\"\"
 
+
 Now, following this schema:
 
 {RESUME_SCHEMA_DESCRIPTION}
@@ -179,17 +215,11 @@ Now, following this schema:
 Return ONLY the JSON object described above.
 """
 
-    response = model.generate_content(
-        prompt,
-        generation_config={
-            "temperature": 0.1,
-            "max_output_tokens": 1024,
-        },
-    )
+    response = model.generate_content(prompt)
 
-    raw = (getattr(response, "text", "") or "").strip()
+    raw, finish_reason = _extract_text_from_candidate(response)
 
-    # Strip ```json fences if Gemini adds them
+    # Gemini sometimes wraps content in ```json ... ```; strip if present
     if raw.startswith("```"):
         raw = raw.strip("`\n ")
         if raw.lower().startswith("json"):
@@ -198,17 +228,21 @@ Return ONLY the JSON object described above.
     try:
         parsed = json.loads(raw)
     except Exception as e:
-        # Don't print the entire text; just the first part of the model output
-        snippet = raw[:400]
         raise ValueError(
-            f"Failed to parse JSON from Gemini output: {e}. "
-            f"First 400 chars of output: {snippet}"
+            f"Failed to parse JSON from Gemini output: {e}\n"
+            f"Finish reason: {finish_reason}\n"
+            f"Raw (first 400 chars): {raw[:400]}"
         )
 
-    if not isinstance(parsed, dict):
-        raise ValueError("Gemini output was not a JSON object.")
-
-    return parsed
+    # Attach some meta info for the caller
+    return {
+        "data": parsed,
+        "meta": {
+            "model": GEMINI_MODEL,
+            "truncated": truncated,
+            "finish_reason": str(finish_reason),
+        },
+    }
 
 
 def normalize_parsed_resume(data: Dict[str, Any]) -> Dict[str, Any]:
@@ -223,7 +257,6 @@ def normalize_parsed_resume(data: Dict[str, Any]) -> Dict[str, Any]:
 
     norm_emp: List[Dict[str, Any]] = []
     for job in employment[:3]:
-        job = job or {}
         norm_emp.append(
             {
                 "company": job.get("company"),
@@ -240,7 +273,6 @@ def normalize_parsed_resume(data: Dict[str, Any]) -> Dict[str, Any]:
 
     norm_refs: List[Dict[str, Any]] = []
     for ref in references:
-        ref = ref or {}
         norm_refs.append(
             {
                 "name": ref.get("name"),
@@ -295,7 +327,8 @@ def parse_resume() -> Any:
         "filename": "resume.pdf",
         "characters_used": 12345,
         "truncated": false,
-        "model": "gemini-2.5-pro"
+        "model": "gemini-2.5-pro",
+        "finish_reason": "STOP"
       }
     }
     """
@@ -312,10 +345,10 @@ def parse_resume() -> Any:
         if not text.strip():
             return jsonify({"error": "Could not extract text from resume."}), 400
 
-        total_chars = len(text)
-        truncated = total_chars > MAX_CHARS_FOR_GEMINI
+        gemini_result = call_gemini_for_resume(text)
+        raw_parsed = gemini_result["data"]
+        gem_meta = gemini_result["meta"]
 
-        raw_parsed = call_gemini_for_resume(text)
         parsed = normalize_parsed_resume(raw_parsed)
 
         return jsonify(
@@ -323,14 +356,26 @@ def parse_resume() -> Any:
                 "parsed": parsed,
                 "meta": {
                     "filename": file.filename,
-                    "characters_used": min(total_chars, MAX_CHARS_FOR_GEMINI),
-                    "truncated": truncated,
-                    "model": GEMINI_MODEL,
+                    "characters_used": len(text),
+                    "truncated": gem_meta.get("truncated", False),
+                    "model": gem_meta.get("model"),
+                    "finish_reason": gem_meta.get("finish_reason"),
                 },
             }
         )
+    except PermissionDenied as pe:
+        print("❌ Gemini PermissionDenied:", pe)
+        return (
+            jsonify(
+                {
+                    "error": "Gemini rejected the API key or project configuration. "
+                    "Please rotate GEMINI_API_KEY or check your Google Cloud setup."
+                }
+            ),
+            403,
+        )
     except ValueError as ve:
-        # JSON parsing / model-format issues
+        # JSON parsing / empty response / blocked content, etc.
         print("❌ Gemini parse error:", ve)
         return jsonify({"error": str(ve)}), 500
     except Exception as e:
@@ -351,5 +396,4 @@ def health() -> Any:
 
 
 if __name__ == "__main__":
-    # Dev only; in prod you’d use gunicorn + reverse proxy
     app.run(host="0.0.0.0", port=5000, debug=True)
