@@ -9,26 +9,24 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 
 # --------- Text extraction libs ----------
-# pip install pypdf python-docx
 from pypdf import PdfReader
 import docx
 
 # --------- Gemini (google-generativeai) ----------
-# Follows the same pattern as your askai.py
-# pip install google-generativeai
 import google.generativeai as genai
 
 GEMINI_KEY = os.getenv("GEMINI_API_KEY", "")
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-pro")
+MAX_CHARS_FOR_GEMINI = int(os.getenv("RESUME_MAX_CHARS", "20000"))
 
 if not GEMINI_KEY:
-  print("⚠️ GEMINI_API_KEY not set – /api/parse-resume will fail with 500.")
+    print("⚠️ GEMINI_API_KEY not set – /api/parse-resume will fail with 500.")
 genai.configure(api_key=GEMINI_KEY)
 
 ALLOWED_EXTENSIONS = {".pdf", ".doc", ".docx", ".txt"}
 
 app = Flask(__name__)
-# In production, you can restrict this to your domains (e.g. https://geolabs-employment.net)
+# In production, tighten CORS to your specific domains
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 # -------------------------------------------------------------------
@@ -131,7 +129,6 @@ Return a JSON object with the following structure:
       "company": "Company or relationship if clear",
       "phone": "Phone number if clearly shown, else null"
     }
-    // Only if clearly labeled as references
   ]
 }
 
@@ -160,14 +157,11 @@ Be conservative:
 def call_gemini_for_resume(text: str) -> Dict[str, Any]:
     """
     Use Gemini to convert raw resume text into structured JSON.
-    This mirrors your askai-style usage: GenerativeModel + generate_content.
     """
     if not GEMINI_KEY:
         raise RuntimeError("GEMINI_API_KEY is not configured.")
 
-    # Limit for token sanity but keep plenty of context
-    max_chars = 20000
-    excerpt = text[:max_chars]
+    excerpt = text[:MAX_CHARS_FOR_GEMINI]
 
     model = genai.GenerativeModel(GEMINI_MODEL)
 
@@ -185,10 +179,17 @@ Now, following this schema:
 Return ONLY the JSON object described above.
 """
 
-    response = model.generate_content(prompt)
+    response = model.generate_content(
+        prompt,
+        generation_config={
+            "temperature": 0.1,
+            "max_output_tokens": 1024,
+        },
+    )
+
     raw = (getattr(response, "text", "") or "").strip()
 
-    # Gemini sometimes wraps in ```json ```; strip that crud if present
+    # Strip ```json fences if Gemini adds them
     if raw.startswith("```"):
         raw = raw.strip("`\n ")
         if raw.lower().startswith("json"):
@@ -197,7 +198,15 @@ Return ONLY the JSON object described above.
     try:
         parsed = json.loads(raw)
     except Exception as e:
-        raise ValueError(f"Failed to parse JSON from Gemini output: {e}\nRaw output: {raw[:400]}")
+        # Don't print the entire text; just the first part of the model output
+        snippet = raw[:400]
+        raise ValueError(
+            f"Failed to parse JSON from Gemini output: {e}. "
+            f"First 400 chars of output: {snippet}"
+        )
+
+    if not isinstance(parsed, dict):
+        raise ValueError("Gemini output was not a JSON object.")
 
     return parsed
 
@@ -212,9 +221,9 @@ def normalize_parsed_resume(data: Dict[str, Any]) -> Dict[str, Any]:
     skills = data.get("skills") or {}
     references = data.get("references") or []
 
-    # Normalize employment (max 3)
     norm_emp: List[Dict[str, Any]] = []
     for job in employment[:3]:
+        job = job or {}
         norm_emp.append(
             {
                 "company": job.get("company"),
@@ -231,6 +240,7 @@ def normalize_parsed_resume(data: Dict[str, Any]) -> Dict[str, Any]:
 
     norm_refs: List[Dict[str, Any]] = []
     for ref in references:
+        ref = ref or {}
         norm_refs.append(
             {
                 "name": ref.get("name"),
@@ -283,7 +293,9 @@ def parse_resume() -> Any:
       "parsed": { ...normalized resume data... },
       "meta": {
         "filename": "resume.pdf",
-        "characters_used": 12345
+        "characters_used": 12345,
+        "truncated": false,
+        "model": "gemini-2.5-pro"
       }
     }
     """
@@ -300,6 +312,9 @@ def parse_resume() -> Any:
         if not text.strip():
             return jsonify({"error": "Could not extract text from resume."}), 400
 
+        total_chars = len(text)
+        truncated = total_chars > MAX_CHARS_FOR_GEMINI
+
         raw_parsed = call_gemini_for_resume(text)
         parsed = normalize_parsed_resume(raw_parsed)
 
@@ -308,7 +323,9 @@ def parse_resume() -> Any:
                 "parsed": parsed,
                 "meta": {
                     "filename": file.filename,
-                    "characters_used": len(text),
+                    "characters_used": min(total_chars, MAX_CHARS_FOR_GEMINI),
+                    "truncated": truncated,
+                    "model": GEMINI_MODEL,
                 },
             }
         )
@@ -334,5 +351,5 @@ def health() -> Any:
 
 
 if __name__ == "__main__":
-    # For dev only; in prod you’d use gunicorn + reverse proxy
+    # Dev only; in prod you’d use gunicorn + reverse proxy
     app.run(host="0.0.0.0", port=5000, debug=True)
