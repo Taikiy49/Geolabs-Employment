@@ -1,12 +1,13 @@
 /* =======================
    EMPLOYMENT CERTIFICATION STEP
-   ======================= */
+=========================== */
 
 .employment-cert-section {
-
 }
 
-/* Header row: title + required pill */
+/* -----------------------
+   Header row: title + required pill
+------------------------ */
 .employment-cert-header {
   display: flex;
   justify-content: space-between;
@@ -34,7 +35,9 @@
   white-space: nowrap;
 }
 
-/* Generic card used for each block */
+/* -----------------------
+   Generic card block
+------------------------ */
 .employment-cert-card {
   border-radius: 0.7rem;
   border: 1px solid #e5e7eb;
@@ -66,14 +69,16 @@
   margin-bottom: 0;
 }
 
-/* Legal text paragraphs inside cards */
+/* Legal text paragraphs */
 .employment-cert-card .legal-text {
   margin-bottom: 0.55rem;
   font-size: 0.85rem;
   line-height: 1.5;
 }
 
-/* Inline initials row for FCRA */
+/* -----------------------
+   Inline initials (FCRA)
+------------------------ */
 .inline-initials {
   margin-top: 0.45rem;
 }
@@ -99,24 +104,87 @@
   margin-top: 0.25rem;
 }
 
-/* “Other information” grid spacing */
-
+/* -----------------------
+   "Other information" grid spacing
+------------------------ */
 .employment-cert-card .grid.grid-2 {
   gap: 0.6rem;
 }
 
-/* Signature row */
+/* -----------------------
+   Signature row
+------------------------ */
 .employment-cert-signature-row {
   margin-top: 0.6rem;
 }
 
+/* Signature field – handwritten style like Agreement/Veteran/Disability */
+.employment-cert-signature-row .field input[type="text"] {
+  font-family: "Dancing Script", "Segoe Script", "Lucida Handwriting", cursive;
+  font-size: 1rem;
+  color: #374151;
+
+  height: 22px;
+  padding: 2px 4px;
+  margin-top: 4px;
+
+  border-radius: 0;
+  border-width: 0 0 1px 0;
+  border-style: solid;
+  border-color: #d1d5db;
+  background: transparent;
+  line-height: 1.1;
+}
+
+.employment-cert-signature-row .field input[type="text"]:focus {
+  outline: none;
+  border-color: #b87333;
+  box-shadow: 0 1px 0 0 #b87333;
+}
+
+.employment-cert-signature-row .field input[type="text"]::placeholder {
+  color: #bfbfbf;
+  font-size: 1.05rem;
+}
+
+/* Helper text under signature */
 .signature-helper {
   margin: 0.25rem 0 0;
   font-size: 0.75rem;
   color: #6b7280;
 }
 
-/* Responsive tweaks */
+/* Date input – light when "empty", darker when set */
+.employment-cert-signature-row .field input[type="date"] {
+  font-size: 0.9rem;
+  font-weight: 400;
+  color: #111827; /* actual date text */
+}
+
+/* Base datetime text color */
+.employment-cert-signature-row
+  .field
+  input[type="date"]::-webkit-datetime-edit {
+  color: #111827;
+}
+
+/* Try softer color when placeholder-shown (supported browsers) */
+.employment-cert-signature-row
+  .field
+  input[type="date"]:placeholder-shown::-webkit-datetime-edit {
+  color: #9ca3af;
+}
+
+/* Calendar icon */
+.employment-cert-signature-row
+  .field
+  input[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 0.55;
+}
+
+/* -----------------------
+   Responsive tweaks
+------------------------ */
 @media (max-width: 640px) {
   .employment-cert-header {
     flex-direction: column;

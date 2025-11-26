@@ -2,12 +2,16 @@ import React from "react";
 import "../../styles/StepEmploymentCertification.css";
 
 function StepEmploymentCertification({ form, updateField }) {
+  const handleChange = (field) => (e) => {
+    updateField(field, e.target.value);
+  };
+
   return (
     <section className="form-section employment-cert-section">
       {/* Main header */}
       <div className="employment-cert-header">
         <div>
-          <h2>Employment Certification & Disclosures</h2>
+          <h2>Employment Certification &amp; Disclosures</h2>
           <p className="section-help">
             Please review the following disclosures carefully and provide your
             initials and signature where requested.
@@ -56,8 +60,8 @@ function StepEmploymentCertification({ form, updateField }) {
           </div>
           <input
             type="text"
-            value={form.fcrInitials}
-            onChange={(e) => updateField("fcrInitials", e.target.value)}
+            value={form.fcrInitials || ""}
+            onChange={handleChange("fcrInitials")}
           />
         </div>
       </div>
@@ -79,8 +83,8 @@ function StepEmploymentCertification({ form, updateField }) {
             </label>
             <input
               type="text"
-              value={form.knowEmployee}
-              onChange={(e) => updateField("knowEmployee", e.target.value)}
+              value={form.knowEmployee || ""}
+              onChange={handleChange("knowEmployee")}
               placeholder="Yes / No"
             />
           </div>
@@ -88,10 +92,8 @@ function StepEmploymentCertification({ form, updateField }) {
             <label>If yes, who?</label>
             <input
               type="text"
-              value={form.knowEmployeeName}
-              onChange={(e) =>
-                updateField("knowEmployeeName", e.target.value)
-              }
+              value={form.knowEmployeeName || ""}
+              onChange={handleChange("knowEmployeeName")}
               placeholder="Name(s) of current employee(s)"
             />
           </div>
@@ -139,23 +141,16 @@ function StepEmploymentCertification({ form, updateField }) {
             <label>Application Date</label>
             <input
               type="date"
-              value={form.applicationCertificationDate}
-              onChange={(e) =>
-                updateField("applicationCertificationDate", e.target.value)
-              }
+              value={form.applicationCertificationDate || ""}
+              onChange={handleChange("applicationCertificationDate")}
             />
           </div>
           <div className="field">
             <label>Applicant’s Signature</label>
             <input
               type="text"
-              value={form.applicationCertificationSignature}
-              onChange={(e) =>
-                updateField(
-                  "applicationCertificationSignature",
-                  e.target.value
-                )
-              }
+              value={form.applicationCertificationSignature || ""}
+              onChange={handleChange("applicationCertificationSignature")}
               placeholder="Type your full name"
             />
             <p className="signature-helper">

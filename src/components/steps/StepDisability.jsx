@@ -215,9 +215,10 @@ function StepDisability({ form, updateField }) {
       {/* Signature row */}
       <div className="grid grid-2 disability-signature-row">
         <div className="field">
-          <label>Signature</label>
+          <label>Signature of Applicant</label>
           <input
             type="text"
+            placeholder="Type your full name"
             value={form.disabilitySignature || ""}
             onChange={handleChange("disabilitySignature")}
           />
