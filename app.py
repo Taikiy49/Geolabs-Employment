@@ -3,34 +3,58 @@ from __future__ import annotations
 import io
 import json
 import os
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple
 
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 
-# --------- Text extraction libs ----------
 from pypdf import PdfReader
 import docx
 
-# --------- Gemini (google-generativeai) ----------
 import google.generativeai as genai
 from google.api_core.exceptions import PermissionDenied
 
+# -------------------------------------------------------
+# Config
+# -------------------------------------------------------
 GEMINI_KEY = os.getenv("GEMINI_API_KEY", "")
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-pro")
 
-if not GEMINI_KEY:
-    print("⚠️ GEMINI_API_KEY not set – /api/parse-resume will fail with 500.")
-genai.configure(api_key=GEMINI_KEY)
+if GEMINI_KEY:
+    genai.configure(api_key=GEMINI_KEY)
+else:
+    print("⚠️ GEMINI_API_KEY not set – resume autofill will use a basic fallback.")
 
 ALLOWED_EXTENSIONS = {".pdf", ".doc", ".docx", ".txt"}
 
 app = Flask(__name__)
-CORS(app, resources={r"/api/*": {"origins": "*"}})
 
-# -------------------------------------------------------------------
+# Simple request logger so you can see POST /api/parse-resume in the terminal
+@app.before_request
+def log_request() -> None:
+    print(f"➡ {request.method} {request.path}")
+
+app.secret_key = os.getenv("FLASK_SECRET_KEY", "CHANGE_ME_IN_PRODUCTION")
+
+frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
+
+CORS(
+    app,
+    resources={
+        r"/api/*": {
+            "origins": [
+                frontend_url,
+                "http://localhost:5173",
+                "http://127.0.0.1:5173",
+            ]
+        }
+    },
+    supports_credentials=True,
+)
+
+# -------------------------------------------------------
 # File helpers
-# -------------------------------------------------------------------
+# -------------------------------------------------------
 def get_extension(filename: str) -> str:
     filename = filename or ""
     if "." not in filename:
@@ -40,7 +64,7 @@ def get_extension(filename: str) -> str:
 
 def extract_text_from_pdf(file_storage) -> str:
     reader = PdfReader(file_storage.stream)
-    pages = []
+    pages: List[str] = []
     for page in reader.pages:
         text = page.extract_text() or ""
         pages.append(text)
@@ -75,10 +99,9 @@ def extract_text_from_file(file_storage) -> str:
         raise ValueError(f"Unsupported file type: {ext or 'unknown'}")
 
 
-# -------------------------------------------------------------------
-# Gemini resume parsing
-# -------------------------------------------------------------------
-
+# -------------------------------------------------------
+# Resume schema / AI prompt
+# -------------------------------------------------------
 RESUME_SCHEMA_DESCRIPTION = """
 Return a JSON object with the following structure:
 
@@ -104,11 +127,10 @@ Return a JSON object with the following structure:
       "reasonForLeaving": null,
       "supervisor": "Supervisor name if clearly indicated, else null"
     }
-    // Up to 3 most recent positions
   ],
   "education": {
     "graduate": "Most recent college/university name or null",
-    "graduateYears": "Years attended or graduation year (e.g. '2016–2020' or '2020') or null",
+    "graduateYears": "Years attended or graduation year or null",
     "graduateMajor": "Major or field of study or null",
     "trade": "Trade/vocational school name or null",
     "tradeYears": "Years or null",
@@ -128,7 +150,6 @@ Return a JSON object with the following structure:
       "company": "Company or relationship if clear",
       "phone": "Phone number if clearly shown, else null"
     }
-    // Only if clearly labeled as references
   ]
 }
 
@@ -154,20 +175,15 @@ Be conservative:
 """
 
 
-def _extract_text_from_candidate(response) -> str:
-    """
-    Safely extract text from the first candidate without using response.text
-    (which can throw if finish_reason != STOP).
-    """
+def _extract_text_from_candidate(response) -> Tuple[str, Any]:
     if not getattr(response, "candidates", None):
-        raise ValueError("Gemini returned no candidates.")
+        raise ValueError("Model returned no candidates.")
 
     cand = response.candidates[0]
     finish_reason = getattr(cand, "finish_reason", None)
 
-    # If finish_reason is not STOP / 1, Gemini might have blocked or cut off output.
-    # We'll still try to extract text if parts exist, but surface a better error if empty.
-    parts = getattr(cand, "content", None).parts if getattr(cand, "content", None) else []
+    content = getattr(cand, "content", None)
+    parts = content.parts if content else []
     text_chunks: List[str] = []
 
     for p in parts:
@@ -178,22 +194,17 @@ def _extract_text_from_candidate(response) -> str:
 
     if not raw:
         raise ValueError(
-            f"Gemini returned an empty response (finish_reason={finish_reason}). "
+            f"Model returned an empty response (finish_reason={finish_reason}). "
             "This usually means the response was blocked or truncated."
         )
 
     return raw, finish_reason
 
 
-def call_gemini_for_resume(text: str) -> Dict[str, Any]:
-    """
-    Use Gemini to convert raw resume text into structured JSON.
-    More defensive: avoid response.text quick accessor and handle blocked responses.
-    """
+def call_generative_parser(text: str) -> Dict[str, Any]:
     if not GEMINI_KEY:
         raise RuntimeError("GEMINI_API_KEY is not configured.")
 
-    # Keep plenty of context but bound char length for sanity
     max_chars = 20000
     excerpt = text[:max_chars]
     truncated = len(text) > max_chars
@@ -219,7 +230,6 @@ Return ONLY the JSON object described above.
 
     raw, finish_reason = _extract_text_from_candidate(response)
 
-    # Gemini sometimes wraps content in ```json ... ```; strip if present
     if raw.startswith("```"):
         raw = raw.strip("`\n ")
         if raw.lower().startswith("json"):
@@ -229,12 +239,11 @@ Return ONLY the JSON object described above.
         parsed = json.loads(raw)
     except Exception as e:
         raise ValueError(
-            f"Failed to parse JSON from Gemini output: {e}\n"
+            f"Failed to parse JSON from model output: {e}\n"
             f"Finish reason: {finish_reason}\n"
             f"Raw (first 400 chars): {raw[:400]}"
         )
 
-    # Attach some meta info for the caller
     return {
         "data": parsed,
         "meta": {
@@ -246,9 +255,6 @@ Return ONLY the JSON object described above.
 
 
 def normalize_parsed_resume(data: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Normalize to a predictable structure that StepResume.jsx expects.
-    """
     contact = data.get("contact") or {}
     employment = data.get("employment") or []
     education = data.get("education") or {}
@@ -312,26 +318,35 @@ def normalize_parsed_resume(data: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
-# -------------------------------------------------------------------
-# API route: /api/parse-resume
-# -------------------------------------------------------------------
+def make_empty_parsed() -> Dict[str, Any]:
+    return normalize_parsed_resume(
+        {
+            "contact": {},
+            "employment": [],
+            "education": {},
+            "skills": {},
+            "references": [],
+        }
+    )
+
+
+# -------------------------------------------------------
+# Routes
+# -------------------------------------------------------
+@app.route("/api/health", methods=["GET"])
+def health() -> Any:
+    return jsonify(
+        {
+            "status": "ok",
+            "autofill_ready": bool(GEMINI_KEY),
+            # also expose this name in case your frontend expects gemini_key_set
+            "gemini_key_set": bool(GEMINI_KEY),
+        }
+    )
+
+
 @app.route("/api/parse-resume", methods=["POST"])
 def parse_resume() -> Any:
-    """
-    Accepts a resume file, extracts text, sends to Gemini, returns structured JSON.
-
-    Response:
-    {
-      "parsed": { ...normalized resume data... },
-      "meta": {
-        "filename": "resume.pdf",
-        "characters_used": 12345,
-        "truncated": false,
-        "model": "gemini-2.5-pro",
-        "finish_reason": "STOP"
-      }
-    }
-    """
     file = request.files.get("file")
     if not file:
         return jsonify({"error": "No file provided"}), 400
@@ -345,11 +360,22 @@ def parse_resume() -> Any:
         if not text.strip():
             return jsonify({"error": "Could not extract text from resume."}), 400
 
-        gemini_result = call_gemini_for_resume(text)
-        raw_parsed = gemini_result["data"]
-        gem_meta = gemini_result["meta"]
-
-        parsed = normalize_parsed_resume(raw_parsed)
+        try:
+            result = call_generative_parser(text)
+            raw_parsed = result["data"]
+            meta = result["meta"]
+            parsed = normalize_parsed_resume(raw_parsed)
+            model_name = meta.get("model")
+            truncated = meta.get("truncated", False)
+            finish_reason = meta.get("finish_reason")
+            mode = "smart"
+        except (PermissionDenied, RuntimeError, ValueError) as ai_err:
+            print("⚠️ Smart parser failed, using basic fallback:", repr(ai_err))
+            parsed = make_empty_parsed()
+            model_name = "fallback-basic"
+            truncated = False
+            finish_reason = "FALLBACK"
+            mode = "fallback"
 
         return jsonify(
             {
@@ -357,43 +383,22 @@ def parse_resume() -> Any:
                 "meta": {
                     "filename": file.filename,
                     "characters_used": len(text),
-                    "truncated": gem_meta.get("truncated", False),
-                    "model": gem_meta.get("model"),
-                    "finish_reason": gem_meta.get("finish_reason"),
+                    "truncated": truncated,
+                    "model": model_name,
+                    "finish_reason": finish_reason,
+                    "mode": mode,
                 },
             }
         )
-    except PermissionDenied as pe:
-        print("❌ Gemini PermissionDenied:", pe)
-        return (
-            jsonify(
-                {
-                    "error": "Gemini rejected the API key or project configuration. "
-                    "Please rotate GEMINI_API_KEY or check your Google Cloud setup."
-                }
-            ),
-            403,
-        )
-    except ValueError as ve:
-        # JSON parsing / empty response / blocked content, etc.
-        print("❌ Gemini parse error:", ve)
-        return jsonify({"error": str(ve)}), 500
     except Exception as e:
         print("❌ /api/parse-resume error:", repr(e))
-        return jsonify({"error": "Internal error while parsing resume."}), 500
-
-
-# Optional: simple health check
-@app.route("/api/health", methods=["GET"])
-def health() -> Any:
-    return jsonify(
-        {
-            "status": "ok",
-            "gemini_model": GEMINI_MODEL,
-            "gemini_key_set": bool(GEMINI_KEY),
-        }
-    )
+        return jsonify({"error": "Internal error while processing resume."}), 500
 
 
 if __name__ == "__main__":
+    with app.app_context():
+        print("🔍 Registered routes:")
+        for rule in app.url_map.iter_rules():
+            print(f"  {rule}")
+
     app.run(host="0.0.0.0", port=5000, debug=True)

@@ -3,10 +3,11 @@
    ======================= */
 
 .agreement-section {
-
 }
 
-/* Header layout */
+/* -----------------------
+   HEADER AREA
+-------------------------*/
 .agreement-header {
   display: flex;
   justify-content: space-between;
@@ -21,7 +22,7 @@
   line-height: 1.5;
 }
 
-/* Right-side meta */
+/* Meta section (small text on right) */
 .agreement-meta {
   display: flex;
   flex-direction: column;
@@ -31,7 +32,7 @@
   color: #6b7280;
 }
 
-/* Pill badge */
+/* Yellow pill */
 .agreement-pill {
   font-size: 0.75rem;
   padding: 0.25rem 0.7rem;
@@ -42,7 +43,9 @@
   white-space: nowrap;
 }
 
-/* Main content card */
+/* -----------------------
+   MAIN CONTENT CARD
+-------------------------*/
 .agreement-card {
   margin-top: 0.4rem;
   border-radius: 0.75rem;
@@ -56,7 +59,7 @@
   margin-bottom: 0.55rem;
 }
 
-/* Strong warning at the end */
+/* Red warning box */
 .agreement-warning {
   margin-top: 0.7rem;
   padding: 0.6rem 0.75rem;
@@ -69,16 +72,48 @@
   font-size: 0.82rem;
 }
 
-/* Signature row */
+/* -----------------------
+   SIGNATURE AREA
+-------------------------*/
+
+/* Container spacing */
 .agreement-signature-row {
   margin-top: 1rem;
 }
 
-.agreement-signature-row .field input[type="text"]::placeholder {
-  color: #9ca3af;
+/* Handwritten signature style, but small */
+.agreement-signature-row .field input[type="text"] {
+  font-family: "Dancing Script", "Segoe Script", "Bradley Hand", cursive;
+  font-size: 1rem;
+
+  height: 22px;        /* Smaller, signature-sized height */
+  padding: 2px 4px;
+  margin-top: 4px;
+
+  border-radius: 0;
+  border-width: 0 0 1px 0;
+  border-style: solid;
+  border-color: #d1d5db;
+
+  background: transparent;
+  line-height: 1.1;
 }
 
-/* Responsive tweaks */
+.agreement-signature-row .field input[type="text"]:focus {
+  outline: none;
+  border-color: #b87333;
+  box-shadow: 0 1px 0 0 #b87333;
+}
+
+.agreement-signature-row .field input[type="text"]::placeholder {
+  color: #9ca3af;
+  font-family: inherit;
+  font-size: 0.9rem;
+}
+
+/* -----------------------
+   RESPONSIVE
+-------------------------*/
 @media (max-width: 640px) {
   .agreement-header {
     flex-direction: column;

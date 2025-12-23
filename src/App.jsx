@@ -125,7 +125,7 @@ const steps = [
   // Intro step (jobs + benefits + Apply Now)
   { id: "intro", label: "Start & Openings", Component: StepIntro },
 
-  // New smart resume upload/autofill step
+  // Smart resume upload/autofill step
   { id: "resume", label: "Resume Import", Component: StepResume },
 
   // Employment Application branch
@@ -155,7 +155,7 @@ const steps = [
   { id: "review", label: "Review & Submit", Component: StepReview },
 ];
 
-// 3 branches for the progress bar (intro + resume are part of Employment Application)
+// Branches for the progress bar
 const branches = [
   {
     label: "Employment Application",

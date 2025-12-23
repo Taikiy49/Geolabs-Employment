@@ -314,7 +314,6 @@ a:hover {
   max-width: none;
   border-radius: 0;
   border: none;
-  padding: 0.5rem;
   display: flex;
   flex-direction: column;
   gap: 0.85rem;

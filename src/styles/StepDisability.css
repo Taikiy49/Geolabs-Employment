@@ -1,12 +1,14 @@
 /* =======================
    DISABILITY SELF-ID STEP
-   ======================= */
+=========================== */
 
 .disability-section {
 
 }
 
-/* Header row */
+/* -----------------------
+   Header row
+------------------------ */
 .disability-header {
   display: flex;
   justify-content: space-between;
@@ -41,12 +43,16 @@
   white-space: nowrap;
 }
 
-/* Top row inputs */
+/* -----------------------
+   Top row inputs
+------------------------ */
 .disability-row-top {
   margin-bottom: 0.9rem;
 }
 
-/* Generic card for big blocks of text */
+/* -----------------------
+   Generic card container
+------------------------ */
 .disability-card {
   border-radius: 0.7rem;
   border: 1px solid #e5e7eb;
@@ -63,7 +69,9 @@
   color: #111827;
 }
 
-/* Conditions list block */
+/* -----------------------
+   Conditions list block
+------------------------ */
 .disability-list-card {
   margin-top: 0.5rem;
   border-radius: 0.6rem;
@@ -83,7 +91,9 @@
   margin-bottom: 0.22rem;
 }
 
-/* Choice card */
+/* -----------------------
+   Choice card
+------------------------ */
 .disability-choice-card .legal-text {
   margin-bottom: 0.5rem;
 }
@@ -114,7 +124,9 @@
   background: #f9fafb;
 }
 
-/* Public burden statement */
+/* -----------------------
+   Public burden statement
+------------------------ */
 .disability-burden {
   margin: 0.6rem 0 0.8rem;
   font-size: 0.8rem;
@@ -128,12 +140,68 @@
   letter-spacing: 0.04em;
 }
 
-/* Signature row at bottom */
+/* -----------------------
+   Signature row
+------------------------ */
 .disability-signature-row {
   margin-top: 0.8rem;
 }
 
-/* Responsive tweaks */
+/* Signature field – match Agreement / Veteran style */
+.disability-signature-row .field input[type="text"] {
+  font-family: "Dancing Script", "Segoe Script", "Lucida Handwriting", cursive;
+  font-size: 1rem;
+  color: #374151;
+  height: 22px;
+  padding: 2px 4px;
+  margin-top: 4px;
+  border-radius: 0;
+  border-width: 0 0 1px 0;
+  border-style: solid;
+  border-color: #d1d5db;
+  background: transparent;
+  line-height: 1.1;
+}
+
+.disability-signature-row .field input[type="text"]:focus {
+  outline: none;
+  border-color: #b87333;
+  box-shadow: 0 1px 0 0 #b87333;
+}
+
+.disability-signature-row .field input[type="text"]::placeholder {
+  color: #bfbfbf;
+  font-size: 1.05rem;
+}
+
+/* Date input – light feel when empty, darker when set */
+.disability-signature-row .field input[type="date"] {
+  font-size: 0.9rem;
+  font-weight: 400;
+  color: #111827; /* actual date text */
+}
+
+/* WebKit internal text */
+.disability-signature-row .field input[type="date"]::-webkit-datetime-edit {
+  color: #111827;
+}
+
+/* When effectively "empty", use softer tone where supported */
+.disability-signature-row
+  .field
+  input[type="date"]:placeholder-shown::-webkit-datetime-edit {
+  color: #9ca3af;
+}
+
+.disability-signature-row
+  .field
+  input[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 0.55;
+}
+
+/* -----------------------
+   Responsive tweaks
+------------------------ */
 @media (max-width: 640px) {
   .disability-header {
     flex-direction: column;

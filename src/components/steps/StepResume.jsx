@@ -1,15 +1,26 @@
 import React, { useEffect, useState } from "react";
 import "../../styles/StepResume.css";
 
+// ------------------------------------------------------------------
+// API endpoints
+// ------------------------------------------------------------------
 const DEFAULT_API_URL = "http://127.0.0.1:5000/api/parse-resume";
 
+// Support both CRA-style (process.env.REACT_APP_...) and Vite (import.meta.env.VITE_...)
 const API_URL =
+  (typeof import.meta !== "undefined" &&
+    import.meta.env &&
+    import.meta.env.VITE_RESUME_API_URL) ||
   (typeof process !== "undefined" &&
     process.env &&
     process.env.REACT_APP_PARSE_RESUME_URL) ||
   DEFAULT_API_URL;
 
 const HEALTH_URL = API_URL.replace("/api/parse-resume", "/api/health");
+
+// Helpful for debugging
+console.log("🧾 StepResume using API_URL =", API_URL);
+console.log("🩺 StepResume using HEALTH_URL =", HEALTH_URL);
 
 function StepResume({
   form,
@@ -26,7 +37,7 @@ function StepResume({
   const [isDragging, setIsDragging] = useState(false);
   const [lastParseTime, setLastParseTime] = useState(null);
 
-  // new: track whether parsed data has been applied to the form
+  // track whether parsed data has been applied to the form
   const [hasAppliedSinceParse, setHasAppliedSinceParse] = useState(false);
   const [lastAppliedAt, setLastAppliedAt] = useState(null);
 
@@ -44,18 +55,22 @@ function StepResume({
   useEffect(() => {
     const checkHealth = async () => {
       try {
+        console.log("🔍 Checking health at:", HEALTH_URL);
         const res = await fetch(HEALTH_URL, { method: "GET" });
         if (!res.ok) {
+          console.warn("⚠️ Health check returned non-200:", res.status);
           setServerStatus("degraded");
           return;
         }
         const data = await res.json();
-        if (data && data.status === "ok" && data.gemini_key_set) {
+        console.log("✅ Health response:", data);
+        if (data && data.status === "ok" && data.autofill_ready) {
           setServerStatus("ok");
         } else {
           setServerStatus("degraded");
         }
-      } catch {
+      } catch (e) {
+        console.error("❌ Health check failed:", e);
         setServerStatus("down");
       }
     };
@@ -154,7 +169,7 @@ function StepResume({
   };
 
   // ------------------------------------
-  // Upload + Gemini parsing
+  // Upload + parsing
   // ------------------------------------
   const handleUploadAndParse = async () => {
     if (!file) {
@@ -167,6 +182,8 @@ function StepResume({
       setError(validationError);
       return;
     }
+
+    console.log("🚀 Uploading resume to:", API_URL, "file:", file.name);
 
     setStatus("uploading");
     setError("");
@@ -183,17 +200,26 @@ function StepResume({
         body: formData,
       });
 
-      const data = await res.json().catch(() => null);
+      let data = null;
+      try {
+        data = await res.json();
+      } catch {
+        // ignore JSON parse errors, handled below
+      }
 
       if (!res.ok) {
+        console.error("❌ Server returned non-OK:", res.status, data);
         throw new Error(
-          (data && data.error) || "Resume parsing failed on the server."
+          (data && data.error) || "Resume processing failed on the server."
         );
       }
 
       if (!data || !data.parsed) {
+        console.error("❌ No parsed data in response:", data);
         throw new Error("No parsed data returned from server.");
       }
+
+      console.log("✅ Parsed resume data:", data);
 
       setParsedPreview(data.parsed);
       setDebugMeta(data.meta || null);
@@ -202,7 +228,7 @@ function StepResume({
       setHasAppliedSinceParse(false);
     } catch (err) {
       console.error("❌ Resume Upload Error:", err);
-      setError(err.message || "Something went wrong during parsing.");
+      setError(err.message || "Something went wrong during processing.");
       setStatus("error");
     }
   };
@@ -283,10 +309,7 @@ function StepResume({
   const applySkills = (skills) => {
     if (!skills || !autoFillSections.skills) return;
 
-    updateField(
-      "typingSpeed",
-      safeApply(form.typingSpeed, skills.typingSpeed)
-    );
+    updateField("typingSpeed", safeApply(form.typingSpeed, skills.typingSpeed));
     updateField("tenKey", safeApply(form.tenKey, skills.tenKey));
     updateField(
       "computerSkills",
@@ -327,9 +350,7 @@ function StepResume({
         <div className="resume-status resume-status-uploading">
           <div className="resume-status-dot" />
           <div>
-            <div className="resume-status-title">
-              Analyzing your resume with Gemini…
-            </div>
+            <div className="resume-status-title">Analyzing your resume…</div>
             <div className="resume-status-subtitle">
               Extracting work history, education, skills, and contact details.
               This usually takes just a few seconds.
@@ -344,11 +365,11 @@ function StepResume({
           <div className="resume-status-dot" />
           <div>
             <div className="resume-status-title">
-              Resume analyzed successfully!
+              Resume processed successfully!
             </div>
             <div className="resume-status-subtitle">
-              Review what we found, toggle sections on or off, and then apply
-              everything to your application.
+              Review the snapshot, toggle sections, and then apply everything to
+              your application.
             </div>
           </div>
         </div>
@@ -374,7 +395,7 @@ function StepResume({
       return (
         <div className="resume-server-chip resume-server-chip-ok">
           <span className="resume-server-dot" />
-          Gemini connected
+          Smart autofill online
         </div>
       );
     }
@@ -382,7 +403,7 @@ function StepResume({
       return (
         <div className="resume-server-chip resume-server-chip-warn">
           <span className="resume-server-dot" />
-          Server reachable, but Gemini may not be fully configured
+          Connected, but autofill may be limited
         </div>
       );
     }
@@ -390,7 +411,7 @@ function StepResume({
       return (
         <div className="resume-server-chip resume-server-chip-error">
           <span className="resume-server-dot" />
-          Unable to reach resume parser server
+          Unable to reach resume helper
         </div>
       );
     }
@@ -503,9 +524,9 @@ function StepResume({
           <div>
             <h2>Upload Your Resume</h2>
             <p className="section-help">
-              Upload your resume and we’ll intelligently pre-fill your
-              application using Gemini. You stay in control — review and edit
-              everything before submitting.
+              Upload your resume and we’ll automatically pre-fill your
+              application. You stay in control — review and edit everything
+              before submitting.
             </p>
           </div>
           <div className="resume-section-meta">
@@ -556,7 +577,7 @@ function StepResume({
             }`}
           >
             <span className="bubble">2</span>
-            <span>Analyze with Gemini</span>
+            <span>Analyze resume</span>
           </div>
           <div
             className={`resume-mini-step ${
@@ -623,8 +644,8 @@ function StepResume({
                 <div>
                   <h3>Autofill Controls</h3>
                   <p className="section-help">
-                    Choose which sections Gemini is allowed to pre-fill. Turning
-                    a section off keeps your current answers untouched.
+                    Choose which sections are allowed to pre-fill. Turning a
+                    section off keeps your current answers untouched.
                   </p>
                 </div>
                 <button
@@ -692,7 +713,7 @@ function StepResume({
               {renderParsedSnapshot()}
 
               <details className="resume-preview-details">
-                <summary>Developer view: raw extracted JSON</summary>
+                <summary>Developer view: raw extracted data</summary>
                 <pre className="resume-preview-json">
                   {JSON.stringify(parsedPreview, null, 2)}
                 </pre>
@@ -700,19 +721,16 @@ function StepResume({
 
               {debugMeta && (
                 <p className="section-help resume-meta-footnote">
-                  Parsed from: <strong>{debugMeta.filename}</strong> · Characters
-                  sent to Gemini:{" "}
+                  Parsed from: <strong>{debugMeta.filename}</strong> ·
+                  Characters processed:{" "}
                   <strong>{debugMeta.characters_used}</strong>
                   {debugMeta.truncated && (
                     <>
                       {" "}
-                      · <span className="warn">truncated for model limits</span>
-                    </>
-                  )}
-                  {debugMeta.model && (
-                    <>
-                      {" "}
-                      · Model: <strong>{debugMeta.model}</strong>
+                      ·{" "}
+                      <span className="warn">
+                        truncated for internal limits
+                      </span>
                     </>
                   )}
                 </p>

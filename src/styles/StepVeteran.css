@@ -1,21 +1,26 @@
 /* =======================
    VETERAN SELF-ID STEP
-   ======================= */
+=========================== */
 
 .veteran-section {
+
 }
 
-/* Header */
+/* -----------------------
+   Header
+------------------------ */
 .veteran-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 0.8rem;
-  margin-bottom: 0.8rem;
+  gap: 0.9rem;
+  margin-bottom: 0.9rem;
 }
 
 .veteran-header h2 {
   margin-bottom: 0.35rem;
+  font-size: 1rem;
+  line-height: 1.45;
 }
 
 /* Right-side meta */
@@ -23,12 +28,12 @@
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 0.15rem;
   font-size: 0.75rem;
+  gap: 0.15rem;
   color: #6b7280;
 }
 
-/* Pill */
+/* Blue pill */
 .veteran-pill {
   margin-top: 0.25rem;
   font-size: 0.75rem;
@@ -40,60 +45,70 @@
   white-space: nowrap;
 }
 
-/* Intro paragraphs */
+/* -----------------------
+   Intro copy
+------------------------ */
 .veteran-intro .legal-text {
   margin-bottom: 0.6rem;
+  color: #4b5563;
+  font-size: 0.85rem;
+  line-height: 1.45;
 }
 
-/* Main card */
+/* -----------------------
+   Main card
+------------------------ */
 .veteran-card {
   margin-top: 0.6rem;
   border-radius: 0.7rem;
   border: 1px solid #e5e7eb;
   background: #ffffff;
-  padding: 0.9rem 1rem;
-  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.04);
+  padding: 1rem 1.15rem;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.05);
 }
 
 .veteran-card h3 {
-  margin: 0 0 0.5rem;
+  margin: 0 0 0.55rem;
   font-size: 0.95rem;
   font-weight: 600;
   color: #111827;
 }
 
-/* Radio group */
+/* -----------------------
+   Radio group rows
+------------------------ */
 .veteran-radio-group {
   display: flex;
   flex-direction: column;
-  gap: 0.45rem;
+  gap: 0.5rem;
 }
 
-/* Individual radio rows */
 .veteran-radio {
   display: flex;
   align-items: flex-start;
-  gap: 0.45rem;
+  gap: 0.5rem;
+  padding: 0.38rem 0.45rem;
+  border-radius: 0.4rem;
   font-size: 0.85rem;
   color: #111827;
-  padding: 0.3rem 0.4rem;
-  border-radius: 0.4rem;
   transition: background 0.12s ease;
 }
 
 .veteran-radio input[type="radio"] {
-  margin-top: 0.18rem;
+  margin-top: 0.2rem;
 }
 
 .veteran-radio:hover {
   background: #f9fafb;
 }
 
-/* Definitions card */
+/* -----------------------
+   Definitions card
+------------------------ */
 .veteran-definitions-card {
-  margin: 0.3rem 0.2rem 0.4rem 1.6rem;
-  padding: 0.7rem 0.9rem;
-  border-radius: 0.6rem;
+  margin: 0.35rem 0.2rem 0.5rem 1.7rem;
+  padding: 0.75rem 0.95rem;
+  border-radius: 0.65rem;
   border: 1px dashed #d1d5db;
   background: #f9fafb;
   max-height: 260px;
@@ -102,14 +117,74 @@
 
 .veteran-definitions-card .legal-text {
   margin-bottom: 0.25rem;
+  font-size: 0.82rem;
+  line-height: 1.35;
 }
 
-/* Signature row spacing */
+/* -----------------------
+   Signature row
+------------------------ */
 .veteran-signature-row {
-  margin-top: 0.9rem;
+  margin-top: 0.75rem;
 }
 
-/* Responsive tweaks */
+/* Signature field – same style as Agreement component */
+.veteran-signature-row .field input[type="text"] {
+  font-family: "Dancing Script", "Segoe Script", "Lucida Handwriting", cursive;
+  font-size: 1rem;
+  color: #374151;
+
+  height: 22px;
+  padding: 2px 4px;
+  margin-top: 4px;
+
+  border-radius: 0;
+  border-width: 0 0 1px 0;
+  border-color: #d1d5db;
+  background: transparent;
+}
+
+.veteran-signature-row .field input[type="text"]:focus {
+  outline: none;
+  border-color: #b87333;
+  box-shadow: 0 1px 0 0 #b87333;
+}
+
+.veteran-signature-row .field input[type="text"]::placeholder {
+  color: #bfbfbf;
+  font-size: 1.05rem;
+}
+
+/* -----------------------
+   Date input (placeholder light, selected date dark)
+------------------------ */
+
+.veteran-signature-row .field input[type="date"] {
+  font-size: 0.9rem;
+  font-weight: 400;
+  color: #111827; /* actual date */
+}
+
+/* Placeholder behavior */
+.veteran-signature-row .field input[type="date"]:not(:focus):placeholder-shown {
+  color: #9ca3af; /* light gray placeholder */
+}
+
+.veteran-signature-row .field input[type="date"]::-webkit-datetime-edit {
+  color: #111827; /* actual date */
+}
+
+.veteran-signature-row .field input[type="date"]:placeholder-shown::-webkit-datetime-edit {
+  color: #9ca3af; /* placeholder */
+}
+
+.veteran-signature-row .field input[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 0.55;
+}
+
+/* -----------------------
+   Responsive tweaks
+------------------------ */
 @media (max-width: 640px) {
   .veteran-header {
     flex-direction: column;
@@ -125,6 +200,6 @@
   }
 
   .veteran-definitions-card {
-    margin-left: 0.9rem;
+    margin-left: 1rem;
   }
 }
