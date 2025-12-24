@@ -1,7 +1,30 @@
-import React from "react";
+// src/components/steps/StepReview.jsx
+import React, { useMemo, useState } from "react";
 import "../../styles/StepReview.css";
 
+const API_URL =
+  import.meta?.env?.VITE_API_URL?.replace(/\/+$/, "") || "http://localhost:5000";
+
+// Put the word-for-word text you show on the signing step(s) here.
+// This will be printed into the PDF exactly as shown.
+const ALCOHOL_DRUG_PROGRAM_TEXT = `
+Alcohol & Drug Testing Program
+
+[PASTE THE WORD-FOR-WORD TEXT YOU DISPLAY ON THE SIGNING STEP HERE]
+`;
+
+// Optional: if you have other required notices you want embedded in the PDF
+// on separate pages, add them here (and send in payload).
+const REQUIRED_NOTICE_TEXT = `
+Employment Application & Required Notices
+
+[OPTIONAL: PASTE ANY WORD-FOR-WORD REQUIRED NOTICE TEXT HERE]
+`;
+
 function StepReview({ form }) {
+  const [submitting, setSubmitting] = useState(false);
+  const [submitState, setSubmitState] = useState({ ok: false, error: "" });
+
   const formatVetStatus = () => {
     if (form.vetStatus === "protected") return "Protected veteran";
     if (form.vetStatus === "notProtected") return "Not a protected veteran";
@@ -11,6 +34,59 @@ function StepReview({ form }) {
 
   const renderValue = (value) => (value ? value : "—");
   const isEmpty = (value) => !value;
+
+  // Build the “send literally everything” payload.
+  // Includes the full form object + legal text (word-for-word) for PDF printing.
+  const payload = useMemo(() => {
+    return {
+      submittedAt: new Date().toISOString(),
+      form, // literally everything in state
+      computed: {
+        vetStatusLabel: formatVetStatus(),
+      },
+      legalText: {
+        alcoholDrugProgram: ALCOHOL_DRUG_PROGRAM_TEXT,
+        requiredNotice: REQUIRED_NOTICE_TEXT, // optional
+      },
+      // Optional: if you later store a drawn signature data URL in the form,
+      // the backend will embed it in the PDF automatically.
+      // signatures: {
+      //   drugAgreementSignatureDataUrl: form.drugAgreementSignatureDataUrl || null,
+      // },
+      clientMeta: {
+        userAgent: navigator.userAgent,
+        language: navigator.language,
+        platform: navigator.platform,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      },
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form]);
+
+  const handleSubmit = async () => {
+    setSubmitState({ ok: false, error: "" });
+    setSubmitting(true);
+
+    try {
+      const res = await fetch(`${API_URL}/api/submit-application`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(data?.error || "Submission failed.");
+      }
+
+      setSubmitState({ ok: true, error: "" });
+    } catch (e) {
+      setSubmitState({ ok: false, error: e?.message || "Submission failed." });
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <section className="form-section review-section">
@@ -31,6 +107,27 @@ function StepReview({ form }) {
           </span>
         </div>
       </div>
+
+      {/* Submission status */}
+      {(submitState.ok || submitState.error) && (
+        <div
+          className={`review-banner ${
+            submitState.ok ? "review-banner-success" : "review-banner-error"
+          }`}
+          role="status"
+        >
+          {submitState.ok ? (
+            <>
+              <strong>Submitted!</strong> Your application was sent to the
+              Geolabs, Inc. team.
+            </>
+          ) : (
+            <>
+              <strong>Couldn’t submit.</strong> {submitState.error}
+            </>
+          )}
+        </div>
+      )}
 
       {/* Summary cards */}
       <div className="review-grid">
@@ -149,29 +246,41 @@ function StepReview({ form }) {
             </div>
             <div className="review-list-row">
               <dt>Date</dt>
-              <dd
-                className={
-                  isEmpty(form.drugAgreementDate) ? "review-empty" : ""
-                }
-              >
+              <dd className={isEmpty(form.drugAgreementDate) ? "review-empty" : ""}>
                 {renderValue(form.drugAgreementDate)}
               </dd>
             </div>
           </dl>
           <p className="review-note">
-            By signing, you confirm you have read and understand the Alcohol &
+            By signing, you confirm you have read and understand the Alcohol &amp;
             Drug Testing Program requirements.
           </p>
         </div>
       </div>
 
-      {/* Footer reminder */}
+      {/* Footer reminder + submit */}
       <div className="review-footer">
         <p>
           When you submit, your application will be sent to the Geolabs, Inc.
           team for review. You can still go back to edit any step before final
           submission.
         </p>
+
+        <div className="review-actions">
+          <button
+            type="button"
+            className="review-submit"
+            onClick={handleSubmit}
+            disabled={submitting}
+          >
+            {submitting ? "Submitting..." : "Submit Application"}
+          </button>
+
+          <span className="review-actions-hint">
+            This will email a print-ready PDF to{" "}
+            <strong>tyamashita@geolabs.net</strong>.
+          </span>
+        </div>
       </div>
     </section>
   );

@@ -1,5 +1,5 @@
 // src/components/steps/StepEducation.jsx
-import React from "react";
+import React, { useMemo } from "react";
 import "../../styles/StepEducation.css";
 
 const EDUCATION_LEVELS = [
@@ -22,9 +22,22 @@ const EDUCATION_LEVELS = [
 function StepEducation({ form, updateField }) {
   const highestLevel = form.highestEducationLevel || "";
 
+  const isHsOrLess = useMemo(() => {
+    return highestLevel === "less-than-high-school" || highestLevel === "high-school";
+  }, [highestLevel]);
+
+  // 🔒 We do not collect high school dates/years to avoid age-related inference.
+  // Postsecondary years are optional and used only for credential verification.
+  const showYearsField = !!highestLevel && !isHsOrLess;
+
   const handleLevelChange = (e) => {
     const value = e.target.value;
     updateField("highestEducationLevel", value);
+
+    // Optional: clear years if user switches to HS/less to ensure we never store it.
+    if (value === "less-than-high-school" || value === "high-school") {
+      updateField("educationYears", "");
+    }
   };
 
   const renderDetailsCard = () => {
@@ -40,11 +53,6 @@ function StepEducation({ form, updateField }) {
     let schoolLabel = "School Name & Location";
     let degreeLabel = "Degree / Diploma or Program";
     let extraHelp = "";
-    const isHsOrLess =
-      highestLevel === "less-than-high-school" ||
-      highestLevel === "high-school";
-
-    const showYearsField = !isHsOrLess; // 🔒 no years for HS or below
 
     if (highestLevel === "less-than-high-school") {
       heading = "Education Details (Less than High School)";
@@ -57,7 +65,7 @@ function StepEducation({ form, updateField }) {
       schoolLabel = "High School or GED Program Name & Location";
       degreeLabel = "Diploma Type (e.g., High School Diploma / GED)";
       extraHelp =
-        "We do not request high school graduation years so we do not collect age-related information.";
+        "We do not request high school dates or graduation years to avoid collecting age-related information.";
     } else if (highestLevel === "some-college") {
       heading = "Education Details (Some College)";
       schoolLabel = "College / University Name & Location";
@@ -77,17 +85,19 @@ function StepEducation({ form, updateField }) {
       degreeLabel =
         "Degree (e.g., BS Civil Engineering, MS Geotechnical Engineering)";
       extraHelp =
-        "Graduation years for college and above are optional and used only for verifying credentials.";
+        "Postsecondary years are optional and used only for credential verification, not for age determination.";
     } else if (highestLevel === "trade-vocational") {
       heading = "Education Details (Trade / Technical / Vocational)";
       schoolLabel = "School / Training Program Name & Location";
       degreeLabel = "Program or Certification";
       extraHelp =
-        "You may list your completion year for this program if you wish; this is optional.";
+        "Completion years are optional and used only for credential verification, not for age determination.";
     } else if (highestLevel === "other") {
       heading = "Education Details (Other)";
       schoolLabel = "School / Program Name & Location";
       degreeLabel = "Degree / Certificate / Program";
+      extraHelp =
+        "Dates/years are optional for postsecondary programs and used only for credential verification.";
     }
 
     const selectedLevelLabel =
@@ -102,8 +112,7 @@ function StepEducation({ form, updateField }) {
             {extraHelp && <p className="section-help">{extraHelp}</p>}
           </div>
           <span className="edu-chip edu-chip-summary">
-            Tailored to:{" "}
-            <span className="edu-chip-label">{selectedLevelLabel}</span>
+            Tailored to: <span className="edu-chip-label">{selectedLevelLabel}</span>
           </span>
         </div>
 
@@ -114,9 +123,8 @@ function StepEducation({ form, updateField }) {
               type="text"
               placeholder="School or program name and location"
               value={form.educationSchoolName || ""}
-              onChange={(e) =>
-                updateField("educationSchoolName", e.target.value)
-              }
+              onChange={(e) => updateField("educationSchoolName", e.target.value)}
+              autoComplete="organization"
             />
           </div>
           <div className="field">
@@ -128,11 +136,11 @@ function StepEducation({ form, updateField }) {
               onChange={(e) =>
                 updateField("educationSchoolLocation", e.target.value)
               }
+              autoComplete="address-level2"
             />
           </div>
         </div>
 
-        {/* Degree + Field (+ optional years for college/trade/etc.) */}
         <div className={`grid ${showYearsField ? "grid-3" : "grid-2"}`}>
           <div className="field">
             <label>{degreeLabel}</label>
@@ -143,15 +151,16 @@ function StepEducation({ form, updateField }) {
               onChange={(e) => updateField("educationDegree", e.target.value)}
             />
           </div>
+
           <div className="field">
-            <label>Field of Study / Emphasis</label>
+            <label>
+              Field of Study / Emphasis <span className="optional-tag">(optional)</span>
+            </label>
             <input
               type="text"
               placeholder="e.g., Structural Engineering, Accounting"
               value={form.educationFieldOfStudy || ""}
-              onChange={(e) =>
-                updateField("educationFieldOfStudy", e.target.value)
-              }
+              onChange={(e) => updateField("educationFieldOfStudy", e.target.value)}
             />
           </div>
 
@@ -163,30 +172,31 @@ function StepEducation({ form, updateField }) {
               </label>
               <input
                 type="text"
+                inputMode="text"
                 placeholder="e.g., 2023 or 2019–2022"
                 value={form.educationYears || ""}
                 onChange={(e) => updateField("educationYears", e.target.value)}
               />
+              <p className="field-hint">
+                Optional — collected only for credential verification (not used for age
+                determination).
+              </p>
             </div>
           )}
         </div>
 
         <div className="field">
           <label>
-            Additional Education{" "}
-            <span className="optional-tag">(optional)</span>
+            Additional Education <span className="optional-tag">(optional)</span>
           </label>
           <textarea
             rows={3}
             placeholder="List any additional schools, degrees, licenses, or certifications you would like us to consider."
             value={form.educationAdditional || ""}
-            onChange={(e) =>
-              updateField("educationAdditional", e.target.value)
-            }
+            onChange={(e) => updateField("educationAdditional", e.target.value)}
           />
           <p className="field-hint">
-            You can also include in-progress programs or professional licenses
-            here.
+            You can also include in-progress programs or professional licenses here.
           </p>
         </div>
       </div>
@@ -221,9 +231,9 @@ function StepEducation({ form, updateField }) {
             ))}
           </select>
           <p className="text-muted education-subnote">
-            We do not request high school graduation dates. For college and
-            other postsecondary programs, years are optional and only used to
-            verify credentials.
+            We do not request high school dates or graduation years. For college and
+            other postsecondary programs, years are optional and only used for
+            credential verification (not for age determination).
           </p>
         </div>
 

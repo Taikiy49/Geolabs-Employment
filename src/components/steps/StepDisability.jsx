@@ -1,15 +1,14 @@
+// src/components/steps/StepDisability.jsx
 import React from "react";
 import "../../styles/StepDisability.css";
 
 function StepDisability({ form, updateField }) {
-  const handleChange = (field) => (e) => {
-    updateField(field, e.target.value);
-  };
+  const handleChange = (field) => (e) => updateField(field, e.target.value);
 
   return (
     <section className="form-section disability-section">
       {/* Header */}
-      <div className="disability-header">
+      <div className="disability-header-row">
         <div>
           <h2>Voluntary Self-Identification of Disability</h2>
           <p className="section-help">
@@ -17,11 +16,16 @@ function StepDisability({ form, updateField }) {
             confidential and will not affect your opportunity for employment.
           </p>
         </div>
+
         <div className="disability-meta">
-          <div>Form CC-305</div>
-          <div>OMB Control Number 1250-0005</div>
-          <div>Page 1 of 1 · Expires 04/30/2026</div>
-          <span className="disability-pill">Voluntary &amp; confidential</span>
+          <div className="disability-meta-lines">
+            <div>Form CC-305</div>
+            <div>OMB Control Number 1250-0005</div>
+            <div>Page 1 of 1 · Expires 04/30/2026</div>
+          </div>
+          <span className="disability-chip disability-chip-voluntary">
+            Voluntary &amp; confidential
+          </span>
         </div>
       </div>
 
@@ -33,8 +37,11 @@ function StepDisability({ form, updateField }) {
             type="text"
             value={form.disabilityName || ""}
             onChange={handleChange("disabilityName")}
+            placeholder="Optional"
           />
+          <p className="field-hint">You may leave this blank if you prefer.</p>
         </div>
+
         <div className="field">
           <label>Date</label>
           <input
@@ -42,20 +49,26 @@ function StepDisability({ form, updateField }) {
             value={form.disabilityDate || ""}
             onChange={handleChange("disabilityDate")}
           />
+          <p className="field-hint">Optional.</p>
         </div>
+
         <div className="field">
           <label>Employee ID (if applicable)</label>
           <input
             type="text"
             value={form.disabilityEmployeeId || ""}
             onChange={handleChange("disabilityEmployeeId")}
+            placeholder="Optional"
           />
+          <p className="field-hint">Only if you already have one.</p>
         </div>
       </div>
 
-      {/* Why asked card */}
+      {/* Why asked */}
       <div className="disability-card">
-        <h3>Why are you being asked to complete this form?</h3>
+        <div className="disability-card-header">
+          <h3>Why are you being asked to complete this form?</h3>
+        </div>
         <p className="legal-text">
           We are a federal contractor or subcontractor. The law requires us to
           provide equal employment opportunity to qualified people with
@@ -75,9 +88,11 @@ function StepDisability({ form, updateField }) {
         </p>
       </div>
 
-      {/* How you know + conditions list */}
+      {/* How you know + conditions */}
       <div className="disability-card">
-        <h3>How do you know if you have a disability?</h3>
+        <div className="disability-card-header">
+          <h3>How do you know if you have a disability?</h3>
+        </div>
         <p className="legal-text">
           A disability is a condition that substantially limits one or more of
           your “major life activities.” If you have or have ever had such a
@@ -141,7 +156,7 @@ function StepDisability({ form, updateField }) {
         </div>
       </div>
 
-      {/* Choice section */}
+      {/* Choice */}
       <div className="disability-card disability-choice-card">
         <p className="legal-text">
           Please check one of the options below. Your response is voluntary.
@@ -199,9 +214,11 @@ function StepDisability({ form, updateField }) {
         should take about 5 minutes to complete.
       </p>
 
-      {/* Employer-only card */}
+      {/* Employer-only */}
       <div className="disability-card disability-employer-card">
-        <h3>For employer use only</h3>
+        <div className="disability-card-header">
+          <h3>For employer use only</h3>
+        </div>
         <p className="legal-text">
           Employers may modify this section of the form as needed for
           recordkeeping purposes.
@@ -212,7 +229,7 @@ function StepDisability({ form, updateField }) {
         </p>
       </div>
 
-      {/* Signature row */}
+      {/* Signature */}
       <div className="grid grid-2 disability-signature-row">
         <div className="field">
           <label>Signature of Applicant</label>
@@ -222,7 +239,12 @@ function StepDisability({ form, updateField }) {
             value={form.disabilitySignature || ""}
             onChange={handleChange("disabilitySignature")}
           />
+          <p className="field-hint">
+            By typing your name, you acknowledge this as your electronic
+            signature.
+          </p>
         </div>
+
         <div className="field">
           <label>Date</label>
           <input
@@ -230,6 +252,7 @@ function StepDisability({ form, updateField }) {
             value={form.disabilitySignatureDate || ""}
             onChange={handleChange("disabilitySignatureDate")}
           />
+          <p className="field-hint">Optional.</p>
         </div>
       </div>
     </section>

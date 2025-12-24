@@ -1,11 +1,18 @@
+/* src/styles/StepSkills.css */
+
 /* =======================
    SKILLS STEP
+   (Aligned with StepEducation.css + StepGeneralInfo.css spacing & density)
    ======================= */
 
 .skills-step .skills-section {
+  /* inherits global form-section styling */
 }
 
-/* Header row (title + chips) */
+/* =======================
+   HEADER ROW
+   ======================= */
+
 .skills-header-row {
   display: flex;
   justify-content: space-between;
@@ -22,7 +29,10 @@
   margin-bottom: 0;
 }
 
-/* Meta chips */
+/* =======================
+   META CHIPS
+   ======================= */
+
 .skills-meta {
   display: flex;
   flex-wrap: wrap;
@@ -34,7 +44,8 @@
 .skills-chip {
   display: inline-flex;
   align-items: center;
-  padding: 0.18rem 0.6rem;
+  gap: 0.25rem;
+  padding: 0.18rem 0.55rem;
   border-radius: 999px;
   font-size: 0.72rem;
   border: 1px solid transparent;
@@ -59,13 +70,16 @@
   color: #92400e;
 }
 
-/* Cards */
+/* =======================
+   CARDS
+   ======================= */
+
 .skills-card {
   margin-top: 0.8rem;
-  border-radius: 0.75rem;
+  border-radius: 0.9rem;          /* match education-details-card */
+  padding: 1.1rem 1.2rem;         /* match education-details-card */
   border: 1px solid #e5e7eb;
   background: #f9fafb;
-  padding: 0.9rem 1rem;
   box-shadow: 0 6px 16px rgba(15, 23, 42, 0.04);
 }
 
@@ -73,9 +87,10 @@
   background: #fdfaf6;
 }
 
+/* Card title */
 .skills-card-title {
   margin: 0 0 0.5rem;
-  font-size: 0.95rem;
+  font-size: 1rem;
   font-weight: 600;
   color: #111827;
 }
@@ -84,19 +99,40 @@
 .skills-card-header-row {
   display: flex;
   justify-content: space-between;
-  gap: 0.6rem;
-  align-items: center;
-  margin-bottom: 0.35rem;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 0.85rem; /* keep consistent with other headers */
 }
 
 /* Grid spacing inside cards */
 .skills-card .grid-2 {
-  gap: 0.6rem;
+  gap: 0.75rem; /* match education */
 }
 
-/* Field hints & optional tag */
+/* =======================
+   TEXTAREA / INPUT FONT + SPACING UNDER BARS
+   ======================= */
+
+/* Make textarea font match other fields */
+.skills-step textarea {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+/* Add consistent spacing under every input/select/textarea */
+.skills-step input,
+.skills-step select,
+.skills-step textarea {
+  margin-bottom: 0.75rem;
+}
+
+/* =======================
+   FIELD HINTS / OPTIONAL TAG
+   ======================= */
+
 .skills-step .field-hint {
-  margin-top: 0.2rem;
+  margin-top: 0.25rem;
   font-size: 0.78rem;
   color: #6b7280;
 }
@@ -114,8 +150,11 @@
   color: #9ca3af;
 }
 
-/* Responsive tweaks */
-@media (max-width: 768px) {
+/* =======================
+   RESPONSIVE (match GI/Education)
+   ======================= */
+
+@media (max-width: 640px) {
   .skills-header-row {
     flex-direction: column;
     align-items: flex-start;

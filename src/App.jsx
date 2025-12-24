@@ -157,22 +157,12 @@ const steps = [
 
 // Branches for the progress bar
 const branches = [
-  {
-    label: "Employment Application",
-    from: 0,
-    to: 10, // intro (0) → employment-cert (10)
-  },
-  {
-    label: "Self-Identification",
-    from: 11,
-    to: 13, // eeo, disability, veteran
-  },
-  {
-    label: "Alcohol & Drug Testing Program",
-    from: 14,
-    to: 14, // alcohol-drug
-  },
+  { label: "Employment Application", from: 0, to: 10 },
+  { label: "Self-Identification", from: 11, to: 13 },
+  { label: "Alcohol & Drug Testing Program", from: 14, to: 14 },
+  { label: "Review & Submit", from: 15, to: 15 },
 ];
+
 
 function App() {
   const [form, setForm] = useState(initialFormState);

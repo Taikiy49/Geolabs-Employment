@@ -1,11 +1,19 @@
+/* src/styles/StepEducation.css */
+
 /* =======================
    EDUCATION STEP
+   (Aligned with StepGeneralInfo.css spacing & density)
    ======================= */
 
+/* Section wrapper */
 .education-step .education-section {
+  /* inherits global form-section styling */
 }
 
-/* Header row */
+/* =======================
+   HEADER ROW
+   ======================= */
+
 .education-header-row {
   display: flex;
   justify-content: space-between;
@@ -22,7 +30,10 @@
   margin-bottom: 0;
 }
 
-/* Meta chips (step / required) */
+/* =======================
+   META CHIPS
+   ======================= */
+
 .education-meta {
   display: flex;
   flex-wrap: wrap;
@@ -34,25 +45,29 @@
 .edu-chip {
   display: inline-flex;
   align-items: center;
-  padding: 0.18rem 0.6rem;
+  gap: 0.25rem;
+  padding: 0.18rem 0.55rem;
   border-radius: 999px;
   font-size: 0.72rem;
   border: 1px solid transparent;
   white-space: nowrap;
 }
 
+/* Step chip */
 .edu-chip-step {
   background: #eff6ff;
   border-color: #bfdbfe;
   color: #1d4ed8;
 }
 
+/* Required chip */
 .edu-chip-required {
   background: #fef3c7;
   border-color: #facc15;
   color: #92400e;
 }
 
+/* Summary chip inside card */
 .edu-chip-summary {
   background: #f3f4f6;
   border-color: #e5e7eb;
@@ -63,65 +78,73 @@
   font-weight: 500;
 }
 
-/* Wrapper for the dynamic card */
-.education-details-wrapper {
-  margin-top: 0.8rem;
+/* =======================
+   SELECT SUBNOTE / HINT
+   ======================= */
+
+.education-subnote {
+  font-size: 0.78rem;
+  margin-top: 0.25rem;
+  color: #6b7280;
 }
 
-/* Hint text when nothing is selected */
 .education-hint {
   font-size: 0.8rem;
   color: #6b7280;
   margin-top: 0.4rem;
 }
 
-/* Main education detail card */
+/* =======================
+   DETAILS CARD
+   ======================= */
+
+.education-details-wrapper {
+  margin-top: 0.8rem;
+}
+
 .education-details-card {
-  margin-top: 0.4rem;
-  border-radius: 0.65rem;
+  border-radius: 0.9rem;           /* same as general-info-card */
+  padding: 1.1rem 1.2rem;          /* same as general-info-card */
   border: 1px solid #e5e7eb;
   background: #f9fafb;
-  padding: 0.9rem 1rem;
   box-shadow: 0 6px 16px rgba(15, 23, 42, 0.05);
 }
 
-/* Card header (title + chip) */
+/* Card header */
 .education-card-header {
   display: flex;
   justify-content: space-between;
-  gap: 0.6rem;
   align-items: flex-start;
-  margin-bottom: 0.5rem;
+  gap: 0.75rem;
+  margin-bottom: 0.85rem;
 }
 
 .education-details-card h3 {
-  margin: 0 0 0.25rem;
-  font-size: 0.95rem;
+  margin: 0 0 0.35rem;
+  font-size: 1rem;
   font-weight: 600;
   color: #111827;
 }
 
-/* Slightly smaller help text inside card */
 .education-details-card .section-help {
-  margin: 0 0 0.6rem;
-  font-size: 0.8rem;
-  color: #6b7280;
+  margin-bottom: 0;
 }
 
-/* Grid tuning */
+/* =======================
+   GRID SPACING
+   ======================= */
+
 .education-details-card .grid-2,
 .education-details-card .grid-3 {
-  gap: 0.55rem;
+  gap: 0.75rem;
 }
 
-/* Extra breathing room for the "Additional Education" textarea */
-.education-details-card .field:last-child textarea {
-  min-height: 80px;
-}
+/* =======================
+   FIELD HINTS / TAGS
+   ======================= */
 
-/* Field hint + optional tag */
 .education-step .field-hint {
-  margin-top: 0.2rem;
+  margin-top: 0.25rem;
   font-size: 0.78rem;
   color: #6b7280;
 }
@@ -133,20 +156,38 @@
   margin-left: 0.25rem;
 }
 
-/* Subnote under the select */
-.education-subnote {
-  font-size: 0.78rem;
-  margin-top: 0.25rem;
-}
-
 /* Placeholder styling */
 .education-step input::placeholder,
 .education-step textarea::placeholder {
   color: #9ca3af;
 }
 
-/* Responsive tweaks */
-@media (max-width: 768px) {
+/* Extra breathing room for textarea */
+.education-details-card .field:last-child textarea {
+  min-height: 90px;
+}
+
+/* Ensure textarea font matches inputs/selects */
+.education-step textarea {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+/* Add consistent spacing under every input/select/textarea */
+.education-step input,
+.education-step select,
+.education-step textarea {
+  margin-bottom: 0.75rem;
+}
+
+
+
+/* =======================
+   RESPONSIVE (match GeneralInfo)
+   ======================= */
+
+@media (max-width: 640px) {
   .education-header-row {
     flex-direction: column;
     align-items: flex-start;
@@ -161,7 +202,7 @@
     align-items: flex-start;
   }
 
-  .education-step .education-section {
+  .education-details-card {
     padding-inline: 0.9rem;
   }
 }

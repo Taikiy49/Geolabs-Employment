@@ -1,18 +1,24 @@
+/* src/styles/StepAffiliations.css */
+
 /* =======================
    PROFESSIONAL AFFILIATIONS STEP
+   (Aligned with StepEducation.css spacing & density)
    ======================= */
 
 .affiliations-section {
-
+  /* inherits global form-section styling */
 }
 
-/* Header row: title + optional pill */
+/* =======================
+   HEADER ROW
+   ======================= */
+
 .affiliations-header-row {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   gap: 0.75rem;
-  margin-bottom: 0.9rem;
+  margin-bottom: 0.85rem; /* match Education/Skills */
 }
 
 .affiliations-header-row h2 {
@@ -23,10 +29,14 @@
   margin: 0;
 }
 
+/* Optional pill (match chip sizing) */
 .affiliations-optional-pill {
   align-self: center;
-  font-size: 0.75rem;
-  padding: 0.25rem 0.6rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.72rem;
+  padding: 0.18rem 0.55rem;
   border-radius: 999px;
   background: #eff6ff;
   border: 1px solid #bfdbfe;
@@ -34,45 +44,46 @@
   white-space: nowrap;
 }
 
-/* Example card */
+/* =======================
+   EXAMPLES CARD (match card styling)
+   ======================= */
+
 .affiliations-examples-card {
-  margin-bottom: 0.85rem;
-  border-radius: 0.65rem;
+  margin-bottom: 0.8rem;
+  border-radius: 0.9rem;      /* match Education details card */
+  padding: 1.1rem 1.2rem;     /* match Education details card */
   border: 1px solid #e5e7eb;
   background: #f9fafb;
-  padding: 0.9rem 1rem;
   box-shadow: 0 6px 16px rgba(15, 23, 42, 0.04);
 }
 
 .affiliations-examples-title {
-  font-size: 0.85rem;
+  font-size: 0.95rem;         /* match card title feel */
   font-weight: 600;
   color: #111827;
-  margin-bottom: 0.4rem;
+  margin-bottom: 0.5rem;
 }
 
 .affiliations-examples-list {
-  margin: 0 0 0.4rem 1rem;
+  margin: 0 0 0.5rem 1rem;
   padding-left: 0.75rem;
   font-size: 0.8rem;
   color: #374151;
 }
 
 .affiliations-examples-list li {
-  margin-bottom: 0.15rem;
+  margin-bottom: 0.2rem;
 }
 
 .affiliations-examples-footnote {
   margin: 0;
-  font-size: 0.76rem;
+  font-size: 0.78rem;
   color: #6b7280;
 }
 
-/* Main field area */
-.affiliations-field textarea {
-  min-height: 130px;
-  resize: vertical;
-}
+/* =======================
+   MAIN FIELD AREA
+   ======================= */
 
 /* Label row (label + small note) */
 .affiliations-label-row {
@@ -89,6 +100,20 @@
 .affiliations-note {
   font-size: 0.75rem;
   color: #6b7280;
+}
+
+/* Textarea sizing */
+.affiliations-field textarea {
+  min-height: 130px;
+  resize: vertical;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+/* Add consistent spacing under the textarea "bar" */
+.affiliations-field textarea {
+  margin-bottom: 0.75rem;
 }
 
 /* Footer row: helper + character counter */
@@ -116,7 +141,15 @@
   color: #b91c1c;
 }
 
-/* Responsive tweaks */
+/* Placeholder styling */
+.affiliations-section textarea::placeholder {
+  color: #9ca3af;
+}
+
+/* =======================
+   RESPONSIVE (match Education)
+   ======================= */
+
 @media (max-width: 640px) {
   .affiliations-header-row {
     flex-direction: column;
@@ -130,5 +163,9 @@
   .affiliations-footer-row {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .affiliations-examples-card {
+    padding-inline: 0.9rem; /* match Education mobile */
   }
 }

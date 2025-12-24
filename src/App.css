@@ -91,7 +91,7 @@ a:hover {
 .app-header-logo {
   display: flex;
   align-items: center;
-  gap: 0.3rem;
+  gap: 0.5rem;
 }
 
 .app-header-logo-img {
@@ -100,7 +100,7 @@ a:hover {
 }
 
 .logo-text {
-  font-size: 1rem;
+  font-size: 1.1rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -172,19 +172,28 @@ a:hover {
   gap: 1rem;
 }
 
-/* Branch pills row */
-
 .stepper {
   display: flex;
   flex-direction: column;
-  gap: 0.55rem;
+  gap: 0.6rem;
   margin-bottom: 0.4rem;
 }
 
+/* NEW: branch row layout with pinned review */
+.stepper-branches-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+
+/* Branch pills row */
 .stepper-branches {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.45rem;
+  gap: 0.5rem;
+  min-width: 0;
+  margin-bottom: 0.15rem;
 }
 
 .stepper-branch-pill {
@@ -223,12 +232,34 @@ a:hover {
   background: #e5e7eb;
 }
 
-/* Steps row */
+/* Pinned Review & Submit button */
+.stepper-review-pill {
+  flex-shrink: 0;
+  border-radius: 999px;
+  border: 1px solid var(--accent-dark);
+  padding: 0.4rem 0.9rem;
+  font-size: 0.8rem;
+  background: var(--accent);
+  color: #ffffff;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.12s ease, box-shadow 0.15s ease;
+}
 
+.stepper-review-pill:hover {
+  background: var(--accent-dark);
+  transform: translateY(-1px);
+}
+
+.stepper-review-pill.active {
+  box-shadow: 0 0 0 2px rgba(184, 115, 51, 0.25);
+}
+
+/* Steps row */
 .stepper-steps {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4rem;
+  gap: 0.35rem;
+  opacity: 0.98;
 }
 
 .stepper-item {
@@ -250,7 +281,6 @@ a:hover {
 }
 
 /* Active / completed states */
-
 .stepper-item.active {
   border-color: var(--accent);
   background: var(--accent-soft-2);
@@ -291,7 +321,6 @@ a:hover {
 }
 
 /* Decorative bar under chips */
-
 .stepper-progress {
   margin-top: 0.35rem;
   height: 3px;
@@ -358,7 +387,6 @@ a:hover {
 }
 
 /* Slide animations */
-
 .animate-slide-forward {
   animation: slideForward 0.18s ease-out;
 }
@@ -576,7 +604,6 @@ a:hover {
 }
 
 /* Checkbox row */
-
 .checkbox-field {
   display: flex;
   align-items: center;
@@ -592,7 +619,6 @@ a:hover {
 }
 
 /* Utility muted text */
-
 .text-muted {
   font-size: 0.78rem;
   color: var(--text-muted);
@@ -649,6 +675,15 @@ a:hover {
   .grid-3,
   .grid-2 {
     grid-template-columns: 1fr;
+  }
+
+  .stepper-branches-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .stepper-review-pill {
+    align-self: flex-start;
   }
 }
 

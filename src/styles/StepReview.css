@@ -1,3 +1,5 @@
+/* src/styles/StepReview.css */
+
 /* =======================
    REVIEW & CONFIRM STEP
    ======================= */
@@ -42,6 +44,34 @@
 .review-hint {
   max-width: 260px;
   text-align: right;
+}
+
+/* Submission banner */
+.review-banner {
+  margin: 0.75rem 0 0.25rem;
+  padding: 0.7rem 0.85rem;
+  border-radius: 0.75rem;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  font-size: 0.82rem;
+  color: #111827;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+}
+
+.review-banner strong {
+  margin-right: 0.35rem;
+}
+
+.review-banner-success {
+  background: #ecfdf5;
+  border-color: #bbf7d0;
+  color: #14532d;
+}
+
+.review-banner-error {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #7f1d1d;
 }
 
 /* Grid of summary cards */
@@ -161,6 +191,44 @@
   border: 1px dashed #e5e7eb;
   font-size: 0.8rem;
   color: #4b5563;
+}
+
+/* Submit area */
+.review-actions {
+  margin-top: 0.65rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.review-submit {
+  appearance: none;
+  border: 1px solid #111827;
+  background: #111827;
+  color: #ffffff;
+  padding: 0.55rem 0.9rem;
+  border-radius: 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+  transition: transform 120ms ease, opacity 120ms ease;
+}
+
+.review-submit:hover {
+  transform: translateY(-1px);
+}
+
+.review-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.review-actions-hint {
+  font-size: 0.78rem;
+  color: #6b7280;
 }
 
 /* Responsive tweaks */

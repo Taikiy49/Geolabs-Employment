@@ -1,15 +1,14 @@
+// src/components/steps/StepEEO.jsx
 import React from "react";
 import "../../styles/StepEEO.css";
 
 function StepEEO({ form, updateField }) {
-  const handleChange = (field) => (e) => {
-    updateField(field, e.target.value);
-  };
+  const handleChange = (field) => (e) => updateField(field, e.target.value);
 
   return (
     <section className="form-section eeo-section">
       {/* Header */}
-      <div className="eeo-header">
+      <div className="eeo-header-row">
         <div>
           <h2>EEO Voluntary Self-Identification Survey (Applicant Data)</h2>
           <p className="section-help">
@@ -18,10 +17,15 @@ function StepEEO({ form, updateField }) {
             employment.
           </p>
         </div>
-        <span className="eeo-pill">Voluntary &amp; confidential</span>
+
+        <div className="eeo-meta">
+          <span className="eeo-chip eeo-chip-voluntary">
+            Voluntary &amp; confidential
+          </span>
+        </div>
       </div>
 
-      {/* Name + Date row */}
+      {/* Name + Date */}
       <div className="grid grid-2 eeo-name-row">
         <div className="field">
           <label>Name</label>
@@ -29,8 +33,13 @@ function StepEEO({ form, updateField }) {
             type="text"
             value={form.eeoName || ""}
             onChange={handleChange("eeoName")}
+            placeholder="Optional"
           />
+          <p className="field-hint">
+            You may leave this blank if you prefer not to provide it.
+          </p>
         </div>
+
         <div className="field">
           <label>Date</label>
           <input
@@ -38,11 +47,12 @@ function StepEEO({ form, updateField }) {
             value={form.eeoDate || ""}
             onChange={handleChange("eeoDate")}
           />
+          <p className="field-hint">Optional.</p>
         </div>
       </div>
 
-      {/* Intro text */}
-      <div className="eeo-intro-block">
+      {/* Intro */}
+      <div className="eeo-intro-card">
         <p className="legal-text">
           The Equal Employment Opportunity Commission (EEOC) requires certain
           employers to complete an EEO-1 report each year. Covered employers
@@ -64,7 +74,7 @@ function StepEEO({ form, updateField }) {
         </p>
       </div>
 
-      {/* Gender card */}
+      {/* Gender */}
       <div className="eeo-card">
         <div className="eeo-card-header">
           <h3>Gender</h3>
@@ -109,7 +119,7 @@ function StepEEO({ form, updateField }) {
         </div>
       </div>
 
-      {/* Ethnicity / race card */}
+      {/* Race / Ethnicity */}
       <div className="eeo-card">
         <div className="eeo-card-header">
           <h3>Race / Ethnicity</h3>
@@ -142,9 +152,7 @@ function StepEEO({ form, updateField }) {
               type="radio"
               name="eeoEthnicity"
               value="White (not Hispanic or Latino)"
-              checked={
-                form.eeoEthnicity === "White (not Hispanic or Latino)"
-              }
+              checked={form.eeoEthnicity === "White (not Hispanic or Latino)"}
               onChange={handleChange("eeoEthnicity")}
             />
             <span className="eeo-option-text">
@@ -279,9 +287,7 @@ function StepEEO({ form, updateField }) {
               onChange={handleChange("eeoEthnicity")}
             />
             <span className="eeo-option-text">
-              <span className="eeo-option-main">
-                I do not wish to disclose.
-              </span>
+              <span className="eeo-option-main">I do not wish to disclose.</span>
             </span>
           </label>
         </div>

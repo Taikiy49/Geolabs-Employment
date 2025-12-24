@@ -1,9 +1,14 @@
+# app.py
 from __future__ import annotations
 
+import base64
 import io
 import json
 import os
-from typing import Any, Dict, List, Tuple
+import re
+import smtplib
+from email.message import EmailMessage
+from typing import Any, Dict, List, Tuple, Optional
 
 from flask import Flask, request, jsonify
 from flask_cors import CORS
@@ -14,6 +19,22 @@ import docx
 import google.generativeai as genai
 from google.api_core.exceptions import PermissionDenied
 
+# PDF (ReportLab)
+from reportlab.lib.pagesizes import LETTER
+from reportlab.lib.units import inch
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.enums import TA_LEFT
+from reportlab.lib import colors
+from reportlab.platypus import (
+    SimpleDocTemplate,
+    Paragraph,
+    Spacer,
+    Table,
+    TableStyle,
+    PageBreak,
+    Image,
+)
+
 # -------------------------------------------------------
 # Config
 # -------------------------------------------------------
@@ -23,13 +44,21 @@ GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-pro")
 if GEMINI_KEY:
     genai.configure(api_key=GEMINI_KEY)
 else:
-    print("⚠️ GEMINI_API_KEY not set – resume autofill will use a basic fallback.")
+    print("⚠️ GEMINI_API_KEY not set – resume autofill will use a regex fallback.")
 
 ALLOWED_EXTENSIONS = {".pdf", ".doc", ".docx", ".txt"}
 
+# Email config (SMTP) - set these in your server env
+MAIL_TO = os.getenv("APPLICATION_MAIL_TO", "tyamashita@geolabs.net")
+MAIL_FROM = os.getenv("APPLICATION_MAIL_FROM", "no-reply@geolabs.net")
+SMTP_HOST = os.getenv("SMTP_HOST", "")
+SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
+SMTP_USER = os.getenv("SMTP_USER", "")
+SMTP_PASS = os.getenv("SMTP_PASS", "")
+SMTP_USE_TLS = os.getenv("SMTP_USE_TLS", "true").lower() in {"1", "true", "yes"}
+
 app = Flask(__name__)
 
-# Simple request logger so you can see POST /api/parse-resume in the terminal
 @app.before_request
 def log_request() -> None:
     print(f"➡ {request.method} {request.path}")
@@ -98,9 +127,8 @@ def extract_text_from_file(file_storage) -> str:
     else:
         raise ValueError(f"Unsupported file type: {ext or 'unknown'}")
 
-
 # -------------------------------------------------------
-# Resume schema / AI prompt
+# Resume schema / AI prompt (expanded)
 # -------------------------------------------------------
 RESUME_SCHEMA_DESCRIPTION = """
 Return a JSON object with the following structure:
@@ -110,11 +138,14 @@ Return a JSON object with the following structure:
     "name": "Full Name or null",
     "email": "Primary email or null",
     "phone": "Phone number or null",
+    "cell": "Cell/mobile number or null",
     "address": "Street address (single line) or null",
     "city": "City or null",
     "state": "State or null",
-    "zip": "Postal code or null"
+    "zip": "Postal code or null",
+    "location": "City, State (or similar) if clearly stated, else null"
   },
+  "targetRole": "Position sought / target role if clearly stated, else null",
   "employment": [
     {
       "company": "Company name",
@@ -124,7 +155,7 @@ Return a JSON object with the following structure:
       "dateFrom": "Start date in original resume format if possible",
       "dateTo": "End date or 'Present' if current",
       "duties": "1–3 line summary of key responsibilities",
-      "reasonForLeaving": null,
+      "reasonForLeaving": "Reason for leaving if clearly stated, else null",
       "supervisor": "Supervisor name if clearly indicated, else null"
     }
   ],
@@ -142,7 +173,9 @@ Return a JSON object with the following structure:
   "skills": {
     "typingSpeed": "Numeric WPM if explicitly stated, else null",
     "tenKey": "Numeric 10-key KPH if stated, else null",
-    "computerSkills": "Short sentence listing main software / technical skills"
+    "tenKeyMode": "'touch' or 'sight' if explicitly stated, else null",
+    "computerSkills": "Short sentence listing main software / technical skills",
+    "driverLicense": "Driver license info if explicitly stated, else null"
   },
   "references": [
     {
@@ -155,7 +188,7 @@ Return a JSON object with the following structure:
 
 Rules:
 - If the resume doesn't clearly specify data, use null instead of guessing.
-- DO NOT invent employers, dates, or degrees that are not supported by the text.
+- DO NOT invent employers, dates, degrees, addresses, or licenses not supported by the text.
 - Keep free-text fields (duties, computerSkills) concise but informative.
 """
 
@@ -174,7 +207,9 @@ Be conservative:
 - Do not make up graduation years or company addresses.
 """
 
-
+# -------------------------------------------------------
+# Gemini helpers
+# -------------------------------------------------------
 def _extract_text_from_candidate(response) -> Tuple[str, Any]:
     if not getattr(response, "candidates", None):
         raise ValueError("Model returned no candidates.")
@@ -250,11 +285,110 @@ Return ONLY the JSON object described above.
             "model": GEMINI_MODEL,
             "truncated": truncated,
             "finish_reason": str(finish_reason),
+            "excerpt_chars": len(excerpt),
         },
     }
 
+# -------------------------------------------------------
+# Regex fallback parser (fills contact + a little extra)
+# -------------------------------------------------------
+_EMAIL_RE = re.compile(r"\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b", re.I)
+_PHONE_RE = re.compile(
+    r"(?:(?:\+?1[\s\-\.])?\(?\d{3}\)?[\s\-\.]?\d{3}[\s\-\.]?\d{4})(?:\s*(?:x|ext\.?)\s*\d+)?",
+    re.I,
+)
+_ZIP_RE = re.compile(r"\b\d{5}(?:-\d{4})?\b")
+_STATE_RE = re.compile(
+    r"\b(AL|AK|AZ|AR|CA|CO|CT|DE|FL|GA|HI|ID|IL|IN|IA|KS|KY|LA|ME|MD|MA|MI|MN|MS|MO|MT|NE|NV|NH|NJ|NM|NY|NC|ND|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VT|VA|WA|WV|WI|WY)\b"
+)
+_CITYSTATE_RE = re.compile(
+    r"\b([A-Za-z][A-Za-z .'-]{1,30}),\s*(AL|AK|AZ|AR|CA|CO|CT|DE|FL|GA|HI|ID|IL|IN|IA|KS|KY|LA|ME|MD|MA|MI|MN|MS|MO|MT|NE|NV|NH|NJ|NM|NY|NC|ND|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VT|VA|WA|WV|WI|WY)\b"
+)
 
+def _first_nonempty_line(text: str) -> Optional[str]:
+    for line in (text or "").splitlines():
+        s = line.strip()
+        if s:
+            return s
+    return None
+
+def basic_fallback_parse(text: str) -> Dict[str, Any]:
+    email = None
+    m = _EMAIL_RE.search(text or "")
+    if m:
+        email = m.group(0)
+
+    phones = _PHONE_RE.findall(text or "")
+    phone = phones[0] if phones else None
+    cell = phones[1] if len(phones) > 1 else None
+
+    name = None
+    first_line = _first_nonempty_line(text)
+    if first_line and "@" not in first_line and len(first_line) <= 60:
+        if re.fullmatch(r"[A-Za-z .'-]{2,60}", first_line):
+            name = first_line.strip()
+
+    location = None
+    city = None
+    state = None
+    zip_code = None
+
+    cm = _CITYSTATE_RE.search(text or "")
+    if cm:
+        city = cm.group(1).strip()
+        state = cm.group(2).strip()
+        location = f"{city}, {state}"
+
+    zm = _ZIP_RE.search(text or "")
+    if zm:
+        zip_code = zm.group(0)
+
+    if not state:
+        sm = _STATE_RE.search(text or "")
+        if sm:
+            state = sm.group(1)
+
+    return {
+        "contact": {
+            "name": name,
+            "email": email,
+            "phone": phone,
+            "cell": cell,
+            "address": None,
+            "city": city,
+            "state": state,
+            "zip": zip_code,
+            "location": location,
+        },
+        "targetRole": None,
+        "employment": [],
+        "education": {
+            "graduate": None,
+            "graduateYears": None,
+            "graduateMajor": None,
+            "trade": None,
+            "tradeYears": None,
+            "tradeMajor": None,
+            "high": None,
+            "highYears": None,
+            "highMajor": None,
+        },
+        "skills": {
+            "typingSpeed": None,
+            "tenKey": None,
+            "tenKeyMode": None,
+            "computerSkills": None,
+            "driverLicense": None,
+        },
+        "references": [],
+    }
+
+# -------------------------------------------------------
+# Normalization
+# -------------------------------------------------------
 def normalize_parsed_resume(data: Dict[str, Any]) -> Dict[str, Any]:
+    data = data or {}
+
     contact = data.get("contact") or {}
     employment = data.get("employment") or []
     education = data.get("education") or {}
@@ -262,23 +396,25 @@ def normalize_parsed_resume(data: Dict[str, Any]) -> Dict[str, Any]:
     references = data.get("references") or []
 
     norm_emp: List[Dict[str, Any]] = []
-    for job in employment[:3]:
+    for job in (employment or [])[:3]:
+        job = job or {}
         norm_emp.append(
             {
                 "company": job.get("company"),
                 "address": job.get("address"),
                 "phone": job.get("phone"),
                 "position": job.get("position"),
-                "dateFrom": job.get("dateFrom"),
-                "dateTo": job.get("dateTo"),
-                "duties": job.get("duties"),
-                "reasonForLeaving": job.get("reasonForLeaving"),
+                "dateFrom": job.get("dateFrom") or job.get("startDate"),
+                "dateTo": job.get("dateTo") or job.get("endDate"),
+                "duties": job.get("duties") or job.get("summary"),
+                "reasonForLeaving": job.get("reasonForLeaving") or job.get("reason"),
                 "supervisor": job.get("supervisor"),
             }
         )
 
     norm_refs: List[Dict[str, Any]] = []
-    for ref in references:
+    for ref in (references or [])[:3]:
+        ref = ref or {}
         norm_refs.append(
             {
                 "name": ref.get("name"),
@@ -292,11 +428,14 @@ def normalize_parsed_resume(data: Dict[str, Any]) -> Dict[str, Any]:
             "name": contact.get("name"),
             "email": contact.get("email"),
             "phone": contact.get("phone"),
+            "cell": contact.get("cell") or contact.get("mobile"),
             "address": contact.get("address"),
             "city": contact.get("city"),
             "state": contact.get("state"),
             "zip": contact.get("zip"),
+            "location": contact.get("location"),
         },
+        "targetRole": data.get("targetRole") or data.get("objective") or data.get("position"),
         "employment": norm_emp,
         "education": {
             "graduate": education.get("graduate"),
@@ -312,16 +451,28 @@ def normalize_parsed_resume(data: Dict[str, Any]) -> Dict[str, Any]:
         "skills": {
             "typingSpeed": skills.get("typingSpeed"),
             "tenKey": skills.get("tenKey"),
+            "tenKeyMode": skills.get("tenKeyMode"),
             "computerSkills": skills.get("computerSkills"),
+            "driverLicense": skills.get("driverLicense"),
         },
         "references": norm_refs,
     }
 
-
 def make_empty_parsed() -> Dict[str, Any]:
     return normalize_parsed_resume(
         {
-            "contact": {},
+            "contact": {
+                "name": None,
+                "email": None,
+                "phone": None,
+                "cell": None,
+                "address": None,
+                "city": None,
+                "state": None,
+                "zip": None,
+                "location": None,
+            },
+            "targetRole": None,
             "employment": [],
             "education": {},
             "skills": {},
@@ -329,6 +480,249 @@ def make_empty_parsed() -> Dict[str, Any]:
         }
     )
 
+# -------------------------------------------------------
+# PDF helpers (HR print-ready)
+# -------------------------------------------------------
+def _safe(v: Any) -> str:
+    if v is None:
+        return "—"
+    if isinstance(v, bool):
+        return "Yes" if v else "No"
+    s = str(v).strip()
+    return s if s else "—"
+
+def _flatten_dict(d: Dict[str, Any], prefix: str = "") -> List[Tuple[str, str]]:
+    rows: List[Tuple[str, str]] = []
+    for k in sorted((d or {}).keys()):
+        key = f"{prefix}{k}" if not prefix else f"{prefix}.{k}"
+        v = d[k]
+        if isinstance(v, dict):
+            rows.extend(_flatten_dict(v, key))
+        elif isinstance(v, list):
+            if not v:
+                rows.append((key, "—"))
+            else:
+                preview = []
+                for i, item in enumerate(v[:5]):
+                    if isinstance(item, dict):
+                        preview.append(
+                            f"[{i}] " + ", ".join(f"{ik}={_safe(iv)}" for ik, iv in item.items())
+                        )
+                    else:
+                        preview.append(f"[{i}] {_safe(item)}")
+                if len(v) > 5:
+                    preview.append(f"... (+{len(v)-5} more)")
+                rows.append((key, "\n".join(preview)))
+        else:
+            rows.append((key, _safe(v)))
+    return rows
+
+def build_application_pdf(payload: Dict[str, Any]) -> bytes:
+    form = payload.get("form") or {}
+    legal = payload.get("legalText") or {}
+    client_meta = payload.get("clientMeta") or {}
+    submitted_at = payload.get("submittedAt")
+
+    applicant_name = _safe(form.get("name"))
+    position = _safe(form.get("position"))
+    location = _safe(form.get("location"))
+    email_addr = _safe(form.get("email"))
+    phone = _safe(form.get("phone"))
+
+    buf = io.BytesIO()
+    doc = SimpleDocTemplate(
+        buf,
+        pagesize=LETTER,
+        leftMargin=0.7 * inch,
+        rightMargin=0.7 * inch,
+        topMargin=0.65 * inch,
+        bottomMargin=0.65 * inch,
+        title=f"Employment Application - {applicant_name}",
+    )
+
+    styles = getSampleStyleSheet()
+    styles.add(ParagraphStyle(name="H1", parent=styles["Heading1"], fontSize=16, leading=20, spaceAfter=8))
+    styles.add(ParagraphStyle(name="H2", parent=styles["Heading2"], fontSize=12, leading=15, spaceBefore=10, spaceAfter=6))
+    styles.add(ParagraphStyle(name="Small", parent=styles["BodyText"], fontSize=9, leading=11))
+
+    story: List[Any] = []
+
+    # Cover / summary
+    story.append(Paragraph("GEOLABS, INC.", styles["H1"]))
+    story.append(Paragraph("Employment Application & Required Notices", styles["H2"]))
+    story.append(Paragraph("Secure · Confidential · Online Submission", styles["BodyText"]))
+    story.append(Spacer(1, 10))
+
+    meta_rows = [
+        ["Submitted At", _safe(submitted_at)],
+        ["Applicant Name", applicant_name],
+        ["Position Applying For", position],
+        ["Preferred Location", location],
+        ["Email", email_addr],
+        ["Phone", phone],
+        ["Client Timezone", _safe(client_meta.get("timezone"))],
+    ]
+    meta_table = Table(meta_rows, colWidths=[2.0 * inch, 4.8 * inch])
+    meta_table.setStyle(
+        TableStyle(
+            [
+                ("BACKGROUND", (0, 0), (-1, 0), colors.whitesmoke),
+                ("BOX", (0, 0), (-1, -1), 0.8, colors.black),
+                ("INNERGRID", (0, 0), (-1, -1), 0.25, colors.grey),
+                ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                ("FONTSIZE", (0, 0), (-1, -1), 10),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+                ("TOPPADDING", (0, 0), (-1, -1), 6),
+            ]
+        )
+    )
+    story.append(meta_table)
+    story.append(Spacer(1, 12))
+
+    # Full details table (field-by-field)
+    story.append(Paragraph("Full Application Details", styles["H2"]))
+    story.append(Paragraph("Complete record of all submitted fields.", styles["Small"]))
+    story.append(Spacer(1, 6))
+
+    rows = _flatten_dict(form)
+    table_data = [["Field", "Value"]]
+    for k, v in rows:
+        table_data.append(
+            [
+                Paragraph(_safe(k), styles["Small"]),
+                Paragraph(_safe(v).replace("\n", "<br/>"), styles["Small"]),
+            ]
+        )
+
+    details_table = Table(table_data, colWidths=[2.2 * inch, 4.6 * inch], repeatRows=1)
+    details_table.setStyle(
+        TableStyle(
+            [
+                ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#f3f4f6")),
+                ("BOX", (0, 0), (-1, -1), 0.6, colors.black),
+                ("INNERGRID", (0, 0), (-1, -1), 0.25, colors.grey),
+                ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                ("FONTSIZE", (0, 0), (-1, -1), 9),
+                ("TOPPADDING", (0, 0), (-1, -1), 5),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
+            ]
+        )
+    )
+    story.append(details_table)
+
+    # Signed agreement page (separate page)
+    story.append(PageBreak())
+    story.append(Paragraph("Alcohol & Drug Testing Program Agreement", styles["H1"]))
+    story.append(Paragraph("Exact text presented to the applicant:", styles["H2"]))
+
+    agreement_text = legal.get("alcoholDrugProgram") or "— (Agreement text was not provided by client payload.)"
+    story.append(Paragraph(agreement_text.replace("\n", "<br/>"), styles["Small"]))
+    story.append(Spacer(1, 14))
+
+    story.append(Paragraph("Applicant Attestation", styles["H2"]))
+    sig_text = _safe(form.get("drugAgreementSignature"))
+    sig_date = _safe(form.get("drugAgreementDate"))
+
+    att_rows = [
+        ["Signature (typed)", sig_text],
+        ["Date", sig_date],
+    ]
+    att_t = Table(att_rows, colWidths=[2.0 * inch, 4.8 * inch])
+    att_t.setStyle(
+        TableStyle(
+            [
+                ("BOX", (0, 0), (-1, -1), 0.8, colors.black),
+                ("INNERGRID", (0, 0), (-1, -1), 0.25, colors.grey),
+                ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                ("FONTSIZE", (0, 0), (-1, -1), 11),
+                ("TOPPADDING", (0, 0), (-1, -1), 10),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 10),
+            ]
+        )
+    )
+    story.append(att_t)
+    story.append(Spacer(1, 10))
+
+    # Optional: drawn signature image (Data URL)
+    sigs = payload.get("signatures") or {}
+    data_url = sigs.get("drugAgreementSignatureDataUrl")
+    if isinstance(data_url, str) and data_url.startswith("data:image"):
+        try:
+            header, b64 = data_url.split(",", 1)
+            img_bytes = base64.b64decode(b64)
+            img_buf = io.BytesIO(img_bytes)
+            story.append(Paragraph("Signature (drawn)", styles["Small"]))
+            story.append(Spacer(1, 6))
+            story.append(Image(img_buf, width=3.0 * inch, height=1.0 * inch))
+        except Exception:
+            story.append(Paragraph("Signature (drawn): — (Could not decode image)", styles["Small"]))
+
+    # Optional: other required notice page
+    required_notice = legal.get("requiredNotice")
+    if required_notice and str(required_notice).strip():
+        story.append(PageBreak())
+        story.append(Paragraph("Required Notice", styles["H1"]))
+        story.append(Paragraph("Exact text presented to the applicant:", styles["H2"]))
+        story.append(Paragraph(str(required_notice).replace("\n", "<br/>"), styles["Small"]))
+
+    story.append(Spacer(1, 18))
+    story.append(
+        Paragraph(
+            "Generated automatically from the online application system. Print-ready for HR review and compliance recordkeeping.",
+            styles["Small"],
+        )
+    )
+
+    doc.build(story)
+    return buf.getvalue()
+
+# -------------------------------------------------------
+# Email helper
+# -------------------------------------------------------
+def send_application_email(payload: Dict[str, Any]) -> None:
+    """
+    Emails a print-ready PDF to HR (APPLICATION_MAIL_TO).
+    Requires SMTP_* env vars configured.
+    """
+    if not SMTP_HOST:
+        raise RuntimeError("SMTP_HOST is not configured on the server.")
+
+    form = payload.get("form") or {}
+    applicant_name = form.get("name") or "Applicant"
+    position = form.get("position") or "Unknown Position"
+    applicant_email = form.get("email") or "No email"
+
+    pdf_bytes = build_application_pdf(payload)
+
+    msg = EmailMessage()
+    msg["From"] = MAIL_FROM
+    msg["To"] = MAIL_TO
+    msg["Subject"] = f"New Employment Application: {applicant_name} — {position}"
+    msg.set_content(
+        "\n".join(
+            [
+                "A new employment application was submitted from the web form.",
+                "",
+                f"Name: {applicant_name}",
+                f"Position: {position}",
+                f"Applicant Email: {applicant_email}",
+                "",
+                "A print-ready PDF is attached for HR review.",
+            ]
+        )
+    )
+
+    filename_safe = re.sub(r"[^A-Za-z0-9._-]+", "_", str(applicant_name)).strip("_") or "Applicant"
+    pdf_name = f"Employment_Application_{filename_safe}.pdf"
+
+    msg.add_attachment(pdf_bytes, maintype="application", subtype="pdf", filename=pdf_name)
+
+    with smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=20) as server:
+        if SMTP_USE_TLS:
+            server.starttls()
+        if SMTP_USER and SMTP_PASS:
+            server.login(SMTP_USER, SMTP_PASS)
+        server.send_message(msg)
 
 # -------------------------------------------------------
 # Routes
@@ -339,11 +733,12 @@ def health() -> Any:
         {
             "status": "ok",
             "autofill_ready": bool(GEMINI_KEY),
-            # also expose this name in case your frontend expects gemini_key_set
             "gemini_key_set": bool(GEMINI_KEY),
+            "model": GEMINI_MODEL,
+            "mail_to": MAIL_TO,
+            "smtp_ready": bool(SMTP_HOST),
         }
     )
-
 
 @app.route("/api/parse-resume", methods=["POST"])
 def parse_resume() -> Any:
@@ -360,21 +755,27 @@ def parse_resume() -> Any:
         if not text.strip():
             return jsonify({"error": "Could not extract text from resume."}), 400
 
+        total_chars = len(text)
+
         try:
             result = call_generative_parser(text)
             raw_parsed = result["data"]
             meta = result["meta"]
             parsed = normalize_parsed_resume(raw_parsed)
+
             model_name = meta.get("model")
             truncated = meta.get("truncated", False)
             finish_reason = meta.get("finish_reason")
+            excerpt_chars = meta.get("excerpt_chars", None)
             mode = "smart"
         except (PermissionDenied, RuntimeError, ValueError) as ai_err:
-            print("⚠️ Smart parser failed, using basic fallback:", repr(ai_err))
-            parsed = make_empty_parsed()
-            model_name = "fallback-basic"
+            print("⚠️ Smart parser failed, using regex fallback:", repr(ai_err))
+            parsed = normalize_parsed_resume(basic_fallback_parse(text))
+
+            model_name = "fallback-regex"
             truncated = False
             finish_reason = "FALLBACK"
+            excerpt_chars = None
             mode = "fallback"
 
         return jsonify(
@@ -382,7 +783,8 @@ def parse_resume() -> Any:
                 "parsed": parsed,
                 "meta": {
                     "filename": file.filename,
-                    "characters_used": len(text),
+                    "characters_used": total_chars,
+                    "excerpt_chars": excerpt_chars,
                     "truncated": truncated,
                     "model": model_name,
                     "finish_reason": finish_reason,
@@ -394,6 +796,31 @@ def parse_resume() -> Any:
         print("❌ /api/parse-resume error:", repr(e))
         return jsonify({"error": "Internal error while processing resume."}), 500
 
+@app.route("/api/submit-application", methods=["POST"])
+def submit_application() -> Any:
+    """
+    Receives full application payload from the Review step and emails a PDF.
+    """
+    try:
+        payload = request.get_json(force=True, silent=False) or {}
+        if not isinstance(payload, dict):
+            return jsonify({"error": "Invalid payload."}), 400
+
+        form = payload.get("form") or {}
+        if not isinstance(form, dict):
+            return jsonify({"error": "Invalid form object."}), 400
+
+        send_application_email(payload)
+        return jsonify({"status": "ok"})
+    except RuntimeError as e:
+        print("❌ /api/submit-application runtime error:", repr(e))
+        return jsonify({"error": str(e)}), 500
+    except smtplib.SMTPAuthenticationError as e:
+        print("❌ SMTP auth error:", repr(e))
+        return jsonify({"error": "SMTP authentication failed. Check SMTP_USER/SMTP_PASS or use an app password."}), 500
+    except Exception as e:
+        print("❌ /api/submit-application error:", repr(e))
+        return jsonify({"error": "Internal error while submitting application."}), 500
 
 if __name__ == "__main__":
     with app.app_context():
