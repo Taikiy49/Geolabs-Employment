@@ -1,24 +1,24 @@
 import React, { useEffect, useState } from "react";
 import "../../styles/StepResume.css";
 
-// ------------------------------------------------------------------
-// API endpoints
-// ------------------------------------------------------------------
-const DEFAULT_API_URL = "http://127.0.0.1:5000/api/parse-resume";
+// ---------------------------------------------------------
+// API base
+// ---------------------------------------------------------
+// ---------------------------------------------------------
+// API base
+// ---------------------------------------------------------
+// PROD: VITE_API_URL should be "https://geolabs-employment.net"
+// DEV: default to local Flask
+const API_BASE =
+  (import.meta?.env?.VITE_API_URL || "").replace(/\/+$/, "") ||
+  (window.location.hostname === "localhost"
+    ? "http://127.0.0.1:5000"
+    : "https://geolabs-employment.net");
 
-// Support both CRA-style (process.env.REACT_APP_...) and Vite (import.meta.env.VITE_...)
-const API_URL =
-  (typeof import.meta !== "undefined" &&
-    import.meta.env &&
-    import.meta.env.VITE_RESUME_API_URL) ||
-  (typeof process !== "undefined" &&
-    process.env &&
-    process.env.REACT_APP_PARSE_RESUME_URL) ||
-  DEFAULT_API_URL;
+const PARSE_URL = `${API_BASE}/api/parse-resume`;
+const HEALTH_URL = `${API_BASE}/api/health`;
 
-const HEALTH_URL = API_URL.replace("/api/parse-resume", "/api/health");
-
-console.log("🧾 StepResume using API_URL =", API_URL);
+console.log("🧾 StepResume using PARSE_URL =", PARSE_URL);
 console.log("🩺 StepResume using HEALTH_URL =", HEALTH_URL);
 
 function StepResume({
@@ -26,7 +26,8 @@ function StepResume({
   updateField,
   updateEmploymentField,
   updateReferenceField,
-  onApplyParsedResume, // optional (App passes this already)
+  onApplyParsedResume,
+  onResumeFileSelected, // ✅ NEW: App will pass this
 }) {
   const [file, setFile] = useState(null);
   const [status, setStatus] = useState("idle"); // idle | uploading | parsed | error
@@ -36,7 +37,6 @@ function StepResume({
   const [serverStatus, setServerStatus] = useState(null); // null | "ok" | "degraded" | "down"
   const [isDragging, setIsDragging] = useState(false);
   const [lastParseTime, setLastParseTime] = useState(null);
-
   const [autoAppliedAt, setAutoAppliedAt] = useState(null);
 
   // ------------------------------------
@@ -103,6 +103,14 @@ function StepResume({
     setAutoAppliedAt(null);
   };
 
+  const setResumeFileEverywhere = (selected) => {
+    setFile(selected);
+    // ✅ store in App for final submit
+    if (typeof onResumeFileSelected === "function") {
+      onResumeFileSelected(selected);
+    }
+  };
+
   const handleFileChange = (e) => {
     const selected = e.target.files?.[0] || null;
     if (!selected) return;
@@ -110,12 +118,12 @@ function StepResume({
     const validationError = validateFile(selected);
     if (validationError) {
       setError(validationError);
-      setFile(null);
+      setResumeFileEverywhere(null);
       resetParsedState();
       return;
     }
 
-    setFile(selected);
+    setResumeFileEverywhere(selected);
     resetParsedState();
   };
 
@@ -128,12 +136,12 @@ function StepResume({
     const validationError = validateFile(droppedFile);
     if (validationError) {
       setError(validationError);
-      setFile(null);
+      setResumeFileEverywhere(null);
       resetParsedState();
       return;
     }
 
-    setFile(droppedFile);
+    setResumeFileEverywhere(droppedFile);
     resetParsedState();
   };
 
@@ -148,11 +156,10 @@ function StepResume({
   };
 
   // ------------------------------------
-  // Autofill logic (expanded + safe)
+  // Autofill logic
   // ------------------------------------
   const isBlank = (v) => v == null || String(v).trim() === "";
 
-  // Only fill if the user hasn't already filled it (prevents overwriting)
   const fillIfEmpty = (field, incoming) => {
     if (incoming == null) return;
     if (!isBlank(form[field])) return;
@@ -184,9 +191,7 @@ function StepResume({
     const skills = parsed.skills || {};
     const refs = Array.isArray(parsed.references) ? parsed.references : [];
 
-    // --------------------
     // Contact
-    // --------------------
     fillIfEmpty("name", contact.name);
     fillIfEmpty("email", contact.email);
     fillIfEmpty("phone", normalizePhone(contact.phone));
@@ -197,8 +202,6 @@ function StepResume({
     fillIfEmpty("state", contact.state);
     fillIfEmpty("zip", contact.zip);
 
-    // Best-effort: if you store a single "location" field (position/location questions)
-    // Use city/state/zip if present, or parsed.location if your backend provides it.
     if (isBlank(form.location)) {
       const locationGuess =
         contact.location ||
@@ -206,18 +209,11 @@ function StepResume({
       if (!isBlank(locationGuess)) updateField("location", locationGuess);
     }
 
-    // Best-effort: sometimes resumes provide a target role/objective
-    if (isBlank(form.position) && parsed.objective) {
-      updateField("position", parsed.objective);
-    }
     if (isBlank(form.position) && parsed.targetRole) {
       updateField("position", parsed.targetRole);
     }
 
-    // --------------------
-    // Employment (up to 3)
-    // Supports your newer fields: duties + reasonForLeaving + supervisor
-    // --------------------
+    // Employment up to 3
     for (let i = 0; i < 3; i++) {
       const job = jobs[i] || {};
       fillEmploymentFieldIfEmpty(i, "company", job.company);
@@ -235,85 +231,31 @@ function StepResume({
       );
     }
 
-    // --------------------
-    // Education (best-effort mapping to your 3 buckets)
-    // If backend provides explicit graduate/trade/high fields, use them.
-    // Otherwise, if it provides education as a list, use first items.
-    // --------------------
-    const educationList = Array.isArray(parsed.educationList)
-      ? parsed.educationList
-      : Array.isArray(parsed.education)
-      ? parsed.education
-      : null;
+    // Education (object format)
+    fillIfEmpty("educationGraduate", edu.graduate);
+    fillIfEmpty("educationGraduateYears", edu.graduateYears);
+    fillIfEmpty("educationGraduateMajor", edu.graduateMajor);
 
-    if (educationList && educationList.length) {
-      // Try to pick by level keywords if available
-      const byLevel = (lvl) =>
-        educationList.find((e) =>
-          String(e.level || e.type || "")
-            .toLowerCase()
-            .includes(lvl)
-        );
+    fillIfEmpty("educationTrade", edu.trade);
+    fillIfEmpty("educationTradeYears", edu.tradeYears);
+    fillIfEmpty("educationTradeMajor", edu.tradeMajor);
 
-      const grad = byLevel("bachelor") || byLevel("master") || byLevel("phd");
-      const trade = byLevel("trade") || byLevel("certificate");
-      const high = byLevel("high") || byLevel("secondary");
+    fillIfEmpty("educationHigh", edu.high);
+    fillIfEmpty("educationHighYears", edu.highYears);
+    fillIfEmpty("educationHighMajor", edu.highMajor);
 
-      const pick = (e) => ({
-        school: e?.school || e?.institution,
-        years: e?.years || e?.dates,
-        major: e?.major || e?.field,
-      });
-
-      const g = pick(grad);
-      const t = pick(trade);
-      const h = pick(high);
-
-      fillIfEmpty("educationGraduate", g.school);
-      fillIfEmpty("educationGraduateYears", g.years);
-      fillIfEmpty("educationGraduateMajor", g.major);
-
-      fillIfEmpty("educationTrade", t.school);
-      fillIfEmpty("educationTradeYears", t.years);
-      fillIfEmpty("educationTradeMajor", t.major);
-
-      fillIfEmpty("educationHigh", h.school);
-      fillIfEmpty("educationHighYears", h.years);
-      fillIfEmpty("educationHighMajor", h.major);
-    } else {
-      // Original object form
-      fillIfEmpty("educationGraduate", edu.graduate);
-      fillIfEmpty("educationGraduateYears", edu.graduateYears);
-      fillIfEmpty("educationGraduateMajor", edu.graduateMajor);
-
-      fillIfEmpty("educationTrade", edu.trade);
-      fillIfEmpty("educationTradeYears", edu.tradeYears);
-      fillIfEmpty("educationTradeMajor", edu.tradeMajor);
-
-      fillIfEmpty("educationHigh", edu.high);
-      fillIfEmpty("educationHighYears", edu.highYears);
-      fillIfEmpty("educationHighMajor", edu.highMajor);
-    }
-
-    // --------------------
     // Skills
-    // --------------------
     fillIfEmpty("typingSpeed", skills.typingSpeed);
     fillIfEmpty("tenKey", skills.tenKey);
-    // tenKeyMode you default to touch; only fill if backend gives explicit mode
     if (isBlank(form.tenKeyMode) && skills.tenKeyMode) {
       updateField("tenKeyMode", skills.tenKeyMode);
     }
     fillIfEmpty("computerSkills", skills.computerSkills);
-
-    // Driver’s license often appears on resumes
     if (isBlank(form.driverLicense) && skills.driverLicense) {
       updateField("driverLicense", skills.driverLicense);
     }
 
-    // --------------------
-    // References (up to 3)
-    // --------------------
+    // References up to 3
     for (let i = 0; i < Math.min(refs.length, 3); i++) {
       const r = refs[i] || {};
       fillReferenceFieldIfEmpty(i, "name", r.name);
@@ -321,9 +263,7 @@ function StepResume({
       fillReferenceFieldIfEmpty(i, "phone", normalizePhone(r.phone));
     }
 
-    // Optional bulk merge hook (if you want to add more fields later in one place)
     if (typeof onApplyParsedResume === "function") {
-      // Example: if your backend returns extra keys like { position, location, referredBy }
       const extra = {};
       if (parsed.position && isBlank(form.position)) extra.position = parsed.position;
       if (parsed.location && isBlank(form.location)) extra.location = parsed.location;
@@ -358,7 +298,7 @@ function StepResume({
       const formData = new FormData();
       formData.append("file", file);
 
-      const res = await fetch(API_URL, {
+      const res = await fetch(PARSE_URL, {
         method: "POST",
         body: formData,
       });
@@ -367,13 +307,11 @@ function StepResume({
       try {
         data = await res.json();
       } catch {
-        // ignore JSON parse errors
+        // ignore
       }
 
       if (!res.ok) {
-        throw new Error(
-          (data && data.error) || "Resume processing failed on the server."
-        );
+        throw new Error((data && data.error) || "Resume processing failed on the server.");
       }
 
       if (!data || !data.parsed) {
@@ -404,8 +342,7 @@ function StepResume({
           <div>
             <div className="resume-status-title">Analyzing your resume…</div>
             <div className="resume-status-subtitle">
-              We’ll automatically fill your application fields. You can edit or
-              remove anything afterward.
+              We’ll automatically fill your application fields. You can edit or remove anything afterward.
             </div>
           </div>
         </div>
@@ -419,8 +356,7 @@ function StepResume({
           <div>
             <div className="resume-status-title">Autofill complete ✅</div>
             <div className="resume-status-subtitle">
-              We filled what we could detect. You can modify or delete any
-              autofilled text before submitting.
+              We filled what we could detect. You can modify or delete any autofilled text before submitting.
             </div>
           </div>
         </div>
@@ -472,9 +408,7 @@ function StepResume({
     if (!parsedPreview) return null;
 
     const c = parsedPreview.contact || {};
-    const jobs = Array.isArray(parsedPreview.employment)
-      ? parsedPreview.employment
-      : [];
+    const jobs = Array.isArray(parsedPreview.employment) ? parsedPreview.employment : [];
     const edu = parsedPreview.education || {};
     const skills = parsedPreview.skills || {};
 
@@ -498,9 +432,7 @@ function StepResume({
             <div className="resume-snapshot-line">
               <span className="label">Location</span>
               <span>
-                {c.city || c.state || c.zip
-                  ? [c.city, c.state, c.zip].filter(Boolean).join(", ")
-                  : "—"}
+                {c.city || c.state || c.zip ? [c.city, c.state, c.zip].filter(Boolean).join(", ") : "—"}
               </span>
             </div>
           </div>
@@ -509,25 +441,17 @@ function StepResume({
         <div className="resume-snapshot-card">
           <div className="resume-snapshot-title">Recent Experience</div>
           <div className="resume-snapshot-body">
-            {jobs.length === 0 && (
-              <div className="text-muted">Not detected.</div>
-            )}
+            {jobs.length === 0 && <div className="text-muted">Not detected.</div>}
             {jobs.slice(0, 3).map((job, idx) => (
               <div key={idx} className="resume-snapshot-job">
-                <div className="resume-snapshot-job-title">
-                  {job.position || "Position not detected"}
-                </div>
+                <div className="resume-snapshot-job-title">{job.position || "Position not detected"}</div>
                 <div className="resume-snapshot-job-meta">
                   {job.company || "Company not detected"}
                   {job.dateFrom || job.dateTo
-                    ? ` • ${[job.dateFrom, job.dateTo]
-                        .filter(Boolean)
-                        .join(" – ")}`
+                    ? ` • ${[job.dateFrom, job.dateTo].filter(Boolean).join(" – ")}`
                     : ""}
                 </div>
-                {job.duties && (
-                  <div className="resume-snapshot-job-duties">{job.duties}</div>
-                )}
+                {job.duties && <div className="resume-snapshot-job-duties">{job.duties}</div>}
               </div>
             ))}
           </div>
@@ -542,9 +466,7 @@ function StepResume({
             </div>
             <div className="resume-snapshot-line">
               <span className="label">Major</span>
-              <span>
-                {edu.graduateMajor || edu.tradeMajor || edu.highMajor || "—"}
-              </span>
+              <span>{edu.graduateMajor || edu.tradeMajor || edu.highMajor || "—"}</span>
             </div>
             <div className="resume-snapshot-line">
               <span className="label">Typing Speed</span>
@@ -570,8 +492,7 @@ function StepResume({
           <div>
             <h2>Upload Your Resume</h2>
             <p className="section-help">
-              Upload your resume and we’ll automatically pre-fill your
-              application. You can edit or remove anything before submitting.
+              Upload your resume and we’ll automatically pre-fill your application. You can edit or remove anything before submitting.
             </p>
           </div>
 
@@ -601,9 +522,9 @@ function StepResume({
         <div className="resume-upload-card">
           <div className="resume-upload-body">
             <label
-              className={`resume-dropzone ${
-                isDragging ? "resume-dropzone-dragging" : ""
-              } ${status === "uploading" ? "resume-dropzone-loading" : ""}`}
+              className={`resume-dropzone ${isDragging ? "resume-dropzone-dragging" : ""} ${
+                status === "uploading" ? "resume-dropzone-loading" : ""
+              }`}
               onDrop={handleDrop}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
@@ -617,9 +538,7 @@ function StepResume({
               <div className="resume-dropzone-inner">
                 <div className="resume-dropzone-icon">📄</div>
                 <div>
-                  <div className="resume-dropzone-title">
-                    {file ? file.name : "Click, or drag and drop your resume"}
-                  </div>
+                  <div className="resume-dropzone-title">{file ? file.name : "Click, or drag and drop your resume"}</div>
                   <div className="resume-dropzone-caption">
                     PDF, DOC, DOCX, or TXT · up to {MAX_FILE_SIZE_MB} MB
                   </div>
@@ -636,9 +555,7 @@ function StepResume({
               >
                 {status === "uploading" ? "Analyzing…" : "Upload & Analyze Resume"}
               </button>
-              <div className="resume-secondary-hint">
-                Autofill won’t overwrite fields you’ve already filled.
-              </div>
+              <div className="resume-secondary-hint">Autofill won’t overwrite fields you’ve already filled.</div>
             </div>
           </div>
 
@@ -650,15 +567,13 @@ function StepResume({
 
               <details className="resume-preview-details">
                 <summary>Developer view: raw extracted data</summary>
-                <pre className="resume-preview-json">
-                  {JSON.stringify(parsedPreview, null, 2)}
-                </pre>
+                <pre className="resume-preview-json">{JSON.stringify(parsedPreview, null, 2)}</pre>
               </details>
 
               {debugMeta && (
                 <p className="section-help resume-meta-footnote">
-                  Parsed from: <strong>{debugMeta.filename}</strong> · Characters
-                  processed: <strong>{debugMeta.characters_used}</strong>
+                  Parsed from: <strong>{debugMeta.filename}</strong> · Characters processed:{" "}
+                  <strong>{debugMeta.characters_used}</strong>
                   {debugMeta.truncated && (
                     <>
                       {" "}
@@ -673,8 +588,7 @@ function StepResume({
 
         {status === "error" && !parsedPreview && (
           <div className="resume-inline-error">
-            <strong>Tip:</strong> Try exporting your resume as a simple PDF or
-            TXT file and avoid image-only scans.
+            <strong>Tip:</strong> Try exporting your resume as a simple PDF or TXT file and avoid image-only scans.
           </div>
         )}
       </section>

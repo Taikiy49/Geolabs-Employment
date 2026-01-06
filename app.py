@@ -7,6 +7,7 @@ import json
 import os
 import re
 import smtplib
+import mimetypes
 from email.message import EmailMessage
 from typing import Any, Dict, List, Tuple, Optional
 
@@ -23,7 +24,6 @@ from google.api_core.exceptions import PermissionDenied
 from reportlab.lib.pagesizes import LETTER
 from reportlab.lib.units import inch
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.enums import TA_LEFT
 from reportlab.lib import colors
 from reportlab.platypus import (
     SimpleDocTemplate,
@@ -90,7 +90,6 @@ def get_extension(filename: str) -> str:
         return ""
     return "." + filename.rsplit(".", 1)[-1].lower()
 
-
 def extract_text_from_pdf(file_storage) -> str:
     reader = PdfReader(file_storage.stream)
     pages: List[str] = []
@@ -99,7 +98,6 @@ def extract_text_from_pdf(file_storage) -> str:
         pages.append(text)
     return "\n\n".join(pages)
 
-
 def extract_text_from_docx(file_storage) -> str:
     file_bytes = file_storage.read()
     stream = io.BytesIO(file_bytes)
@@ -107,14 +105,12 @@ def extract_text_from_docx(file_storage) -> str:
     paragraphs = [p.text for p in document.paragraphs if p.text.strip()]
     return "\n".join(paragraphs)
 
-
 def extract_text_from_txt(file_storage) -> str:
     data = file_storage.read()
     try:
         return data.decode("utf-8", errors="ignore")
     except Exception:
         return data.decode("latin-1", errors="ignore")
-
 
 def extract_text_from_file(file_storage) -> str:
     ext = get_extension(file_storage.filename)
@@ -234,7 +230,6 @@ def _extract_text_from_candidate(response) -> Tuple[str, Any]:
         )
 
     return raw, finish_reason
-
 
 def call_generative_parser(text: str) -> Dict[str, Any]:
     if not GEMINI_KEY:
@@ -458,30 +453,8 @@ def normalize_parsed_resume(data: Dict[str, Any]) -> Dict[str, Any]:
         "references": norm_refs,
     }
 
-def make_empty_parsed() -> Dict[str, Any]:
-    return normalize_parsed_resume(
-        {
-            "contact": {
-                "name": None,
-                "email": None,
-                "phone": None,
-                "cell": None,
-                "address": None,
-                "city": None,
-                "state": None,
-                "zip": None,
-                "location": None,
-            },
-            "targetRole": None,
-            "employment": [],
-            "education": {},
-            "skills": {},
-            "references": [],
-        }
-    )
-
 # -------------------------------------------------------
-# PDF helpers (HR print-ready)
+# PDF helpers (HR print-ready) - IMPROVED READABILITY
 # -------------------------------------------------------
 def _safe(v: Any) -> str:
     if v is None:
@@ -491,41 +464,244 @@ def _safe(v: Any) -> str:
     s = str(v).strip()
     return s if s else "—"
 
-def _flatten_dict(d: Dict[str, Any], prefix: str = "") -> List[Tuple[str, str]]:
-    rows: List[Tuple[str, str]] = []
-    for k in sorted((d or {}).keys()):
-        key = f"{prefix}{k}" if not prefix else f"{prefix}.{k}"
-        v = d[k]
-        if isinstance(v, dict):
-            rows.extend(_flatten_dict(v, key))
-        elif isinstance(v, list):
-            if not v:
-                rows.append((key, "—"))
-            else:
-                preview = []
-                for i, item in enumerate(v[:5]):
-                    if isinstance(item, dict):
-                        preview.append(
-                            f"[{i}] " + ", ".join(f"{ik}={_safe(iv)}" for ik, iv in item.items())
-                        )
-                    else:
-                        preview.append(f"[{i}] {_safe(item)}")
-                if len(v) > 5:
-                    preview.append(f"... (+{len(v)-5} more)")
-                rows.append((key, "\n".join(preview)))
+def _pretty_wrap(s: str, max_len: int = 120) -> str:
+    """
+    Adds soft line breaks into long values so tables remain readable.
+    """
+    s = (s or "").strip()
+    if not s or s == "—":
+        return "—"
+    if len(s) <= max_len:
+        return s
+    # crude wrap on spaces
+    out: List[str] = []
+    cur: List[str] = []
+    cur_len = 0
+    for word in s.split():
+        if cur_len + len(word) + (1 if cur else 0) > max_len:
+            out.append(" ".join(cur))
+            cur = [word]
+            cur_len = len(word)
         else:
-            rows.append((key, _safe(v)))
-    return rows
+            cur.append(word)
+            cur_len += len(word) + (1 if cur_len else 0)
+    if cur:
+        out.append(" ".join(cur))
+    return "\n".join(out)
+
+def _table_kv(
+    rows: List[Tuple[str, Any]],
+    styles,
+    col_widths: Tuple[float, float],
+    header: Tuple[str, str] = ("Field", "Value"),
+    zebra: bool = True,
+) -> Table:
+    data = [[Paragraph(_safe(header[0]), styles["SmallBold"]), Paragraph(_safe(header[1]), styles["SmallBold"])]]
+    for k, v in rows:
+        data.append(
+            [
+                Paragraph(_safe(k), styles["Small"]),
+                Paragraph(_safe(_pretty_wrap(_safe(v))).replace("\n", "<br/>"), styles["Small"]),
+            ]
+        )
+
+    t = Table(data, colWidths=[col_widths[0], col_widths[1]], repeatRows=1)
+    style_cmds = [
+        ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#f3f4f6")),
+        ("BOX", (0, 0), (-1, -1), 0.6, colors.black),
+        ("INNERGRID", (0, 0), (-1, -1), 0.25, colors.grey),
+        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+        ("FONTSIZE", (0, 0), (-1, -1), 9),
+        ("TOPPADDING", (0, 0), (-1, -1), 6),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+    ]
+    if zebra:
+        for i in range(1, len(data)):
+            if i % 2 == 0:
+                style_cmds.append(("BACKGROUND", (0, i), (-1, i), colors.HexColor("#fbfbfb")))
+    t.setStyle(TableStyle(style_cmds))
+    return t
+
+def _table_matrix(
+    header: List[str],
+    rows: List[List[Any]],
+    styles,
+    col_widths: List[float],
+    zebra: bool = True,
+) -> Table:
+    data: List[List[Any]] = []
+    data.append([Paragraph(_safe(h), styles["SmallBold"]) for h in header])
+
+    for r in rows:
+        pr: List[Any] = []
+        for cell in r:
+            pr.append(Paragraph(_safe(_pretty_wrap(_safe(cell))).replace("\n", "<br/>"), styles["Small"]))
+        data.append(pr)
+
+    t = Table(data, colWidths=col_widths, repeatRows=1)
+    style_cmds = [
+        ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#f3f4f6")),
+        ("BOX", (0, 0), (-1, -1), 0.6, colors.black),
+        ("INNERGRID", (0, 0), (-1, -1), 0.25, colors.grey),
+        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+        ("FONTSIZE", (0, 0), (-1, -1), 9),
+        ("TOPPADDING", (0, 0), (-1, -1), 6),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+    ]
+    if zebra:
+        for i in range(1, len(data)):
+            if i % 2 == 0:
+                style_cmds.append(("BACKGROUND", (0, i), (-1, i), colors.HexColor("#fbfbfb")))
+    t.setStyle(TableStyle(style_cmds))
+    return t
+
+def _humanize_key(key: str) -> str:
+    """
+    Converts camelCase / snake_case into a readable label.
+    Example: highestEducationLevel -> Highest Education Level
+    """
+    if not key:
+        return ""
+    s = key.replace("_", " ").strip()
+    s = re.sub(r"([a-z0-9])([A-Z])", r"\1 \2", s)
+    s = re.sub(r"\s+", " ", s).strip()
+    return s[:1].upper() + s[1:]
+
+def _build_readable_sections(form: Dict[str, Any]) -> List[Tuple[str, List[Tuple[str, Any]]]]:
+    """
+    If you later add more fields, just put them in the lists below to keep the PDF clean.
+    Any unknown fields will still appear in an appendix (optional).
+    """
+    f = form or {}
+
+    # --- tweak this map any time you add new fields ---
+    LABELS = {
+        "name": "Full Name",
+        "position": "Position Applying For",
+        "location": "Preferred Location",
+        "email": "Email",
+        "phone": "Phone",
+        "address": "Address",
+        "city": "City",
+        "state": "State",
+        "zip": "ZIP Code",
+        "startDate": "Available Start Date",
+        "workAuthorization": "Authorized to Work in the U.S.?",
+        "sponsorshipRequired": "Will You Require Sponsorship?",
+        "previouslyEmployed": "Previously Employed by Geolabs?",
+        "previouslyEmployedWhen": "If Yes, When?",
+        "driverLicense": "Driver’s License",
+        "driverLicenseState": "Driver’s License State",
+        "reliableTransportation": "Reliable Transportation?",
+        "eeoGender": "EEO Gender (Voluntary)",
+        "eeoEthnicity": "EEO Ethnicity (Voluntary)",
+        "disabilityStatus": "Disability Status (Voluntary)",
+        "vetStatus": "Veteran Status (Voluntary)",
+        "drugAgreementSignature": "Signature (Typed)",
+        "drugAgreementDate": "Signature Date",
+    }
+
+    def get(field: str) -> Any:
+        return f.get(field)
+
+    sections: List[Tuple[str, List[Tuple[str, Any]]]] = []
+
+    sections.append(
+        (
+            "Applicant Summary",
+            [
+                (LABELS.get("name", _humanize_key("name")), get("name")),
+                (LABELS.get("position", _humanize_key("position")), get("position")),
+                (LABELS.get("location", _humanize_key("location")), get("location")),
+            ],
+        )
+    )
+
+    sections.append(
+        (
+            "Contact Information",
+            [
+                (LABELS.get("email", _humanize_key("email")), get("email")),
+                (LABELS.get("phone", _humanize_key("phone")), get("phone")),
+                (LABELS.get("address", _humanize_key("address")), get("address")),
+                (LABELS.get("city", _humanize_key("city")), get("city")),
+                (LABELS.get("state", _humanize_key("state")), get("state")),
+                (LABELS.get("zip", _humanize_key("zip")), get("zip")),
+            ],
+        )
+    )
+
+    # Only include these if they exist in your form (safe either way)
+    sections.append(
+        (
+            "Work Eligibility",
+            [
+                (LABELS.get("startDate", _humanize_key("startDate")), get("startDate")),
+                (LABELS.get("workAuthorization", _humanize_key("workAuthorization")), get("workAuthorization")),
+                (LABELS.get("sponsorshipRequired", _humanize_key("sponsorshipRequired")), get("sponsorshipRequired")),
+                (LABELS.get("previouslyEmployed", _humanize_key("previouslyEmployed")), get("previouslyEmployed")),
+                (LABELS.get("previouslyEmployedWhen", _humanize_key("previouslyEmployedWhen")), get("previouslyEmployedWhen")),
+                (LABELS.get("reliableTransportation", _humanize_key("reliableTransportation")), get("reliableTransportation")),
+                (LABELS.get("driverLicense", _humanize_key("driverLicense")), get("driverLicense")),
+                (LABELS.get("driverLicenseState", _humanize_key("driverLicenseState")), get("driverLicenseState")),
+            ],
+        )
+    )
+
+    sections.append(
+        (
+            "Self-Identification (Voluntary)",
+            [
+                (LABELS.get("eeoGender", _humanize_key("eeoGender")), get("eeoGender")),
+                (LABELS.get("eeoEthnicity", _humanize_key("eeoEthnicity")), get("eeoEthnicity")),
+                (LABELS.get("disabilityStatus", _humanize_key("disabilityStatus")), get("disabilityStatus")),
+                (LABELS.get("vetStatus", _humanize_key("vetStatus")), get("vetStatus")),
+            ],
+        )
+    )
+
+    sections.append(
+        (
+            "Alcohol & Drug Testing Agreement",
+            [
+                (LABELS.get("drugAgreementSignature", _humanize_key("drugAgreementSignature")), get("drugAgreementSignature")),
+                (LABELS.get("drugAgreementDate", _humanize_key("drugAgreementDate")), get("drugAgreementDate")),
+            ],
+        )
+    )
+
+    # Remove totally empty sections to keep it clean
+    filtered: List[Tuple[str, List[Tuple[str, Any]]]] = []
+    for title, items in sections:
+        if any(_safe(v) != "—" for _, v in items):
+            filtered.append((title, items))
+    return filtered
+
+def _collect_unknown_form_fields(form: Dict[str, Any], known_fields: List[str]) -> List[Tuple[str, Any]]:
+    f = form or {}
+    unknown: List[Tuple[str, Any]] = []
+    for k in sorted(f.keys()):
+        if k not in known_fields:
+            unknown.append((_humanize_key(k), f.get(k)))
+    return unknown
 
 def build_application_pdf(payload: Dict[str, Any]) -> bytes:
+    """
+    HR-friendly PDF:
+      - Clean sections with human labels (no raw keys like highestEducationLevel)
+      - Jobs/education (if present) shown as readable tables
+      - Legal text on its own pages
+      - Optional appendix for extra/unmapped fields
+    """
     form = payload.get("form") or {}
     legal = payload.get("legalText") or {}
     client_meta = payload.get("clientMeta") or {}
+    computed = payload.get("computed") or {}
     submitted_at = payload.get("submittedAt")
 
     applicant_name = _safe(form.get("name"))
     position = _safe(form.get("position"))
-    location = _safe(form.get("location"))
+    preferred_location = _safe(form.get("location"))
     email_addr = _safe(form.get("email"))
     phone = _safe(form.get("phone"))
 
@@ -543,80 +719,136 @@ def build_application_pdf(payload: Dict[str, Any]) -> bytes:
     styles = getSampleStyleSheet()
     styles.add(ParagraphStyle(name="H1", parent=styles["Heading1"], fontSize=16, leading=20, spaceAfter=8))
     styles.add(ParagraphStyle(name="H2", parent=styles["Heading2"], fontSize=12, leading=15, spaceBefore=10, spaceAfter=6))
+    styles.add(ParagraphStyle(name="Body", parent=styles["BodyText"], fontSize=10, leading=13))
     styles.add(ParagraphStyle(name="Small", parent=styles["BodyText"], fontSize=9, leading=11))
+    styles.add(ParagraphStyle(name="SmallBold", parent=styles["BodyText"], fontSize=9, leading=11, spaceAfter=0))
+    styles["SmallBold"].fontName = "Helvetica-Bold"
 
     story: List[Any] = []
 
-    # Cover / summary
+    # ---------------------------------------------------
+    # Cover / summary (clean)
+    # ---------------------------------------------------
     story.append(Paragraph("GEOLABS, INC.", styles["H1"]))
-    story.append(Paragraph("Employment Application & Required Notices", styles["H2"]))
-    story.append(Paragraph("Secure · Confidential · Online Submission", styles["BodyText"]))
+    story.append(Paragraph("Employment Application (HR Copy)", styles["H2"]))
+    story.append(Paragraph("Secure · Confidential · Online Submission", styles["Body"]))
     story.append(Spacer(1, 10))
 
+    vet_label = computed.get("vetStatusLabel")
     meta_rows = [
-        ["Submitted At", _safe(submitted_at)],
-        ["Applicant Name", applicant_name],
-        ["Position Applying For", position],
-        ["Preferred Location", location],
-        ["Email", email_addr],
-        ["Phone", phone],
-        ["Client Timezone", _safe(client_meta.get("timezone"))],
+        ("Submitted At", submitted_at),
+        ("Applicant", applicant_name),
+        ("Position Applying For", position),
+        ("Preferred Location", preferred_location),
+        ("Email", email_addr),
+        ("Phone", phone),
+        ("Veteran Status (Label)", vet_label if vet_label else "—"),
+        ("Client Timezone", client_meta.get("timezone")),
     ]
-    meta_table = Table(meta_rows, colWidths=[2.0 * inch, 4.8 * inch])
-    meta_table.setStyle(
-        TableStyle(
-            [
-                ("BACKGROUND", (0, 0), (-1, 0), colors.whitesmoke),
-                ("BOX", (0, 0), (-1, -1), 0.8, colors.black),
-                ("INNERGRID", (0, 0), (-1, -1), 0.25, colors.grey),
-                ("VALIGN", (0, 0), (-1, -1), "TOP"),
-                ("FONTSIZE", (0, 0), (-1, -1), 10),
-                ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
-                ("TOPPADDING", (0, 0), (-1, -1), 6),
-            ]
-        )
-    )
-    story.append(meta_table)
+    story.append(_table_kv(meta_rows, styles, col_widths=(2.15 * inch, 4.65 * inch), header=("Item", "Value")))
     story.append(Spacer(1, 12))
 
-    # Full details table (field-by-field)
-    story.append(Paragraph("Full Application Details", styles["H2"]))
-    story.append(Paragraph("Complete record of all submitted fields.", styles["Small"]))
-    story.append(Spacer(1, 6))
-
-    rows = _flatten_dict(form)
-    table_data = [["Field", "Value"]]
-    for k, v in rows:
-        table_data.append(
-            [
-                Paragraph(_safe(k), styles["Small"]),
-                Paragraph(_safe(v).replace("\n", "<br/>"), styles["Small"]),
-            ]
-        )
-
-    details_table = Table(table_data, colWidths=[2.2 * inch, 4.6 * inch], repeatRows=1)
-    details_table.setStyle(
-        TableStyle(
-            [
-                ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#f3f4f6")),
-                ("BOX", (0, 0), (-1, -1), 0.6, colors.black),
-                ("INNERGRID", (0, 0), (-1, -1), 0.25, colors.grey),
-                ("VALIGN", (0, 0), (-1, -1), "TOP"),
-                ("FONTSIZE", (0, 0), (-1, -1), 9),
-                ("TOPPADDING", (0, 0), (-1, -1), 5),
-                ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
-            ]
+    story.append(
+        Paragraph(
+            "Below is a readable summary of the applicant’s submission. The legal agreement text is included on the following pages.",
+            styles["Small"],
         )
     )
-    story.append(details_table)
+    story.append(Spacer(1, 8))
 
-    # Signed agreement page (separate page)
+    # ---------------------------------------------------
+    # Readable sections (no raw keys)
+    # ---------------------------------------------------
+    readable_sections = _build_readable_sections(form)
+
+    # Keep track of what we displayed (so appendix is only the “extras”)
+    displayed_keys: List[str] = []
+    # This list mirrors the keys referenced in _build_readable_sections.
+    # If you add new fields there, add them here too.
+    displayed_keys.extend(
+        [
+            "name", "position", "location",
+            "email", "phone", "address", "city", "state", "zip",
+            "startDate", "workAuthorization", "sponsorshipRequired",
+            "previouslyEmployed", "previouslyEmployedWhen",
+            "reliableTransportation", "driverLicense", "driverLicenseState",
+            "eeoGender", "eeoEthnicity", "disabilityStatus", "vetStatus",
+            "drugAgreementSignature", "drugAgreementDate",
+        ]
+    )
+
+    for title, rows in readable_sections:
+        story.append(Paragraph(title, styles["H2"]))
+        story.append(_table_kv(rows, styles, col_widths=(2.35 * inch, 4.45 * inch), header=("Field", "Response")))
+        story.append(Spacer(1, 10))
+
+    # ---------------------------------------------------
+    # If your form contains “employment history” / “education” arrays, render them nicely (optional)
+    # (These won’t break anything if the fields aren’t present.)
+    # ---------------------------------------------------
+    emp = form.get("employment") if isinstance(form.get("employment"), list) else None
+    if emp:
+        story.append(Paragraph("Employment History", styles["H2"]))
+        emp_rows: List[List[Any]] = []
+        for job in emp[:5]:
+            if not isinstance(job, dict):
+                continue
+            emp_rows.append(
+                [
+                    job.get("company"),
+                    job.get("position"),
+                    f"{_safe(job.get('dateFrom'))} – {_safe(job.get('dateTo'))}",
+                    job.get("supervisor"),
+                ]
+            )
+        if emp_rows:
+            story.append(
+                _table_matrix(
+                    header=["Company", "Position", "Dates", "Supervisor"],
+                    rows=emp_rows,
+                    styles=styles,
+                    col_widths=[2.1 * inch, 1.9 * inch, 1.6 * inch, 1.2 * inch],
+                )
+            )
+            story.append(Spacer(1, 10))
+
+    edu = form.get("education") if isinstance(form.get("education"), dict) else None
+    if edu:
+        story.append(Paragraph("Education", styles["H2"]))
+        edu_rows = [
+            ("School", edu.get("school") or edu.get("graduate") or edu.get("institution")),
+            ("Degree / Program", edu.get("degree") or edu.get("graduateMajor") or edu.get("major")),
+            ("Years", edu.get("years") or edu.get("graduateYears")),
+        ]
+        story.append(_table_kv(edu_rows, styles, col_widths=(2.35 * inch, 4.45 * inch), header=("Field", "Response")))
+        story.append(Spacer(1, 10))
+
+    # ---------------------------------------------------
+    # Appendix for unmapped fields (so nothing is lost)
+    # ---------------------------------------------------
+    unknown = _collect_unknown_form_fields(form, known_fields=displayed_keys)
+    # Only include if there are meaningful extras
+    if any(_safe(v) != "—" for _, v in unknown):
+        story.append(PageBreak())
+        story.append(Paragraph("Appendix: Additional Submitted Fields", styles["H1"]))
+        story.append(
+            Paragraph(
+                "These fields were included in the submission payload but are not part of the standard HR summary layout.",
+                styles["Small"],
+            )
+        )
+        story.append(Spacer(1, 8))
+        story.append(_table_kv(unknown, styles, col_widths=(2.35 * inch, 4.45 * inch), header=("Field", "Value")))
+
+    # ---------------------------------------------------
+    # Legal text pages (exact text)
+    # ---------------------------------------------------
     story.append(PageBreak())
-    story.append(Paragraph("Alcohol & Drug Testing Program Agreement", styles["H1"]))
+    story.append(Paragraph("Alcohol & Drug Testing Program", styles["H1"]))
     story.append(Paragraph("Exact text presented to the applicant:", styles["H2"]))
 
     agreement_text = legal.get("alcoholDrugProgram") or "— (Agreement text was not provided by client payload.)"
-    story.append(Paragraph(agreement_text.replace("\n", "<br/>"), styles["Small"]))
+    story.append(Paragraph(_safe(agreement_text).replace("\n", "<br/>"), styles["Small"]))
     story.append(Spacer(1, 14))
 
     story.append(Paragraph("Applicant Attestation", styles["H2"]))
@@ -624,23 +856,10 @@ def build_application_pdf(payload: Dict[str, Any]) -> bytes:
     sig_date = _safe(form.get("drugAgreementDate"))
 
     att_rows = [
-        ["Signature (typed)", sig_text],
-        ["Date", sig_date],
+        ("Signature (typed)", sig_text),
+        ("Date", sig_date),
     ]
-    att_t = Table(att_rows, colWidths=[2.0 * inch, 4.8 * inch])
-    att_t.setStyle(
-        TableStyle(
-            [
-                ("BOX", (0, 0), (-1, -1), 0.8, colors.black),
-                ("INNERGRID", (0, 0), (-1, -1), 0.25, colors.grey),
-                ("VALIGN", (0, 0), (-1, -1), "TOP"),
-                ("FONTSIZE", (0, 0), (-1, -1), 11),
-                ("TOPPADDING", (0, 0), (-1, -1), 10),
-                ("BOTTOMPADDING", (0, 0), (-1, -1), 10),
-            ]
-        )
-    )
-    story.append(att_t)
+    story.append(_table_kv(att_rows, styles, col_widths=(2.15 * inch, 4.65 * inch), header=("Item", "Value"), zebra=False))
     story.append(Spacer(1, 10))
 
     # Optional: drawn signature image (Data URL)
@@ -648,7 +867,7 @@ def build_application_pdf(payload: Dict[str, Any]) -> bytes:
     data_url = sigs.get("drugAgreementSignatureDataUrl")
     if isinstance(data_url, str) and data_url.startswith("data:image"):
         try:
-            header, b64 = data_url.split(",", 1)
+            _header, b64 = data_url.split(",", 1)
             img_bytes = base64.b64decode(b64)
             img_buf = io.BytesIO(img_bytes)
             story.append(Paragraph("Signature (drawn)", styles["Small"]))
@@ -657,13 +876,13 @@ def build_application_pdf(payload: Dict[str, Any]) -> bytes:
         except Exception:
             story.append(Paragraph("Signature (drawn): — (Could not decode image)", styles["Small"]))
 
-    # Optional: other required notice page
+    # Optional: required notice page
     required_notice = legal.get("requiredNotice")
     if required_notice and str(required_notice).strip():
         story.append(PageBreak())
         story.append(Paragraph("Required Notice", styles["H1"]))
         story.append(Paragraph("Exact text presented to the applicant:", styles["H2"]))
-        story.append(Paragraph(str(required_notice).replace("\n", "<br/>"), styles["Small"]))
+        story.append(Paragraph(_safe(required_notice).replace("\n", "<br/>"), styles["Small"]))
 
     story.append(Spacer(1, 18))
     story.append(
@@ -677,11 +896,16 @@ def build_application_pdf(payload: Dict[str, Any]) -> bytes:
     return buf.getvalue()
 
 # -------------------------------------------------------
-# Email helper
+# Email helper (Attaches PDF + optional resume)
 # -------------------------------------------------------
-def send_application_email(payload: Dict[str, Any]) -> None:
+def send_application_email(
+    payload: Dict[str, Any],
+    resume_bytes: Optional[bytes] = None,
+    resume_filename: Optional[str] = None,
+) -> None:
     """
     Emails a print-ready PDF to HR (APPLICATION_MAIL_TO).
+    Optionally attaches the applicant resume file as a second attachment.
     Requires SMTP_* env vars configured.
     """
     if not SMTP_HOST:
@@ -707,15 +931,30 @@ def send_application_email(payload: Dict[str, Any]) -> None:
                 f"Position: {position}",
                 f"Applicant Email: {applicant_email}",
                 "",
-                "A print-ready PDF is attached for HR review.",
+                "Attachments:",
+                "- Print-ready application PDF",
+                "- Original resume file (if provided)",
             ]
         )
     )
 
     filename_safe = re.sub(r"[^A-Za-z0-9._-]+", "_", str(applicant_name)).strip("_") or "Applicant"
     pdf_name = f"Employment_Application_{filename_safe}.pdf"
-
     msg.add_attachment(pdf_bytes, maintype="application", subtype="pdf", filename=pdf_name)
+
+    # Attach resume (optional)
+    if resume_bytes and resume_filename:
+        ext = get_extension(resume_filename)
+        if ext not in ALLOWED_EXTENSIONS:
+            raise ValueError(f"Unsupported resume attachment type: {ext}")
+
+        mime_type, _enc = mimetypes.guess_type(resume_filename)
+        if not mime_type:
+            mime_type = "application/octet-stream"
+        maintype, subtype = mime_type.split("/", 1)
+
+        safe_name = re.sub(r"[^A-Za-z0-9._-]+", "_", str(resume_filename)).strip("_") or f"resume{ext}"
+        msg.add_attachment(resume_bytes, maintype=maintype, subtype=subtype, filename=safe_name)
 
     with smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=20) as server:
         if SMTP_USE_TLS:
@@ -799,10 +1038,41 @@ def parse_resume() -> Any:
 @app.route("/api/submit-application", methods=["POST"])
 def submit_application() -> Any:
     """
-    Receives full application payload from the Review step and emails a PDF.
+    Accepts either:
+    1) JSON body (legacy) - no resume attachment
+    2) multipart/form-data:
+       - field "payload" = JSON string
+       - file  "resume"  = original resume file
+    Emails a print-ready PDF + optional resume attachment.
     """
     try:
-        payload = request.get_json(force=True, silent=False) or {}
+        payload: Dict[str, Any] = {}
+        resume_bytes: Optional[bytes] = None
+        resume_filename: Optional[str] = None
+
+        content_type = request.content_type or ""
+
+        if content_type.startswith("multipart/form-data"):
+            payload_str = request.form.get("payload", "")
+            if not payload_str.strip():
+                return jsonify({"error": "Missing payload field."}), 400
+
+            try:
+                payload = json.loads(payload_str)
+            except Exception:
+                return jsonify({"error": "Invalid payload JSON."}), 400
+
+            resume_file = request.files.get("resume")
+            if resume_file and resume_file.filename:
+                ext = get_extension(resume_file.filename)
+                if ext not in ALLOWED_EXTENSIONS:
+                    return jsonify({"error": f"Unsupported resume file type: {ext}"}), 400
+                resume_bytes = resume_file.read()
+                resume_filename = resume_file.filename
+
+        else:
+            payload = request.get_json(force=True, silent=False) or {}
+
         if not isinstance(payload, dict):
             return jsonify({"error": "Invalid payload."}), 400
 
@@ -810,8 +1080,9 @@ def submit_application() -> Any:
         if not isinstance(form, dict):
             return jsonify({"error": "Invalid form object."}), 400
 
-        send_application_email(payload)
+        send_application_email(payload, resume_bytes=resume_bytes, resume_filename=resume_filename)
         return jsonify({"status": "ok"})
+
     except RuntimeError as e:
         print("❌ /api/submit-application runtime error:", repr(e))
         return jsonify({"error": str(e)}), 500
@@ -828,4 +1099,5 @@ if __name__ == "__main__":
         for rule in app.url_map.iter_rules():
             print(f"  {rule}")
 
+    # NOTE: In production (EC2), run with systemd/gunicorn and debug=False.
     app.run(host="0.0.0.0", port=5000, debug=True)

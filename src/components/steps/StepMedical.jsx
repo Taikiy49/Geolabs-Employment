@@ -2,7 +2,7 @@
 import React from "react";
 import "../../styles/StepMedical.css";
 
-function StepMedical({ form, updateField }) {
+function StepMedical({ form,  updateField }) {
   return (
     <div className="form-step medical-step">
       <section className="form-section medical-section">

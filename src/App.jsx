@@ -24,7 +24,6 @@ import StepReview from "./components/steps/StepReview.jsx";
 
 const emptyEmployment = {
   company: "",
-  address: "",
   phone: "",
   position: "",
   dateFrom: "",
@@ -37,11 +36,17 @@ const emptyEmployment = {
 const emptyReference = { name: "", company: "", phone: "" };
 
 const initialFormState = {
-  // Application / General
+  // -----------------------------
+  // Application Info
+  // -----------------------------
   date: "",
   position: "",
   location: "",
   referredBy: "",
+
+  // -----------------------------
+  // General Info (contact)
+  // -----------------------------
   name: "",
   address: "",
   city: "",
@@ -51,33 +56,40 @@ const initialFormState = {
   phone: "",
   cell: "",
 
-  // Employment
+  // -----------------------------
+  // Employment (3 entries)
+  // -----------------------------
   employment: [
     { ...emptyEmployment },
     { ...emptyEmployment },
     { ...emptyEmployment },
   ],
 
-  // Education
-  educationGraduate: "",
-  educationGraduateYears: "",
-  educationGraduateMajor: "",
-  educationTrade: "",
-  educationTradeYears: "",
-  educationTradeMajor: "",
-  educationHigh: "",
-  educationHighYears: "",
-  educationHighMajor: "",
+  // -----------------------------
+  // Education (NEW model used by StepEducation.jsx)
+  // -----------------------------
+  highestEducationLevel: "",
+  educationSchoolName: "",
+  educationSchoolLocation: "",
+  educationDegree: "",
+  educationFieldOfStudy: "",
+  educationYears: "",
+  educationAdditional: "",
 
-  // Skills
-  typingSpeed: "",
-  tenKey: "",
-  tenKeyMode: "touch",
-  computerSkills: "",
-  driverLicense: "",
-  driverNone: false,
+  // -----------------------------
+  // Skills (NEW model used by StepSkills.jsx)
+  // -----------------------------
+  skillsYearsExperience: "",
+  skillsPrimaryFocus: "",
+  skillsTechnical: "",
+  skillsSoftware: "",
+  skillsFieldLab: "",
+  skillsCommunication: "",
+  skillsCertifications: "",
 
-  // References
+  // -----------------------------
+  // References (start with 3; StepReferences enforces min 2)
+  // -----------------------------
   references: [
     { ...emptyReference },
     { ...emptyReference },
@@ -85,25 +97,37 @@ const initialFormState = {
   ],
   certifyInitials: "",
 
-  // Medical & affiliations
+  // -----------------------------
+  // Medical
+  // -----------------------------
   medInitials: "",
   ableToPerformJob: "",
+
+  // -----------------------------
+  // Affiliations
+  // -----------------------------
   affiliations: "",
 
-  // Employment Application – FCRA / Other / certification
+  // -----------------------------
+  // Employment Certification / Disclosures
+  // -----------------------------
   fcrInitials: "",
   knowEmployee: "",
   knowEmployeeName: "",
   applicationCertificationDate: "",
   applicationCertificationSignature: "",
 
-  // Self-ID: EEO
+  // -----------------------------
+  // EEO
+  // -----------------------------
   eeoName: "",
   eeoDate: "",
   eeoGender: "",
   eeoEthnicity: "",
 
-  // Self-ID: Disability
+  // -----------------------------
+  // Disability (CC-305)
+  // -----------------------------
   disabilityName: "",
   disabilityDate: "",
   disabilityEmployeeId: "",
@@ -111,24 +135,23 @@ const initialFormState = {
   disabilitySignature: "",
   disabilitySignatureDate: "",
 
-  // Self-ID: Protected Veteran
+  // -----------------------------
+  // Veteran (VEVRAA)
+  // -----------------------------
   vetStatus: "",
   vetName: "",
   vetDate: "",
 
-  // Alcohol & Drug Testing Program
+  // -----------------------------
+  // Alcohol & Drug
+  // -----------------------------
   drugAgreementSignature: "",
   drugAgreementDate: "",
 };
 
 const steps = [
-  // Intro step (jobs + benefits + Apply Now)
   { id: "intro", label: "Start & Openings", Component: StepIntro },
-
-  // Smart resume upload/autofill step
   { id: "resume", label: "Resume Import", Component: StepResume },
-
-  // Employment Application branch
   { id: "application", label: "Application Info", Component: StepApplicationInfo },
   { id: "general", label: "General Info", Component: StepGeneralInfo },
   { id: "employment", label: "Employment", Component: StepEmployment },
@@ -137,25 +160,14 @@ const steps = [
   { id: "references", label: "References", Component: StepReferences },
   { id: "medical", label: "Medical", Component: StepMedical },
   { id: "affiliations", label: "Affiliations", Component: StepAffiliations },
-  {
-    id: "employment-cert",
-    label: "Employment Cert.",
-    Component: StepEmploymentCertification,
-  },
-
-  // Self-identification branch
+  { id: "employment-cert", label: "Employment Cert.", Component: StepEmploymentCertification },
   { id: "eeo", label: "EEO Self-ID", Component: StepEEO },
   { id: "disability", label: "Disability Self-ID", Component: StepDisability },
   { id: "veteran", label: "Protected Veteran", Component: StepVeteran },
-
-  // Alcohol & Drug testing branch
   { id: "alcohol-drug", label: "Alcohol & Drug", Component: StepAgreement },
-
-  // Final review
   { id: "review", label: "Review & Submit", Component: StepReview },
 ];
 
-// Branches for the progress bar
 const branches = [
   { label: "Employment Application", from: 0, to: 10 },
   { label: "Self-Identification", from: 11, to: 13 },
@@ -163,11 +175,13 @@ const branches = [
   { label: "Review & Submit", from: 15, to: 15 },
 ];
 
-
 function App() {
   const [form, setForm] = useState(initialFormState);
   const [stepIndex, setStepIndex] = useState(0);
   const [direction, setDirection] = useState("forward");
+
+  // store resume file for final submission
+  const [resumeFile, setResumeFile] = useState(null);
 
   const updateField = (field, value) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -175,21 +189,20 @@ function App() {
 
   const updateEmploymentField = (index, field, value) => {
     setForm((prev) => {
-      const employment = [...prev.employment];
-      employment[index] = { ...employment[index], [field]: value };
+      const employment = [...(prev.employment || [])];
+      employment[index] = { ...(employment[index] || {}), [field]: value };
       return { ...prev, employment };
     });
   };
 
   const updateReferenceField = (index, field, value) => {
     setForm((prev) => {
-      const references = [...prev.references];
-      references[index] = { ...references[index], [field]: value };
+      const references = [...(prev.references || [])];
+      references[index] = { ...(references[index] || {}), [field]: value };
       return { ...prev, references };
     });
   };
 
-  // Called by StepResume to merge parsed resume fields into the application
   const applyParsedResume = (partial) => {
     setForm((prev) => ({
       ...prev,
@@ -207,13 +220,6 @@ function App() {
     setStepIndex((i) => Math.max(i - 1, 0));
   };
 
-  const handleSubmit = () => {
-    console.log("FINAL APPLICATION:", form);
-    alert(
-      "Application submitted! (Data is in the console – connect this to your backend when ready.)"
-    );
-  };
-
   const handlePrint = () => {
     window.print();
   };
@@ -226,21 +232,13 @@ function App() {
       <header className="app-header">
         <div className="app-header-inner">
           <div className="app-header-logo">
-            <img
-              src="/geolabs.png"
-              alt="Geolabs Logo"
-              className="app-header-logo-img"
-            />
+            <img src="/geolabs.png" alt="Geolabs Logo" className="app-header-logo-img" />
             <span className="logo-text">GEOLABS, INC.</span>
           </div>
 
           <div className="app-header-meta">
-            <span className="app-header-subtitle">
-              Employment Application &amp; Required Notices
-            </span>
-            <span className="app-header-tag">
-              Secure · Confidential · Online
-            </span>
+            <span className="app-header-subtitle">Employment Application &amp; Required Notices</span>
+            <span className="app-header-tag">Secure · Confidential · Online</span>
           </div>
         </div>
       </header>
@@ -260,11 +258,10 @@ function App() {
             totalSteps={steps.length}
             onNext={goNext}
             onBack={goBack}
-            onSubmit={handleSubmit}
             onPrint={handlePrint}
             isLastStep={stepIndex === steps.length - 1}
             direction={direction}
-            hideFooterNav={isIntro} // hide bottom Next/Back on intro
+            hideFooterNav={isIntro}
             nextLabel={isIntro ? "Apply Now" : "Next"}
           >
             <CurrentStep
@@ -272,16 +269,17 @@ function App() {
               updateField={updateField}
               updateEmploymentField={updateEmploymentField}
               updateReferenceField={updateReferenceField}
-              onNext={isIntro ? goNext : undefined} // intro gets its own Apply Now button
-              onApplyParsedResume={applyParsedResume} // used by StepResume
+              onNext={isIntro ? goNext : undefined}
+              onApplyParsedResume={applyParsedResume}
+              resumeFile={resumeFile}
+              onResumeFileSelected={setResumeFile}
             />
           </StepShell>
         </div>
       </main>
 
       <footer className="app-footer">
-        94-429 Koaki Street, Suite 200 · Waipahu, HI 96797 · Equal Opportunity
-        Employer
+        94-429 Koaki Street, Suite 200 · Waipahu, HI 96797 · Equal Opportunity Employer
       </footer>
     </div>
   );
