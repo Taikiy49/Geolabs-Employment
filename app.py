@@ -65,14 +65,13 @@ def log_request() -> None:
 
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "CHANGE_ME_IN_PRODUCTION")
 
-frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
-
 CORS(
     app,
     resources={
         r"/api/*": {
             "origins": [
-                frontend_url,
+                "https://www.geolabs-employment.net",
+                "https://geolabs-employment.net",
                 "http://localhost:5173",
                 "http://127.0.0.1:5173",
             ]
@@ -80,6 +79,8 @@ CORS(
     },
     supports_credentials=True,
 )
+
+
 
 # -------------------------------------------------------
 # File helpers
@@ -1100,4 +1101,4 @@ if __name__ == "__main__":
             print(f"  {rule}")
 
     # NOTE: In production (EC2), run with systemd/gunicorn and debug=False.
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5001, debug=True)

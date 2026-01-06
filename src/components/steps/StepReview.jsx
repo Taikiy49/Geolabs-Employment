@@ -9,8 +9,8 @@ import "../../styles/StepReview.css";
 const API_BASE =
   (import.meta?.env?.VITE_API_URL || "").replace(/\/+$/, "") ||
   (window.location.hostname === "localhost"
-    ? "http://127.0.0.1:5000"
-    : "https://geolabs-employment.net");
+    ? "http://127.0.0.1:5001"
+    : "https://api.geolabs-employment.net");
 
 // Put the word-for-word text you show on the signing step(s) here.
 const ALCOHOL_DRUG_PROGRAM_TEXT = `

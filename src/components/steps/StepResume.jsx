@@ -12,8 +12,8 @@ import "../../styles/StepResume.css";
 const API_BASE =
   (import.meta?.env?.VITE_API_URL || "").replace(/\/+$/, "") ||
   (window.location.hostname === "localhost"
-    ? "http://127.0.0.1:5000"
-    : "https://geolabs-employment.net");
+    ? "http://127.0.0.1:5001"
+    : "https://api.geolabs-employment.net");
 
 const PARSE_URL = `${API_BASE}/api/parse-resume`;
 const HEALTH_URL = `${API_BASE}/api/health`;
