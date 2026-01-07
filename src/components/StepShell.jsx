@@ -17,7 +17,7 @@ function StepShell({
   // animation
   direction,
 
-  // optional: let StepReview provide its own buttons/footer if you want
+  // optional: let StepReview provide its own footer content
   footerContent = null,
 }) {
   const animationClass =
@@ -25,22 +25,23 @@ function StepShell({
 
   return (
     <div className="step-shell">
-      {/* optional header (if you already have this somewhere else, you can remove) */}
-      {(title || typeof totalSteps === "number") && (
+      {(title || typeof totalSteps === "number" || onPrint) && (
         <div className="step-shell-header">
           <div>
-            {title && <h2 className="step-shell-title">{title}</h2>}
+            {title && <h2 className="step-title">{title}</h2>}
             {typeof totalSteps === "number" && (
-              <p className="step-shell-sub">
+              <p className="step-subtitle">
                 Step {stepIndex + 1} / {totalSteps}
               </p>
             )}
           </div>
 
           {onPrint && (
-            <button type="button" className="btn outline" onClick={onPrint}>
-              Print / Save as PDF
-            </button>
+            <div className="step-shell-header-actions">
+              <button type="button" className="btn outline" onClick={onPrint}>
+                Print / Save as PDF
+              </button>
+            </div>
           )}
         </div>
       )}
@@ -49,7 +50,6 @@ function StepShell({
 
       {!hideFooterNav && (
         <div className="step-shell-footer">
-          {/* Left side */}
           <div className="step-shell-footer-left">
             {stepIndex > 0 && (
               <button type="button" className="btn outline" onClick={onBack}>
@@ -58,23 +58,16 @@ function StepShell({
             )}
           </div>
 
-          {/* Right side */}
           <div className="step-shell-footer-right">
-            {/* If a step wants to render its own footer (e.g. review step), do it here */}
             {footerContent ? (
               footerContent
             ) : (
               <>
-                {/* Important: NO submit button here */}
                 {!isLastStep && (
                   <button type="button" className="btn primary" onClick={onNext}>
                     {nextLabel}
                   </button>
                 )}
-
-                {/* If it IS last step and footerContent not provided, we simply show nothing.
-                    This prevents the “dead submit button” issue completely. */}
-                {isLastStep && null}
               </>
             )}
           </div>

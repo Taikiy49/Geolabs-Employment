@@ -1,15 +1,26 @@
 // src/components/steps/StepDisability.jsx
-import React from "react";
+import React, { useMemo } from "react";
 import "../../styles/StepDisability.css";
 
 function StepDisability({ form, updateField }) {
   const handleChange = (field) => (e) => updateField(field, e.target.value);
 
+  const todayISO = useMemo(() => {
+    const d = new Date();
+    return d.toISOString().split("T")[0];
+  }, []);
+
+  const fillDate = (field) => {
+    if (!form[field]) updateField(field, todayISO);
+  };
+
+  const clearStatus = () => updateField("disabilityStatus", "");
+
   return (
     <section className="form-section disability-section">
       {/* Header */}
       <div className="disability-header-row">
-        <div>
+        <div className="disability-title">
           <h2>Voluntary Self-Identification of Disability</h2>
           <p className="section-help">
             This form is used for federal reporting purposes only. It is
@@ -30,7 +41,7 @@ function StepDisability({ form, updateField }) {
       </div>
 
       {/* Name / Date / Employee ID */}
-      <div className="grid grid-3 disability-row-top">
+      <div className="disability-top-grid">
         <div className="field">
           <label>Name</label>
           <input
@@ -38,17 +49,28 @@ function StepDisability({ form, updateField }) {
             value={form.disabilityName || ""}
             onChange={handleChange("disabilityName")}
             placeholder="Optional"
+            autoComplete="name"
           />
           <p className="field-hint">You may leave this blank if you prefer.</p>
         </div>
 
         <div className="field">
           <label>Date</label>
-          <input
-            type="date"
-            value={form.disabilityDate || ""}
-            onChange={handleChange("disabilityDate")}
-          />
+          <div className="disability-date-row">
+            <input
+              type="date"
+              className="disability-date-input"
+              value={form.disabilityDate || ""}
+              onChange={handleChange("disabilityDate")}
+            />
+            <button
+              type="button"
+              className="btn subtle disability-today-btn"
+              onClick={() => fillDate("disabilityDate")}
+            >
+              Today
+            </button>
+          </div>
           <p className="field-hint">Optional.</p>
         </div>
 
@@ -100,7 +122,7 @@ function StepDisability({ form, updateField }) {
           but are not limited to:
         </p>
 
-        <div className="disability-list-card">
+        <div className="disability-list-card" aria-label="Disability examples list">
           <ul className="legal-text">
             <li>
               Alcohol or other substance use disorder (not currently using drugs
@@ -158,12 +180,28 @@ function StepDisability({ form, updateField }) {
 
       {/* Choice */}
       <div className="disability-card disability-choice-card">
-        <p className="legal-text">
-          Please check one of the options below. Your response is voluntary.
-        </p>
+        <div className="disability-choice-header">
+          <div>
+            <h3>Voluntary Response</h3>
+            <p className="disability-card-subtitle">
+              Please select one option below. Your response is voluntary.
+            </p>
+          </div>
 
-        <div className="disability-radio-group">
-          <label className="disability-radio">
+          <button type="button" className="disability-clear" onClick={clearStatus}>
+            Clear
+          </button>
+        </div>
+
+        <div className="disability-radio-stack">
+          <label
+            className={`disability-radio-card ${
+              form.disabilityStatus ===
+              "Yes, I have a disability, or have had one in the past"
+                ? "is-selected"
+                : ""
+            }`}
+          >
             <input
               type="radio"
               name="disabilityStatus"
@@ -177,7 +215,14 @@ function StepDisability({ form, updateField }) {
             <span>Yes, I have a disability, or have had one in the past</span>
           </label>
 
-          <label className="disability-radio">
+          <label
+            className={`disability-radio-card ${
+              form.disabilityStatus ===
+              "No, I do not have a disability and have not had one in the past"
+                ? "is-selected"
+                : ""
+            }`}
+          >
             <input
               type="radio"
               name="disabilityStatus"
@@ -193,7 +238,13 @@ function StepDisability({ form, updateField }) {
             </span>
           </label>
 
-          <label className="disability-radio">
+          <label
+            className={`disability-radio-card ${
+              form.disabilityStatus === "I do not want to answer"
+                ? "is-selected"
+                : ""
+            }`}
+          >
             <input
               type="radio"
               name="disabilityStatus"
@@ -230,29 +281,42 @@ function StepDisability({ form, updateField }) {
       </div>
 
       {/* Signature */}
-      <div className="grid grid-2 disability-signature-row">
-        <div className="field">
-          <label>Signature of Applicant</label>
-          <input
-            type="text"
-            placeholder="Type your full name"
-            value={form.disabilitySignature || ""}
-            onChange={handleChange("disabilitySignature")}
-          />
-          <p className="field-hint">
-            By typing your name, you acknowledge this as your electronic
-            signature.
-          </p>
-        </div>
+      <div className="disability-signature-card">
+        <div className="disability-signature-grid">
+          <div className="field">
+            <label>Signature of Applicant</label>
+            <input
+              type="text"
+              className="disability-signature-input"
+              placeholder="Type your full name"
+              value={form.disabilitySignature || ""}
+              onChange={handleChange("disabilitySignature")}
+              autoComplete="name"
+            />
+            <p className="field-hint">
+              By typing your name, you acknowledge this as your electronic signature.
+            </p>
+          </div>
 
-        <div className="field">
-          <label>Date</label>
-          <input
-            type="date"
-            value={form.disabilitySignatureDate || ""}
-            onChange={handleChange("disabilitySignatureDate")}
-          />
-          <p className="field-hint">Optional.</p>
+          <div className="field">
+            <label>Date</label>
+            <div className="disability-date-row">
+              <input
+                type="date"
+                className="disability-date-input"
+                value={form.disabilitySignatureDate || ""}
+                onChange={handleChange("disabilitySignatureDate")}
+              />
+              <button
+                type="button"
+                className="btn subtle disability-today-btn"
+                onClick={() => fillDate("disabilitySignatureDate")}
+              >
+                Today
+              </button>
+            </div>
+            <p className="field-hint">Optional.</p>
+          </div>
         </div>
       </div>
     </section>

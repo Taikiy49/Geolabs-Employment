@@ -1,16 +1,30 @@
-import React from "react";
+import React, { useMemo } from "react";
 import "../../styles/StepAgreement.css";
 
-function StepAgreement({ form, updateField }) {
+function StepAgreement({ form, updateField, programUrl }) {
   const handleChange = (field) => (e) => {
-    updateField(field, e.target.value);
+    const { type, checked, value } = e.target;
+    updateField(field, type === "checkbox" ? checked : value);
+  };
+
+  const todayISO = useMemo(() => {
+    const d = new Date();
+    return d.toISOString().split("T")[0];
+  }, []);
+
+  const agreed = !!form.drugAgreementAcknowledge;
+
+  const fillToday = () => {
+    if (!form.drugAgreementDate) {
+      updateField("drugAgreementDate", todayISO);
+    }
   };
 
   return (
     <section className="form-section agreement-section">
       {/* Header */}
       <div className="agreement-header">
-        <div>
+        <div className="agreement-title">
           <h2>
             Agreement to Comply with Geolabs, Inc. Alcohol &amp; Drug Testing
             Program
@@ -21,12 +35,23 @@ function StepAgreement({ form, updateField }) {
             agreement.
           </p>
         </div>
+
         <div className="agreement-meta">
-          <span className="agreement-pill">Required for employment</span>
+          <span className="agreement-pill">Required</span>
+          {programUrl && (
+            <a
+              href={programUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="agreement-link"
+            >
+              View program
+            </a>
+          )}
         </div>
       </div>
 
-      {/* Main content card */}
+      {/* FULL AGREEMENT TEXT */}
       <div className="agreement-card">
         <p className="legal-text">
           The Company has a vital interest in maintaining a safe, productive,
@@ -76,25 +101,67 @@ function StepAgreement({ form, updateField }) {
         </p>
       </div>
 
-      {/* Signature row */}
-      <div className="grid grid-2 agreement-signature-row">
-        <div className="field">
-          <label>Signature of Applicant</label>
+      {/* Acknowledgement */}
+      <div className="agreement-ack">
+        <label className="agreement-check">
           <input
-            type="text"
-            value={form.drugAgreementSignature || ""}
-            onChange={handleChange("drugAgreementSignature")}
-            placeholder="Type your full name"
+            type="checkbox"
+            checked={agreed}
+            onChange={handleChange("drugAgreementAcknowledge")}
           />
+          <span>
+            I have read, understand, and agree to comply with the Alcohol &amp;
+            Drug Testing Program.
+          </span>
+        </label>
+      </div>
+
+      {/* Signature */}
+      <div className="agreement-signature-card">
+        <div className="agreement-signature-grid">
+          <div className="field">
+            <label>Signature of Applicant</label>
+            <input
+              type="text"
+              className="signature-input"
+              value={form.drugAgreementSignature || ""}
+              onChange={handleChange("drugAgreementSignature")}
+              placeholder="Type your full legal name"
+              disabled={!agreed}
+              autoComplete="name"
+            />
+            <div className="field-help">
+              Typing your name serves as your electronic signature.
+            </div>
+          </div>
+
+          <div className="field">
+            <label>Date</label>
+            <div className="date-row">
+              <input
+                type="date"
+                className="date-input"
+                value={form.drugAgreementDate || ""}
+                onChange={handleChange("drugAgreementDate")}
+                disabled={!agreed}
+              />
+              <button
+                type="button"
+                className="btn subtle"
+                onClick={fillToday}
+                disabled={!agreed}
+              >
+                Today
+              </button>
+            </div>
+          </div>
         </div>
-        <div className="field">
-          <label>Date</label>
-          <input
-            type="date"
-            value={form.drugAgreementDate || ""}
-            onChange={handleChange("drugAgreementDate")}
-          />
-        </div>
+
+        {!agreed && (
+          <div className="agreement-lock">
+            Please acknowledge the agreement to enable signature and date.
+          </div>
+        )}
       </div>
     </section>
   );

@@ -2,46 +2,38 @@
 
 /* =======================
    EEO SELF-ID STEP
-   (Aligned with Education/Skills spacing + density)
-   ======================= */
+======================= */
 
 .eeo-section {
   /* inherits global form-section styling */
 }
 
 /* =======================
-   HEADER ROW (match others)
-   ======================= */
+   HEADER ROW
+======================= */
 
 .eeo-header-row {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 0.75rem;
-  margin-bottom: 0.85rem;
+  gap: 1rem;
+  margin-bottom: 0.9rem;
 }
 
-.eeo-header-row h2 {
+.eeo-title h2 {
   margin-bottom: 0.35rem;
 }
 
-.eeo-header-row .section-help {
-  margin: 0;
-}
-
-/* Pill styled like chip system */
 .eeo-meta {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: flex-end;
   gap: 0.35rem;
-  align-items: center;
-  justify-content: flex-end;
 }
 
 .eeo-chip {
   display: inline-flex;
   align-items: center;
-  gap: 0.25rem;
   padding: 0.18rem 0.55rem;
   border-radius: 999px;
   font-size: 0.72rem;
@@ -55,37 +47,61 @@
   color: #1d4ed8;
 }
 
+.eeo-link {
+  font-size: 0.75rem;
+  color: #b87333;
+  text-decoration: none;
+  border-bottom: 1px dashed rgba(184, 115, 51, 0.6);
+}
+
 /* =======================
-   NAME / DATE ROW
-   ======================= */
+   TOP GRID (Name/Date)
+======================= */
 
-.eeo-name-row {
-  margin-bottom: 0.8rem;
+.eeo-top-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 0.85rem;
 }
 
-/* Ensure font consistency + gap under bars */
-.eeo-section textarea {
-  font-family: inherit;
-  font-size: inherit;
-  line-height: inherit;
-}
-
-.eeo-section input,
-.eeo-section select,
-.eeo-section textarea {
-  margin-bottom: 0.75rem;
-}
-
-/* Field hints (match others) */
+/* consistent hints */
 .eeo-section .field-hint {
   margin-top: 0.25rem;
   font-size: 0.78rem;
   color: #6b7280;
 }
 
+/* Date row input + button */
+.eeo-date-row {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  margin-top: 6px;
+}
+
+.eeo-date-input {
+  height: 32px;
+  padding: 0 10px;
+  border-radius: 0.5rem;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+}
+
+/* matches your subtle button pattern */
+.btn.subtle.eeo-today-btn {
+  height: 32px;
+  padding: 0 0.7rem;
+  border-radius: 0.5rem;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  font-weight: 600;
+  cursor: pointer;
+}
+
 /* =======================
-   INTRO / LEGAL BLOCK (nice readable container)
-   ======================= */
+   INTRO CARD
+======================= */
 
 .eeo-intro-card {
   margin-top: 0.8rem;
@@ -108,11 +124,11 @@
 }
 
 /* =======================
-   CARDS (match Education details card)
-   ======================= */
+   SECTION CARDS
+======================= */
 
 .eeo-card {
-  margin-top: 0.8rem;
+  margin-top: 0.9rem;
   border-radius: 0.9rem;
   padding: 1.1rem 1.2rem;
   border: 1px solid #e5e7eb;
@@ -120,15 +136,18 @@
   box-shadow: 0 6px 16px rgba(15, 23, 42, 0.04);
 }
 
-/* Card header */
 .eeo-card-header {
-  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
 }
 
 .eeo-card-header h3 {
   margin: 0 0 0.35rem;
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 700;
   color: #111827;
 }
 
@@ -138,75 +157,114 @@
   color: #6b7280;
 }
 
-/* =======================
-   RADIO GROUPS
-   ======================= */
+/* Clear button (small, clean) */
+.eeo-clear {
+  height: 30px;
+  padding: 0 0.7rem;
+  border-radius: 0.6rem;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  font-weight: 700;
+  font-size: 0.78rem;
+  cursor: pointer;
+}
 
-.eeo-radio-group {
+.eeo-clear:hover {
+  background: #f9fafb;
+}
+
+/* =======================
+   RADIO "CARDS"
+======================= */
+
+.eeo-radio-grid {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.eeo-radio-grid-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.eeo-radio-stack {
   display: flex;
   flex-direction: column;
-  gap: 0.55rem; /* slightly more breathable */
-  margin-top: 0.75rem;
+  gap: 0.65rem;
 }
 
-/* Inline group for gender */
-.eeo-radio-group-inline {
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-}
-
-/* Radio option base */
-.eeo-radio {
+/* Card label */
+.eeo-radio-card {
   display: flex;
+  gap: 0.6rem;
   align-items: flex-start;
-  gap: 0.45rem;
-  font-size: 0.85rem;
+  padding: 0.75rem 0.85rem;
+  border-radius: 0.85rem;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  cursor: pointer;
+  transition: border-color 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+}
+
+.eeo-radio-card:hover {
+  background: #fafafa;
+}
+
+/* Selected state */
+.eeo-radio-card.is-selected {
+  border-color: rgba(184, 115, 51, 0.7);
+  box-shadow: 0 0 0 3px rgba(184, 115, 51, 0.16);
+  background: #fffaf5;
+}
+
+.eeo-radio-card input[type="radio"] {
+  margin-top: 3px;
+}
+
+/* Gender label */
+.eeo-radio-label {
+  font-weight: 650;
   color: #111827;
 }
 
-.eeo-radio input[type="radio"] {
-  margin-top: 0.15rem;
-}
-
-/* Long options (ethnicity) */
-.eeo-radio-long {
-  padding: 0.55rem 0.6rem;
-  border-radius: 0.75rem;
-  border: 1px solid transparent;
-  transition: background 0.12s ease, border-color 0.12s ease;
-}
-
-.eeo-radio-long:hover {
-  background: #f9fafb;
-  border-color: #e5e7eb;
-}
-
-/* Option text wrapper */
-.eeo-option-text {
+/* Ethnicity long option content */
+.eeo-radio-long .eeo-option-text {
   display: flex;
   flex-direction: column;
-  gap: 0.15rem;
+  gap: 0.2rem;
 }
 
 .eeo-option-main {
-  font-weight: 500;
+  font-weight: 700;
+  color: #111827;
 }
 
 .eeo-option-desc {
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   color: #4b5563;
+  line-height: 1.45;
 }
 
-/* Placeholder styling */
+.eeo-footnote {
+  margin: 0.75rem 0 0;
+  font-size: 0.78rem;
+  color: #6b7280;
+}
+
+/* Placeholders */
 .eeo-section input::placeholder,
 .eeo-section textarea::placeholder {
   color: #9ca3af;
 }
 
 /* =======================
-   RESPONSIVE (match others)
-   ======================= */
+   RESPONSIVE
+======================= */
+
+@media (max-width: 860px) {
+  .eeo-radio-grid-3 {
+    grid-template-columns: 1fr;
+  }
+}
 
 @media (max-width: 640px) {
   .eeo-header-row {
@@ -215,15 +273,14 @@
   }
 
   .eeo-meta {
-    justify-content: flex-start;
+    align-items: flex-start;
   }
 
-  .eeo-radio-group-inline {
-    flex-direction: column;
-    gap: 0.55rem;
+  .eeo-top-grid {
+    grid-template-columns: 1fr;
   }
 
-  /* match your mobile padding convention */
+
   .eeo-card,
   .eeo-intro-card {
     padding-inline: 0.9rem;
