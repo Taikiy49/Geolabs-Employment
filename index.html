@@ -3,18 +3,21 @@
   <head>
     <meta charset="UTF-8" />
 
-    <!-- Page title -->
     <title>Geolabs, Inc. – Employment Application</title>
 
-    <!-- Viewport -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- Favicons (IMPORTANT for Google Search) -->
+    <!-- Favicons (use what you already have in /public) -->
     <link rel="icon" href="/favicon.ico" sizes="any" />
-    <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
 
-    <!-- Open Graph (Discord / iMessage / Slack previews) -->
+    <!-- Theme color (browser UI on mobile) -->
+    <meta name="theme-color" content="#ffffff" />
+
+    <!-- Open Graph (Discord / iMessage / Slack) -->
     <meta property="og:title" content="Geolabs, Inc. – Employment Application" />
     <meta
       property="og:description"
@@ -26,6 +29,7 @@
     />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Geolabs, Inc." />
+    <meta property="og:url" content="https://www.geolabs-employment.net/" />
 
     <!-- Twitter preview -->
     <meta name="twitter:card" content="summary_large_image" />
@@ -34,15 +38,25 @@
       content="Geolabs, Inc. – Employment Application"
     />
     <meta
+      name="twitter:description"
+      content="Secure online employment application for Geolabs, Inc."
+    />
+    <meta
       name="twitter:image"
       content="https://www.geolabs-employment.net/geolabs.png"
+    />
+
+    <!-- Optional: hints for PWA icons you already have -->
+    <link
+      rel="preload"
+      as="image"
+      href="/web-app-manifest-192x192.png"
+      imagesrcset="/web-app-manifest-192x192.png 192w, /web-app-manifest-512x512.png 512w"
     />
   </head>
 
   <body>
     <div id="root"></div>
-
-    <!-- React entry -->
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
