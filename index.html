@@ -3,34 +3,46 @@
   <head>
     <meta charset="UTF-8" />
 
-    <!-- Title -->
+    <!-- Page title -->
     <title>Geolabs, Inc. – Employment Application</title>
 
     <!-- Viewport -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- Favicon (tab icon) -->
-    <link rel="icon" type="image/png" href="/geolabs.png" />
+    <!-- Favicons (IMPORTANT for Google Search) -->
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
-    <!-- Open Graph (Discord/iMessage/Slack preview) -->
+    <!-- Open Graph (Discord / iMessage / Slack previews) -->
     <meta property="og:title" content="Geolabs, Inc. – Employment Application" />
-    <meta property="og:image" content="/geolabs.png" />
+    <meta
+      property="og:description"
+      content="Secure online employment application for Geolabs, Inc."
+    />
+    <meta
+      property="og:image"
+      content="https://www.geolabs-employment.net/geolabs.png"
+    />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Geolabs, Inc." />
-    <meta property="og:description" content="Secure online employment application for Geolabs, Inc." />
 
-    <!-- Twitter Preview -->
+    <!-- Twitter preview -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Geolabs, Inc. – Employment Application" />
-    <meta name="twitter:image" content="/geolabs.png" />
-
-    <!-- Optional: App Icons for mobile home screen -->
-    <link rel="apple-touch-icon" href="/geolabs.png" />
-
+    <meta
+      name="twitter:title"
+      content="Geolabs, Inc. – Employment Application"
+    />
+    <meta
+      name="twitter:image"
+      content="https://www.geolabs-employment.net/geolabs.png"
+    />
   </head>
 
   <body>
     <div id="root"></div>
+
+    <!-- React entry -->
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
