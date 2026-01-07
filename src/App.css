@@ -17,8 +17,11 @@
   --border-soft: #cbd5e1;
   --header-bg: #0f172a;
 
-  /* NEW: header height control */
+  /* Header sizing */
   --header-h: 72px;
+
+  /* NEW: how much taller the logo is than the header (the "over the bar" look) */
+  --logo-overhang: 14px;
 
   /* Copper accent family */
   --accent: #b87333;
@@ -79,8 +82,11 @@ a:hover {
   border-bottom: 3px solid var(--accent);
   color: #f9fafb;
 
-  /* NEW: set header height */
+  /* fixed height for desktop */
   height: var(--header-h);
+
+  /* IMPORTANT: allow the logo to visually overflow above/below the bar */
+  overflow: visible;
 }
 
 .app-header-inner {
@@ -88,14 +94,18 @@ a:hover {
   max-width: none;
   margin: 0;
 
-  /* NEW: make inner match header height and center content */
   height: 100%;
-  padding-right: 0 1rem;
+
+  /* glued to top-left: NO left padding, keep right padding */
+  padding: 0 1.25rem 0 0;
 
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 0.9rem;
+
+  /* IMPORTANT: allow overhang to show */
+  overflow: visible;
 }
 
 .app-header-left {
@@ -103,16 +113,27 @@ a:hover {
   align-items: center;
   height: 100%;
   min-width: 0;
+  overflow: visible;
 }
 
 .app-header-logo {
   display: flex;
-  align-items: center;
-  gap: 0.65rem;
-
-  /* NEW: allow image to fill header height */
+  align-items: flex-start; /* keep it feeling "anchored" */
   height: 100%;
   min-width: 0;
+  overflow: visible;
+}
+
+/* Wrap stays at header height, image can overflow */
+.app-header-logo-wrap {
+  height: 100%;
+  display: flex;
+  align-items: flex-start;
+  overflow: visible;
+
+  /* glued: no inset */
+  margin: 0;
+  padding: 0;
 }
 
 .app-header-logo-img {
@@ -120,32 +141,28 @@ a:hover {
   display: block;
 }
 
-/* NEW: make the 50th logo fill the full header height (minus padding) */
+/* ✅ Key: logo slightly taller than header, while header height stays fixed */
 .app-header-logo-img-50th {
-  height: 100%;
+  height: calc(var(--header-h));
   width: auto;
   object-fit: contain;
+  display: block;
 
-  /* small inner breathing room so it doesn't touch edges */
-  padding: 8px 0;
+  /* pull it up so it sits "over" the header */
 
-  /* keeps it crisp */
-  image-rendering: auto;
+  /* optional polish */
+  filter: drop-shadow(0 12px 18px rgba(0, 0, 0, 0.18));
 }
 
-.logo-text {
-  font-size: 1.1rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
+/* Right side meta */
 .app-header-meta {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   gap: 0.2rem;
+
+  /* if you want it a touch more left, increase this */
+  margin-right: 0.5rem;
 }
 
 .app-header-subtitle {
@@ -677,6 +694,11 @@ a:hover {
    ======================= */
 
 @media (max-width: 900px) {
+  .app-header {
+    height: auto;
+    padding-bottom: 0.4rem;
+  }
+
   .app-header-inner {
     flex-direction: column;
     align-items: flex-start;
@@ -684,13 +706,9 @@ a:hover {
     padding: 0.7rem 1rem;
   }
 
-  .app-header {
-    height: auto;
-    padding-bottom: 0.4rem;
-  }
-
   .app-header-meta {
     align-items: flex-start;
+    margin-right: 0;
   }
 
   .wizard-shell {
@@ -702,13 +720,10 @@ a:hover {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .app-header-logo {
-    height: auto;
-  }
-
+  /* logo is still a bit bigger than the bar, but not insane on medium screens */
   .app-header-logo-img-50th {
-    height: 56px; /* fallback on stacked header */
-    padding: 0;
+    height: 72px;
+    margin-top: -6px;
   }
 }
 
@@ -744,6 +759,38 @@ a:hover {
 
   .stepper-review-pill {
     align-self: flex-start;
+  }
+
+  /* ✅ small screen: logo takes over nicely */
+  .app-header {
+    height: auto;
+  }
+
+  .app-header-inner {
+    padding: 0;
+    gap: 0.5rem;
+  }
+
+  .app-header-left,
+  .app-header-logo,
+  .app-header-logo-wrap {
+    width: 100%;
+  }
+
+  .app-header-logo-wrap {
+    display: block;
+  }
+
+  .app-header-logo-img-50th {
+    width: 100%;
+    height: auto;
+    margin-top: 0;
+    filter: none; /* optional: cleaner on mobile */
+  }
+
+  .app-header-meta {
+    padding: 0 1rem 0.8rem;
+    align-items: flex-start;
   }
 }
 
@@ -785,7 +832,7 @@ a:hover {
 }
 
 /* ==========================================================
-   PROFESSIONAL GOLD THEME OVERRIDES (ADDED — keeps your CSS)
+   PROFESSIONAL GOLD THEME OVERRIDES
    ========================================================== */
 
 :root {

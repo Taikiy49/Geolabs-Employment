@@ -384,7 +384,7 @@ function StepIntro({ onNext }) {
                     </ul>
 
                     <p className="job-submit">
-                      <strong>Submit resume to:</strong>{" "}
+                      <strong>to:</strong>{" "}
                       <a href="mailto:employment@geolabs.net">employment@geolabs.net</a>
                     </p>
 
@@ -470,7 +470,6 @@ function StepIntro({ onNext }) {
                     </p>
 
                     <p className="job-submit">
-                      <strong>Submit resume to:</strong>{" "}
                       <a href="mailto:employment@geolabs.net">employment@geolabs.net</a>
                     </p>
 

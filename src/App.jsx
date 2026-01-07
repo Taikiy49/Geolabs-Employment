@@ -36,17 +36,11 @@ const emptyEmployment = {
 const emptyReference = { name: "", company: "", phone: "" };
 
 const initialFormState = {
-  // -----------------------------
-  // Application Info
-  // -----------------------------
   date: "",
   position: "",
   location: "",
   referredBy: "",
 
-  // -----------------------------
-  // General Info (contact)
-  // -----------------------------
   name: "",
   address: "",
   city: "",
@@ -56,18 +50,8 @@ const initialFormState = {
   phone: "",
   cell: "",
 
-  // -----------------------------
-  // Employment (3 entries)
-  // -----------------------------
-  employment: [
-    { ...emptyEmployment },
-    { ...emptyEmployment },
-    { ...emptyEmployment },
-  ],
+  employment: [{ ...emptyEmployment }, { ...emptyEmployment }, { ...emptyEmployment }],
 
-  // -----------------------------
-  // Education (NEW model used by StepEducation.jsx)
-  // -----------------------------
   highestEducationLevel: "",
   educationSchoolName: "",
   educationSchoolLocation: "",
@@ -76,9 +60,6 @@ const initialFormState = {
   educationYears: "",
   educationAdditional: "",
 
-  // -----------------------------
-  // Skills (NEW model used by StepSkills.jsx)
-  // -----------------------------
   skillsYearsExperience: "",
   skillsPrimaryFocus: "",
   skillsTechnical: "",
@@ -87,47 +68,25 @@ const initialFormState = {
   skillsCommunication: "",
   skillsCertifications: "",
 
-  // -----------------------------
-  // References (start with 3; StepReferences enforces min 2)
-  // -----------------------------
-  references: [
-    { ...emptyReference },
-    { ...emptyReference },
-    { ...emptyReference },
-  ],
+  references: [{ ...emptyReference }, { ...emptyReference }, { ...emptyReference }],
   certifyInitials: "",
 
-  // -----------------------------
-  // Medical
-  // -----------------------------
   medInitials: "",
   ableToPerformJob: "",
 
-  // -----------------------------
-  // Affiliations
-  // -----------------------------
   affiliations: "",
 
-  // -----------------------------
-  // Employment Certification / Disclosures
-  // -----------------------------
   fcrInitials: "",
   knowEmployee: "",
   knowEmployeeName: "",
   applicationCertificationDate: "",
   applicationCertificationSignature: "",
 
-  // -----------------------------
-  // EEO
-  // -----------------------------
   eeoName: "",
   eeoDate: "",
   eeoGender: "",
   eeoEthnicity: "",
 
-  // -----------------------------
-  // Disability (CC-305)
-  // -----------------------------
   disabilityName: "",
   disabilityDate: "",
   disabilityEmployeeId: "",
@@ -135,16 +94,10 @@ const initialFormState = {
   disabilitySignature: "",
   disabilitySignatureDate: "",
 
-  // -----------------------------
-  // Veteran (VEVRAA)
-  // -----------------------------
   vetStatus: "",
   vetName: "",
   vetDate: "",
 
-  // -----------------------------
-  // Alcohol & Drug
-  // -----------------------------
   drugAgreementSignature: "",
   drugAgreementDate: "",
 };
@@ -179,13 +132,10 @@ function App() {
   const [form, setForm] = useState(initialFormState);
   const [stepIndex, setStepIndex] = useState(0);
   const [direction, setDirection] = useState("forward");
-
-  // store resume file for final submission
   const [resumeFile, setResumeFile] = useState(null);
 
-  const updateField = (field, value) => {
+  const updateField = (field, value) =>
     setForm((prev) => ({ ...prev, [field]: value }));
-  };
 
   const updateEmploymentField = (index, field, value) => {
     setForm((prev) => {
@@ -203,12 +153,8 @@ function App() {
     });
   };
 
-  const applyParsedResume = (partial) => {
-    setForm((prev) => ({
-      ...prev,
-      ...partial,
-    }));
-  };
+  const applyParsedResume = (partial) =>
+    setForm((prev) => ({ ...prev, ...partial }));
 
   const goNext = () => {
     setDirection("forward");
@@ -220,9 +166,7 @@ function App() {
     setStepIndex((i) => Math.max(i - 1, 0));
   };
 
-  const handlePrint = () => {
-    window.print();
-  };
+  const handlePrint = () => window.print();
 
   const CurrentStep = steps[stepIndex].Component;
   const isIntro = stepIndex === 0;
@@ -233,12 +177,15 @@ function App() {
         <div className="app-header-inner">
           <div className="app-header-left">
             <div className="app-header-logo">
-              {/* 🔁 Put your new yellow-background PNG in /public and set the filename here */}
-              <img
-                src="/geolabs-50th.png"
-                alt="Geolabs 50th Anniversary Logo"
-                className="app-header-logo-img app-header-logo-img-50th"
-              />
+              {/* Put your PNG in /public (example name below) */}
+              <div className="app-header-logo-wrap">
+                <img
+                  src="/geolabs-50th.png"
+                  alt="Geolabs 50th Anniversary Logo"
+                  className="app-header-logo-img app-header-logo-img-50th"
+                  draggable="false"
+                />
+              </div>
             </div>
           </div>
 
