@@ -128,84 +128,7 @@ function StepIntro({ onNext }) {
                   </div>
                 </details>
 
-                {/* Job 2 */}
-                <details className="job-panel">
-                  <summary className="job-panel-header">
-                    <div className="job-panel-title">
-                      Engineering Technician or Trainee (Field) – Waipahu, HI
-                    </div>
-                    <div className="job-panel-meta">
-                      <span className="job-tag">Job ID: 2025-01</span>
-                      <span className="job-tag job-tag-outline">
-                        Full-time • Field / Lab
-                      </span>
-                    </div>
-                  </summary>
-                  <div className="job-panel-body">
-                    <p className="text-muted job-org">
-                      GEOLABS, INC. – Geotechnical Engineering and Drilling Services
-                      <br />
-                      94-429 Koaki Street, Suite 200 • Waipahu, Hawaii 96797
-                      <br />
-                      Telephone: (808) 841-5064 • Hawaii • California
-                    </p>
-
-                    <p>
-                      Geolabs is currently offering a great opportunity for a responsible,
-                      dedicated individual to join our operations as an Engineering
-                      Technician. We are willing to train a qualified applicant.
-                    </p>
-
-                    <h4>Job Responsibilities (include, but are not limited to)</h4>
-                    <ul>
-                      <li>Perform daily field tests of different soil types.</li>
-                      <li>
-                        Prepare and submit data and observations in the form of digital
-                        reports to reflect results of daily field work.
-                      </li>
-                      <li>
-                        Communicate with Project Engineers and others, as applicable,
-                        regarding construction site, project requirements, and testing;
-                        observations and inspection requirements and results.
-                      </li>
-                      <li>
-                        Perform laboratory tests on soils, aggregates, concrete and other
-                        materials according to standard specifications.
-                      </li>
-                    </ul>
-
-                    <h4>Job Requirements</h4>
-                    <ul>
-                      <li>
-                        Working knowledge of Microsoft Office programs (Word, Excel,
-                        Outlook, etc.).
-                      </li>
-                      <li>
-                        Able to work overtime hours (including evenings and weekends).
-                      </li>
-                      <li>Valid driver’s license and clean abstract.</li>
-                      <li>
-                        Strong organizational skills, problem solving abilities and keen
-                        mathematical and analytical aptitude.
-                      </li>
-                      <li>
-                        Ability to work in a fast-paced, team environment while
-                        maintaining strict quality standards.
-                      </li>
-                    </ul>
-
-                    <h4>Physical Demand</h4>
-                    <ul>
-                      <li>
-                        Regularly required to stand, observe, walk and talk or hear, use
-                        hands and arms to push and pull.
-                      </li>
-                      <li>
-                        Lift and/or move at least 50 pounds and have peripheral vision.
-                      </li>
-                    </ul>
-                  </div>
-                </details>
+               
 
                 {/* Job 3 */}
                 <details className="job-panel">
@@ -385,7 +308,6 @@ function StepIntro({ onNext }) {
 
                     <p className="job-submit">
                       <strong>to:</strong>{" "}
-                      <a href="mailto:employment@geolabs.net">employment@geolabs.net</a>
                     </p>
 
                     <p className="legal-text">
@@ -470,7 +392,6 @@ function StepIntro({ onNext }) {
                     </p>
 
                     <p className="job-submit">
-                      <a href="mailto:employment@geolabs.net">employment@geolabs.net</a>
                     </p>
 
                     <p className="legal-text">
