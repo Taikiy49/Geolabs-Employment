@@ -231,13 +231,21 @@ function App() {
     <div className="app-root">
       <header className="app-header">
         <div className="app-header-inner">
-          <div className="app-header-logo">
-            <img src="/geolabs.png" alt="Geolabs Logo" className="app-header-logo-img" />
-            <span className="logo-text">GEOLABS, INC.</span>
+          <div className="app-header-left">
+            <div className="app-header-logo">
+              {/* 🔁 Put your new yellow-background PNG in /public and set the filename here */}
+              <img
+                src="/geolabs-50th.png"
+                alt="Geolabs 50th Anniversary Logo"
+                className="app-header-logo-img app-header-logo-img-50th"
+              />
+            </div>
           </div>
 
           <div className="app-header-meta">
-            <span className="app-header-subtitle">Employment Application &amp; Required Notices</span>
+            <span className="app-header-subtitle">
+              Employment Application &amp; Required Notices
+            </span>
             <span className="app-header-tag">Secure · Confidential · Online</span>
           </div>
         </div>
