@@ -13,33 +13,21 @@ from services import (
     submit_application_payload,
 )
 
-# -------------------------------------------------------
-# App init
-# -------------------------------------------------------
 app = Flask(__name__)
 
 @app.before_request
 def log_request() -> None:
     print(f"➡ {request.method} {request.path}")
 
-# Load env + config once at startup
 CFG = load_env_and_config()
-
 app.secret_key = CFG["FLASK_SECRET_KEY"]
 
 CORS(
     app,
-    resources={
-        r"/api/*": {
-            "origins": CFG["CORS_ORIGINS"],
-        }
-    },
+    resources={r"/api/*": {"origins": CFG["CORS_ORIGINS"]}},
     supports_credentials=True,
 )
 
-# -------------------------------------------------------
-# Routes
-# -------------------------------------------------------
 @app.route("/api/health", methods=["GET"])
 def health() -> Any:
     return jsonify(
@@ -52,7 +40,6 @@ def health() -> Any:
             "smtp_ready": bool(CFG["SMTP_HOST"]),
         }
     )
-
 
 @app.route("/api/parse-resume", methods=["POST"])
 def parse_resume() -> Any:
@@ -77,8 +64,17 @@ def submit_application() -> Any:
     1) JSON body (legacy) - no resume attachment
     2) multipart/form-data:
        - field "payload" = JSON string
-       - file  "resume"  = original resume file
-    Emails a print-ready PDF + optional resume attachment.
+       - file  "resume"  = original resume file (.pdf/.doc/.docx/.txt)
+
+    Server will email **6 PDFs total**:
+      1) Main Application PDF (all non-EEO/disability/veteran/drug sections)
+      2) EEO PDF (voluntary)
+      3) Disability PDF (voluntary)
+      4) Veteran PDF (voluntary)
+      5) Alcohol & Drug Program PDF (agreement + signature/date + exact text shown)
+      6) Resume PDF (original if already PDF; otherwise converted to PDF)
+
+    No extra “10-key / typing speed” etc. are used anywhere (removed).
     """
     try:
         payload: Dict[str, Any] = {}
@@ -101,7 +97,6 @@ def submit_application() -> Any:
             if resume_file and resume_file.filename:
                 resume_bytes = resume_file.read()
                 resume_filename = resume_file.filename
-
         else:
             payload = request.get_json(force=True, silent=False) or {}
 
@@ -121,6 +116,8 @@ def submit_application() -> Any:
 
         return jsonify({"status": "ok"})
 
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
     except RuntimeError as e:
         print("❌ /api/submit-application runtime error:", repr(e))
         return jsonify({"error": str(e)}), 500

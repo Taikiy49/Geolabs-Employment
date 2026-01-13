@@ -1,7 +1,7 @@
 /* src/styles/StepReview.css */
 /* Uses App.css variables:
-   --accent, --accent-dark, --accent-soft, --accent-soft-2, --accent-border,
-   --border-subtle, --border-soft, --text-main, --text-muted, --header-bg,
+   --accent, --accent-dark, --accent-soft-2, --accent-border,
+   --border-subtle, --border-soft, --text-main, --text-muted,
    --success, --success-soft, --success-soft-2
 */
 
@@ -70,6 +70,13 @@
   background: #fffbeb;
   border-color: #fde68a;
   color: #92400e;
+}
+
+.review-warn-sub {
+  margin-top: 0.35rem;
+  font-size: 0.78rem;
+  color: #7c2d12;
+  opacity: 0.95;
 }
 
 /* Cards grid */
@@ -186,8 +193,6 @@
   background: #ffffff;
   padding: 0.95rem 1rem;
   box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
-
-  /* Makes spacing feel more even (optional but nice) */
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
@@ -232,10 +237,10 @@
   color: var(--accent-dark);
 }
 
-/* ✅ FIXED CONFIRM ROW (aligned checkbox + text) */
+/* Confirm row */
 .review-confirm {
   display: flex;
-  align-items: center; /* key */
+  align-items: center;
   gap: 0.65rem;
   padding: 0.75rem 0.85rem;
   border-radius: 0.85rem;
@@ -246,8 +251,8 @@
 .review-confirm input[type="checkbox"] {
   width: 18px;
   height: 18px;
-  margin: 0;          /* key */
-  flex: 0 0 18px;     /* key */
+  margin: 0;
+  flex: 0 0 18px;
   accent-color: var(--accent);
   cursor: pointer;
 }
@@ -259,12 +264,6 @@
   font-size: 0.88rem;
 }
 
-.review-confirm input[type="checkbox"]:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(184, 115, 51, 0.25);
-  border-radius: 4px;
-}
-
 .review-actions {
   display: flex;
   align-items: center;
@@ -272,7 +271,7 @@
   flex-wrap: wrap;
 }
 
-/* Buttons (match your .btn primary copper vibe) */
+/* Buttons */
 .review-btn {
   appearance: none;
   border-radius: 999px;
@@ -323,6 +322,16 @@
   border-color: transparent;
   color: #4b5563;
   text-decoration: underline;
+}
+
+.review-btn-danger {
+  background: #dc2626;
+  border-color: #991b1b;
+  color: #ffffff;
+}
+
+.review-btn-danger:hover:not(:disabled) {
+  background: #b91c1c;
 }
 
 .review-minihelp {
@@ -389,6 +398,31 @@
   display: flex;
   justify-content: flex-end;
   gap: 0.6rem;
+}
+
+/* Second warning inside modal */
+.review-modal-warnBox {
+  border: 1px solid #fde68a;
+  background: #fffbeb;
+  border-radius: 0.9rem;
+  padding: 0.75rem 0.85rem;
+  margin: 0 0 0.85rem;
+  color: #92400e;
+}
+
+.review-modal-warnTitle {
+  font-weight: 900;
+  margin-bottom: 0.25rem;
+}
+
+.review-modal-warnBody {
+  font-size: 0.88rem;
+  line-height: 1.35;
+}
+
+.review-modal-missing {
+  margin-top: 0.35rem;
+  font-weight: 800;
 }
 
 /* Responsive */
