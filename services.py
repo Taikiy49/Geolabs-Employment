@@ -479,6 +479,15 @@ def build_eeo_pdf(payload: Dict[str, Any]) -> bytes:
         "Confidential — Used for EEO-1 reporting only. Voluntary; will not affect employment opportunity.",
     )
 
+    # --- LEGAL TEXT FIRST (TOP) ---
+    story.append(Paragraph("Exact Text Shown to Applicant", styles["SectionH"]))
+    for p in _split_paragraphs(legal.get("eeoNotice") or ""):
+        story.append(Paragraph(p, styles["Legal"]))
+        story.append(Spacer(1, 6))
+
+    story.append(Spacer(1, 14))
+
+    # --- SIGNATURE / RESPONSES BELOW ---
     card = [
         Paragraph("Applicant Responses", styles["SectionH"]),
         _kv_block([
@@ -489,12 +498,14 @@ def build_eeo_pdf(payload: Dict[str, Any]) -> bytes:
         ], styles),
     ]
     story.append(_card_box(card))
-    story.append(Spacer(1, 12))
+    story.append(Spacer(1, 14))
 
-    story.append(Paragraph("Exact Text Shown to Applicant", styles["SectionH"]))
-    for p in _split_paragraphs(legal.get("eeoNotice") or ""):
-        story.append(Paragraph(p, styles["Legal"]))
-        story.append(Spacer(1, 6))
+    # --- FOOTER DISCLAIMER ---
+    story.append(Paragraph(
+        "This document reproduces the exact text presented to the applicant during the application process. "
+        "Content has not been altered, summarized, or paraphrased.",
+        styles["Fine"],
+    ))
 
     return _build_doc("EEO Voluntary Self-Identification", "", story)
 
@@ -510,6 +521,15 @@ def build_disability_pdf(payload: Dict[str, Any]) -> bytes:
         "Confidential — Federal reporting only. Voluntary; will not affect employment opportunity.",
     )
 
+    # Legal text (TOP)
+    story.append(Paragraph("Exact Text Shown to Applicant", styles["SectionH"]))
+    for p in _split_paragraphs(legal.get("disabilityNotice") or ""):
+        story.append(Paragraph(p, styles["Legal"]))
+        story.append(Spacer(1, 6))
+
+    story.append(Spacer(1, 14))
+
+    # Applicant responses / signature (BELOW)
     card = [
         Paragraph("Applicant Responses", styles["SectionH"]),
         _kv_block([
@@ -523,12 +543,14 @@ def build_disability_pdf(payload: Dict[str, Any]) -> bytes:
         Paragraph("Typed signature serves as electronic signature.", styles["Fine"]),
     ]
     story.append(_card_box(card))
-    story.append(Spacer(1, 12))
+    story.append(Spacer(1, 14))
 
-    story.append(Paragraph("Exact Text Shown to Applicant", styles["SectionH"]))
-    for p in _split_paragraphs(legal.get("disabilityNotice") or ""):
-        story.append(Paragraph(p, styles["Legal"]))
-        story.append(Spacer(1, 6))
+    # Footer disclaimer
+    story.append(Paragraph(
+        "This document reproduces the exact text presented to the applicant during the application process. "
+        "Content has not been altered, summarized, or paraphrased.",
+        styles["Fine"],
+    ))
 
     return _build_doc("Disability Self-Identification (CC-305)", "", story)
 
@@ -544,6 +566,15 @@ def build_veteran_pdf(payload: Dict[str, Any]) -> bytes:
         "Confidential — Affirmative action reporting only. Voluntary; will not affect employment opportunity.",
     )
 
+    # Legal text (TOP)
+    story.append(Paragraph("Exact Text Shown to Applicant", styles["SectionH"]))
+    for p in _split_paragraphs(legal.get("veteranNotice") or ""):
+        story.append(Paragraph(p, styles["Legal"]))
+        story.append(Spacer(1, 6))
+
+    story.append(Spacer(1, 14))
+
+    # Applicant responses / signature (BELOW)
     card = [
         Paragraph("Applicant Responses", styles["SectionH"]),
         _kv_block([
@@ -554,12 +585,14 @@ def build_veteran_pdf(payload: Dict[str, Any]) -> bytes:
         Paragraph("Typed signature serves as electronic signature.", styles["Fine"]),
     ]
     story.append(_card_box(card))
-    story.append(Spacer(1, 12))
+    story.append(Spacer(1, 14))
 
-    story.append(Paragraph("Exact Text Shown to Applicant", styles["SectionH"]))
-    for p in _split_paragraphs(legal.get("veteranNotice") or ""):
-        story.append(Paragraph(p, styles["Legal"]))
-        story.append(Spacer(1, 6))
+    # Footer disclaimer
+    story.append(Paragraph(
+        "This document reproduces the exact text presented to the applicant during the application process. "
+        "Content has not been altered, summarized, or paraphrased.",
+        styles["Fine"],
+    ))
 
     return _build_doc("Protected Veteran Self-Identification (VEVRAA)", "", story)
 
@@ -575,6 +608,18 @@ def build_alcohol_drug_pdf(payload: Dict[str, Any]) -> bytes:
         "Signed applicant agreement. Required for consideration for employment.",
     )
 
+    # Legal text (TOP)
+    story.append(Paragraph("Exact Text Shown to Applicant", styles["SectionH"]))
+    for p in _split_paragraphs(legal.get("alcoholDrugProgram") or ""):
+        if "ANY APPLICANT WHO IS UNWILLING" in p:
+            story.append(Paragraph(p, styles["Warning"]))
+        else:
+            story.append(Paragraph(p, styles["Legal"]))
+        story.append(Spacer(1, 6))
+
+    story.append(Spacer(1, 14))
+
+    # Applicant acknowledgment / signature (BELOW)
     card = [
         Paragraph("Applicant Attestation", styles["SectionH"]),
         _kv_block([
@@ -585,18 +630,17 @@ def build_alcohol_drug_pdf(payload: Dict[str, Any]) -> bytes:
         Paragraph("Typed signature serves as electronic signature.", styles["Fine"]),
     ]
     story.append(_card_box(card))
-    story.append(Spacer(1, 12))
+    story.append(Spacer(1, 14))
 
-    story.append(Paragraph("Exact Text Shown to Applicant", styles["SectionH"]))
-    for p in _split_paragraphs(legal.get("alcoholDrugProgram") or ""):
-        # highlight the all-caps warning a bit
-        if "ANY APPLICANT WHO IS UNWILLING" in p:
-            story.append(Paragraph(p, styles["Warning"]))
-        else:
-            story.append(Paragraph(p, styles["Legal"]))
-        story.append(Spacer(1, 6))
+    # Footer disclaimer
+    story.append(Paragraph(
+        "This document reproduces the exact text presented to the applicant during the application process. "
+        "Content has not been altered, summarized, or paraphrased.",
+        styles["Fine"],
+    ))
 
     return _build_doc("Alcohol & Drug Testing Program Agreement", "", story)
+
 
 def resume_to_pdf(resume_bytes: bytes, resume_filename: str) -> Tuple[bytes, str]:
     ext = get_extension(resume_filename)
