@@ -1,5 +1,5 @@
 /* =======================
-   GLOBAL RESET & BASE
+   BASE / THEME
    ======================= */
 
 *,
@@ -9,28 +9,26 @@
 }
 
 :root {
-  /* Brand / theme colors (copper + navy) */
-  --bg-page: #f3f4f6;
-  --text-main: #111827;
-  --text-muted: #6b7280;
-  --border-subtle: #e5e7eb;
-  --border-soft: #cbd5e1;
-  --header-bg: #0f172a;
-
-  /* Header sizing */
+  /* Layout */
   --header-h: 72px;
 
-  /* NEW: how much taller the logo is than the header (the "over the bar" look) */
-  --logo-overhang: 14px;
+  /* Brand */
+  --header-bg: #0f172a;
+  --bg-page: #fbf7ea;
 
-  /* Copper accent family */
+  --text-main: #111827;
+  --text-muted: #6b7280;
+
+  --border-subtle: #e5e7eb;
+  --border-soft: #cbd5e1;
+
   --accent: #b87333;
   --accent-dark: #945324;
   --accent-soft: #f6ece2;
   --accent-soft-2: #fdf7f1;
   --accent-border: #d1893b;
 
-  /* Success / utility */
+  /* Success */
   --success: #22c55e;
   --success-soft: #ecfdf5;
   --success-soft-2: #bbf7d0;
@@ -39,23 +37,25 @@
 html,
 body {
   margin: 0;
-  padding: 0;
   height: 100%;
   width: 100%;
   font-size: 80%;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-    sans-serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   -webkit-font-smoothing: antialiased;
-  background: var(--bg-page);
   color: var(--text-main);
   overflow-x: hidden;
+
+  /* Gold theme background */
+  background:
+    radial-gradient(1100px 520px at 18% 0%, #fff3cf 0%, rgba(255, 243, 207, 0) 60%),
+    radial-gradient(900px 460px at 86% 10%, #fffbe8 0%, rgba(255, 251, 232, 0) 62%),
+    var(--bg-page);
 }
 
 #root {
   min-height: 100vh;
 }
 
-/* Basic links */
 a {
   color: var(--accent);
   text-decoration: none;
@@ -74,116 +74,6 @@ a:hover {
   min-height: 100vh;
 }
 
-/* ---------- Header ---------- */
-
-.app-header {
-  width: 100%;
-  background: var(--header-bg);
-  border-bottom: 3px solid var(--accent);
-  color: #f9fafb;
-
-  /* fixed height for desktop */
-  height: var(--header-h);
-
-  /* IMPORTANT: allow the logo to visually overflow above/below the bar */
-  overflow: visible;
-}
-
-.app-header-inner {
-  width: 100%;
-  max-width: none;
-  margin: 0;
-
-  height: 100%;
-
-  /* glued to top-left: NO left padding, keep right padding */
-  padding: 0 1.25rem 0 0;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.9rem;
-
-  /* IMPORTANT: allow overhang to show */
-  overflow: visible;
-}
-
-.app-header-left {
-  display: flex;
-  align-items: center;
-  height: 100%;
-  min-width: 0;
-  overflow: visible;
-}
-
-.app-header-logo {
-  display: flex;
-  align-items: flex-start; /* keep it feeling "anchored" */
-  height: 100%;
-  min-width: 0;
-  overflow: visible;
-}
-
-/* Wrap stays at header height, image can overflow */
-.app-header-logo-wrap {
-  height: 100%;
-  display: flex;
-  align-items: flex-start;
-  overflow: visible;
-
-  /* glued: no inset */
-  margin: 0;
-  padding: 0;
-}
-
-.app-header-logo-img {
-  width: auto;
-  display: block;
-}
-
-/* ✅ Key: logo slightly taller than header, while header height stays fixed */
-.app-header-logo-img-50th {
-  height: calc(var(--header-h));
-  width: auto;
-  object-fit: contain;
-  display: block;
-
-  /* pull it up so it sits "over" the header */
-
-  /* optional polish */
-  filter: drop-shadow(0 12px 18px rgba(0, 0, 0, 0.18));
-}
-
-/* Right side meta */
-.app-header-meta {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0.2rem;
-
-  /* if you want it a touch more left, increase this */
-  margin-right: 0.5rem;
-}
-
-.app-header-subtitle {
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: #e5e7eb;
-}
-
-.app-header-tag {
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: #fdf2e9;
-  border-radius: 999px;
-  padding: 0.25rem 0.6rem;
-  border: 1px solid var(--accent);
-  background: rgba(184, 115, 51, 0.08);
-}
-
-/* ---------- Main ---------- */
-
 .app-main {
   flex: 1;
   display: flex;
@@ -195,34 +85,124 @@ a:hover {
 
 .wizard-shell {
   width: 100%;
-  max-width: none;
   margin: 0;
-  border-radius: 0;
+  padding: 1rem;
   display: flex;
   flex-direction: column;
   min-height: 100%;
+
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(203, 213, 225, 0.7);
+  box-shadow: 0 18px 44px rgba(15, 23, 42, 0.08);
 }
 
-/* ---------- Footer ---------- */
-
 .app-footer {
-  padding: 0.5rem 0.5rem 0.5rem;
+  padding: 0.5rem;
   text-align: center;
   font-size: 0.8rem;
   color: var(--text-muted);
   border-top: 1px solid var(--border-subtle);
-  background: #f9fafb;
+  background: rgba(255, 255, 255, 0.7);
 }
 
-/* =======================
-   WIZARD / STEPPER
-   ======================= */
-
+/* Optional: if any component uses this */
 .wizard-form {
   display: flex;
   flex-direction: column;
   gap: 1rem;
 }
+
+/* =======================
+   HEADER (LOGO SWAP)
+   ======================= */
+
+.app-header {
+  width: 100%;
+  height: var(--header-h);
+  color: #f9fafb;
+  background: linear-gradient(180deg, #0f172a 0%, #0b1224 100%);
+  border-bottom: 3px solid var(--accent);
+}
+
+.app-header-inner {
+  height: 100%;
+  padding: 0 1.25rem 0 0; /* glued left (no left padding), keep right padding */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  gap: 0.9rem;
+}
+
+.app-header-left {
+  flex: 0 0 auto;
+  min-width: 0;
+  margin-left: 0.5rem;
+}
+
+/* Logo wrapper */
+.app-header-logo-wrap {
+  height: 100%;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+/* Full logo (desktop/tablet default) */
+.logo-full {
+  height: 50px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.22));
+}
+
+/* G-only logo (hidden until small screens) */
+.logo-g {
+  height: 40px;
+  width: auto;
+  object-fit: contain;
+  display: none;
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.22));
+}
+
+/* Right side meta */
+.app-header-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.2rem;
+  margin-right: 0.5rem;
+
+  /* ✅ important guards against flex weirdness */
+  min-width: 0;
+}
+
+.app-header-subtitle {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: rgba(229, 231, 235, 0.92);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 62vw; /* prevents it from pushing the logo */
+}
+
+.app-header-tag {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #fdf2e9;
+  border-radius: 999px;
+  padding: 0.25rem 0.6rem;
+  border: 1px solid rgba(184, 115, 51, 0.9);
+  background: rgba(184, 115, 51, 0.12);
+  white-space: nowrap;
+}
+
+/* =======================
+   STEPPER
+   ======================= */
 
 .stepper {
   display: flex;
@@ -231,7 +211,6 @@ a:hover {
   margin-bottom: 0.4rem;
 }
 
-/* NEW: branch row layout with pinned review */
 .stepper-branches-row {
   display: flex;
   align-items: center;
@@ -239,7 +218,6 @@ a:hover {
   gap: 0.6rem;
 }
 
-/* Branch pills row */
 .stepper-branches {
   display: flex;
   flex-wrap: wrap;
@@ -259,8 +237,7 @@ a:hover {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease,
-    box-shadow 0.15s ease;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .stepper-branch-pill::before {
@@ -275,16 +252,13 @@ a:hover {
   color: #ffffff;
   box-shadow: 0 0 0 1px var(--accent-soft);
 }
-
 .stepper-branch-pill.active::before {
   color: #ffffff;
 }
-
 .stepper-branch-pill:hover:not(.active) {
   background: #e5e7eb;
 }
 
-/* Pinned Review & Submit button */
 .stepper-review-pill {
   flex-shrink: 0;
   border-radius: 999px;
@@ -296,17 +270,14 @@ a:hover {
   cursor: pointer;
   transition: background 0.15s ease, transform 0.12s ease, box-shadow 0.15s ease;
 }
-
 .stepper-review-pill:hover {
   background: var(--accent-dark);
   transform: translateY(-1px);
 }
-
 .stepper-review-pill.active {
   box-shadow: 0 0 0 2px rgba(184, 115, 51, 0.25);
 }
 
-/* Steps row */
 .stepper-steps {
   display: flex;
   flex-wrap: wrap;
@@ -327,18 +298,14 @@ a:hover {
   cursor: pointer;
   transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
-
 .stepper-item:hover:not(.active):not(.completed) {
   background: #eef2f7;
 }
-
-/* Active / completed states */
 .stepper-item.active {
   border-color: var(--accent);
   background: var(--accent-soft-2);
   color: var(--accent-dark);
 }
-
 .stepper-item.completed {
   border-color: var(--success);
   background: var(--success-soft);
@@ -357,12 +324,10 @@ a:hover {
   color: var(--header-bg);
   background: #ffffff;
 }
-
 .stepper-item.completed .stepper-circle {
   border-color: var(--success);
   background: var(--success-soft-2);
 }
-
 .stepper-item.active .stepper-circle {
   border-color: var(--accent);
   background: var(--accent-soft);
@@ -372,7 +337,6 @@ a:hover {
   white-space: nowrap;
 }
 
-/* Decorative bar under chips */
 .stepper-progress {
   margin-top: 0.35rem;
   height: 3px;
@@ -392,8 +356,6 @@ a:hover {
 
 .step-shell {
   width: 100%;
-  max-width: none;
-  border-radius: 0;
   border: none;
   display: flex;
   flex-direction: column;
@@ -419,7 +381,6 @@ a:hover {
   font-size: 1.15rem;
   font-weight: 800;
   letter-spacing: 0.01em;
-  color: var(--text-main);
 }
 
 .step-subtitle {
@@ -442,37 +403,6 @@ a:hover {
   overflow-y: auto;
 }
 
-/* Slide animations */
-.animate-slide-forward {
-  animation: slideForward 0.18s ease-out;
-}
-
-.animate-slide-back {
-  animation: slideBack 0.18s ease-out;
-}
-
-@keyframes slideForward {
-  from {
-    opacity: 0;
-    transform: translateX(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes slideBack {
-  from {
-    opacity: 0;
-    transform: translateX(-8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
 .step-shell-footer {
   margin-top: 0.2rem;
   padding-top: 0.75rem;
@@ -490,9 +420,24 @@ a:hover {
   gap: 0.6rem;
 }
 
-/* Hide footer nav when intro sets hideFooterNav */
 .step-shell-footer.hidden {
   display: none;
+}
+
+/* Slide animations */
+.animate-slide-forward {
+  animation: slideForward 0.18s ease-out;
+}
+.animate-slide-back {
+  animation: slideBack 0.18s ease-out;
+}
+@keyframes slideForward {
+  from { opacity: 0; transform: translateX(8px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes slideBack {
+  from { opacity: 0; transform: translateX(-8px); }
+  to { opacity: 1; transform: translateX(0); }
 }
 
 /* =======================
@@ -511,7 +456,6 @@ a:hover {
   white-space: nowrap;
 }
 
-/* Primary (copper) */
 .btn.primary {
   background: var(--accent);
   border-color: var(--accent-dark);
@@ -521,7 +465,6 @@ a:hover {
   background: var(--accent-dark);
 }
 
-/* Outline */
 .btn.outline {
   background: #ffffff;
   border-color: var(--border-soft);
@@ -531,7 +474,6 @@ a:hover {
   border-color: #9ca3af;
 }
 
-/* Ghost */
 .btn.ghost {
   background: transparent;
   border-color: transparent;
@@ -542,20 +484,20 @@ a:hover {
   border-color: var(--border-subtle);
 }
 
-/* Small button */
 .btn.small {
   padding: 0.25rem 0.7rem;
   font-size: 0.78rem;
 }
 
 /* =======================
-   FORM ROOT & CONTROLS
+   FORMS
    ======================= */
 
-.form-root {
+.form-root,
+.form-step {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.85rem;
 }
 
 .form-controls {
@@ -565,24 +507,12 @@ a:hover {
   align-items: center;
   margin-bottom: 0.6rem;
 }
-
 .form-controls.bottom {
   margin-top: 0.8rem;
 }
-
 .form-controls-note {
   font-size: 0.78rem;
   color: var(--text-muted);
-}
-
-/* =======================
-   FORM SECTIONS
-   ======================= */
-
-.form-step {
-  display: flex;
-  flex-direction: column;
-  gap: 0.85rem;
 }
 
 .form-section {
@@ -591,20 +521,16 @@ a:hover {
   padding: 0.9rem 1rem;
   background: #ffffff;
 }
-
 .form-section h2 {
   margin: 0 0 0.55rem;
   font-size: 1rem;
   font-weight: 600;
-  color: var(--text-main);
 }
-
 .section-help {
   margin: 0 0 0.6rem;
   font-size: 0.8rem;
   color: var(--text-muted);
 }
-
 .legal-text {
   margin: 0 0 0.5rem;
   font-size: 0.8rem;
@@ -612,38 +538,20 @@ a:hover {
   color: #374151;
 }
 
-/* =======================
-   FIELD LAYOUT
-   ======================= */
-
-.grid {
-  display: grid;
-  gap: 0.6rem;
-}
-
-.grid-2 {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.grid-3 {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-.grid-4 {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-}
+.grid { display: grid; gap: 0.6rem; }
+.grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 
 .field {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
 }
-
 .field label {
   font-size: 0.82rem;
   color: #4b5563;
 }
-
 .field input,
 .field select,
 .field textarea {
@@ -654,12 +562,10 @@ a:hover {
   color: var(--text-main);
   background: #ffffff;
 }
-
 .field textarea {
   min-height: 70px;
   resize: vertical;
 }
-
 .field input:focus,
 .field select:focus,
 .field textarea:focus {
@@ -668,7 +574,6 @@ a:hover {
   box-shadow: 0 0 0 1px var(--accent-soft);
 }
 
-/* Checkbox row */
 .checkbox-field {
   display: flex;
   align-items: center;
@@ -676,14 +581,12 @@ a:hover {
   font-size: 0.8rem;
   color: #4b5563;
 }
-
 .checkbox-field input[type="checkbox"],
 .checkbox-field input[type="radio"] {
   width: 14px;
   height: 14px;
 }
 
-/* Utility muted text */
 .text-muted {
   font-size: 0.78rem;
   color: var(--text-muted);
@@ -694,115 +597,50 @@ a:hover {
    ======================= */
 
 @media (max-width: 900px) {
-  .app-header {
-    height: auto;
-    padding-bottom: 0.4rem;
-  }
+  .wizard-shell { padding: 1rem; }
+  .grid-4, .grid-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
+  .app-header { height: auto; }
   .app-header-inner {
     flex-direction: column;
     align-items: flex-start;
     height: auto;
     padding: 0.7rem 1rem;
   }
-
   .app-header-meta {
     align-items: flex-start;
     margin-right: 0;
   }
-
-  .wizard-shell {
-    padding: 1rem;
+  .app-header-subtitle {
+    max-width: 100%;
+    white-space: normal;
   }
+}
 
-  .grid-4,
-  .grid-3 {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  /* logo is still a bit bigger than the bar, but not insane on medium screens */
-  .app-header-logo-img-50th {
-    height: 72px;
-    margin-top: -6px;
-  }
+/* ✅ logo swap: only use G on small screens */
+@media (max-width: 520px) {
+  .logo-full { display: none; }
+  .logo-g { display: block; }
 }
 
 @media (max-width: 640px) {
-  .app-main {
-    padding-inline: 0.4rem;
-  }
+  .app-main { padding-inline: 0.4rem; }
+  .wizard-shell { padding: 0.85rem; }
+  .step-shell-header { flex-direction: column; align-items: flex-start; }
+  .stepper-label { white-space: normal; }
 
-  .wizard-shell {
-    padding: 0.85rem;
-    border-radius: 0.6rem;
-  }
+  .grid-4, .grid-3, .grid-2 { grid-template-columns: 1fr; }
 
-  .step-shell-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .stepper-label {
-    white-space: normal;
-  }
-
-  .grid-4,
-  .grid-3,
-  .grid-2 {
-    grid-template-columns: 1fr;
-  }
-
-  .stepper-branches-row {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .stepper-review-pill {
-    align-self: flex-start;
-  }
-
-  /* ✅ small screen: logo takes over nicely */
-  .app-header {
-    height: auto;
-  }
-
-  .app-header-inner {
-    padding: 0;
-    gap: 0.5rem;
-  }
-
-  .app-header-left,
-  .app-header-logo,
-  .app-header-logo-wrap {
-    width: 100%;
-  }
-
-  .app-header-logo-wrap {
-    display: block;
-  }
-
-  .app-header-logo-img-50th {
-    width: 100%;
-    height: auto;
-    margin-top: 0;
-    filter: none; /* optional: cleaner on mobile */
-  }
-
-  .app-header-meta {
-    padding: 0 1rem 0.8rem;
-    align-items: flex-start;
-  }
+  .stepper-branches-row { flex-direction: column; align-items: flex-start; }
+  .stepper-review-pill { align-self: flex-start; }
 }
 
 /* =======================
-   PRINT (for Print / Save as PDF)
+   PRINT
    ======================= */
 
 @media print {
-  html,
-  body {
-    background: #ffffff !important;
-  }
+  html, body { background: #ffffff !important; }
 
   .app-header,
   .app-footer,
@@ -812,14 +650,11 @@ a:hover {
     display: none !important;
   }
 
-  .app-main {
-    padding: 0;
-  }
+  .app-main { padding: 0; }
 
   .wizard-shell,
   .step-shell {
     max-width: 100%;
-    border-radius: 0;
     border: none;
     box-shadow: none;
     padding: 0;
@@ -829,52 +664,4 @@ a:hover {
     border: 1px solid #000000;
     page-break-inside: avoid;
   }
-}
-
-/* ==========================================================
-   PROFESSIONAL GOLD THEME OVERRIDES
-   ========================================================== */
-
-:root {
-  --bg-page: #fbf7ea;
-}
-
-html,
-body {
-  background: radial-gradient(
-      1100px 520px at 18% 0%,
-      #fff3cf 0%,
-      rgba(255, 243, 207, 0) 60%
-    ),
-    radial-gradient(
-      900px 460px at 86% 10%,
-      #fffbe8 0%,
-      rgba(255, 251, 232, 0) 62%
-    ),
-    var(--bg-page);
-}
-
-.wizard-shell {
-  padding: 1rem;
-  background: rgba(255, 255, 255, 0.72);
-  border: 1px solid rgba(203, 213, 225, 0.7);
-  box-shadow: 0 18px 44px rgba(15, 23, 42, 0.08);
-}
-
-.app-header {
-  background: linear-gradient(180deg, #0f172a 0%, #0b1224 100%);
-  border-bottom: 3px solid var(--accent);
-}
-
-.app-header-subtitle {
-  color: rgba(229, 231, 235, 0.92);
-}
-
-.app-header-tag {
-  background: rgba(184, 115, 51, 0.12);
-  border-color: rgba(184, 115, 51, 0.9);
-}
-
-.app-footer {
-  background: rgba(255, 255, 255, 0.7);
 }

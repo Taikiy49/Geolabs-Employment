@@ -22,6 +22,10 @@ import StepVeteran from "./components/steps/StepVeteran.jsx";
 import StepAgreement from "./components/steps/StepAgreement.jsx";
 import StepReview from "./components/steps/StepReview.jsx";
 
+/* -----------------------
+   INITIAL FORM STATE
+----------------------- */
+
 const emptyEmployment = {
   company: "",
   phone: "",
@@ -128,33 +132,13 @@ const branches = [
   { label: "Review & Submit", from: 15, to: 15 },
 ];
 
-function App() {
+export default function App() {
   const [form, setForm] = useState(initialFormState);
   const [stepIndex, setStepIndex] = useState(0);
   const [direction, setDirection] = useState("forward");
-  const [resumeFile, setResumeFile] = useState(null);
 
   const updateField = (field, value) =>
     setForm((prev) => ({ ...prev, [field]: value }));
-
-  const updateEmploymentField = (index, field, value) => {
-    setForm((prev) => {
-      const employment = [...(prev.employment || [])];
-      employment[index] = { ...(employment[index] || {}), [field]: value };
-      return { ...prev, employment };
-    });
-  };
-
-  const updateReferenceField = (index, field, value) => {
-    setForm((prev) => {
-      const references = [...(prev.references || [])];
-      references[index] = { ...(references[index] || {}), [field]: value };
-      return { ...prev, references };
-    });
-  };
-
-  const applyParsedResume = (partial) =>
-    setForm((prev) => ({ ...prev, ...partial }));
 
   const goNext = () => {
     setDirection("forward");
@@ -166,8 +150,6 @@ function App() {
     setStepIndex((i) => Math.max(i - 1, 0));
   };
 
-  const handlePrint = () => window.print();
-
   const CurrentStep = steps[stepIndex].Component;
   const isIntro = stepIndex === 0;
 
@@ -175,25 +157,22 @@ function App() {
     <div className="app-root">
       <header className="app-header">
         <div className="app-header-inner">
+          {/* LOGO */}
           <div className="app-header-left">
-            <div className="app-header-logo">
-              {/* Put your PNG in /public (example name below) */}
-              <div className="app-header-logo-wrap">
-                <img
-                  src="/geolabs-50th.png"
-                  alt="Geolabs 50th Anniversary Logo"
-                  className="app-header-logo-img app-header-logo-img-50th"
-                  draggable="false"
-                />
-              </div>
+            <div className="logo-wrap">
+              <img src="/geolabs-full.png" alt="Geolabs, Inc." className="logo-full" />
+              <img src="/geolabs-g.png" alt="Geolabs" className="logo-g" />
             </div>
           </div>
 
+          {/* META */}
           <div className="app-header-meta">
             <span className="app-header-subtitle">
               Employment Application &amp; Required Notices
             </span>
-            <span className="app-header-tag">Secure · Confidential · Online</span>
+            <span className="app-header-tag">
+              Secure · Confidential · Online
+            </span>
           </div>
         </div>
       </header>
@@ -204,7 +183,7 @@ function App() {
             steps={steps}
             branches={branches}
             activeIndex={stepIndex}
-            onStepClick={(index) => setStepIndex(index)}
+            onStepClick={(i) => setStepIndex(i)}
           />
 
           <StepShell
@@ -213,22 +192,11 @@ function App() {
             totalSteps={steps.length}
             onNext={goNext}
             onBack={goBack}
-            onPrint={handlePrint}
-            isLastStep={stepIndex === steps.length - 1}
             direction={direction}
             hideFooterNav={isIntro}
             nextLabel={isIntro ? "Apply Now" : "Next"}
           >
-            <CurrentStep
-              form={form}
-              updateField={updateField}
-              updateEmploymentField={updateEmploymentField}
-              updateReferenceField={updateReferenceField}
-              onNext={isIntro ? goNext : undefined}
-              onApplyParsedResume={applyParsedResume}
-              resumeFile={resumeFile}
-              onResumeFileSelected={setResumeFile}
-            />
+            <CurrentStep form={form} updateField={updateField} />
           </StepShell>
         </div>
       </main>
@@ -239,5 +207,3 @@ function App() {
     </div>
   );
 }
-
-export default App;
